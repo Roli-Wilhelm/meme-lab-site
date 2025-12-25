@@ -345,11 +345,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
 
   // Remote content (Sheets via Apps Script)
-  const [members, setMembers] = useState(FALLBACK_MEMBERS);
-  const [quotes, setQuotes] = useState(FALLBACK_QUOTES);
-  const [quizBank, setQuizBank] = useState(FALLBACK_QUIZ);
-  const [announcements, setAnnouncements] = useState(FALLBACK_ANNOUNCEMENTS);
-  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
+  const [members, setMembers] = useState(null);
+  const [quotes, setQuotes] = useState(null);
+  const [quizBank, setQuizBank] = useState(null);
+  const [announcements, setAnnouncements] = useState(null);
+  const [projects, setProjects] = useState(null);
+
 
   // Members UI
   const [memberSearch, setMemberSearch] = useState("");
@@ -361,33 +362,47 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   useEffect(() => {
     (async () => {
-      try {
-        const [m, q, qb, p, a] = await Promise.allSettled([
-          fetchView("roster"),
-          fetchView("quotes"),
-          fetchView("quiz"),
-          fetchView("projects"),
-          fetchView("announcements"),
-        ]);
+      const [m, q, qb, p, a] = await Promise.allSettled([
+        fetchView("roster"),
+        fetchView("quotes"),
+        fetchView("quiz"),
+        fetchView("projects"),
+        fetchView("announcements"),
+      ]);
 
-        if (m.status === "fulfilled" && Array.isArray(m.value)) {
-          setMembers(m.value.filter((x) => x?.publish !== false));
-        }
-        if (q.status === "fulfilled" && Array.isArray(q.value)) {
-          setQuotes(q.value.filter((x) => x?.publish !== false));
-        }
-        if (qb.status === "fulfilled" && Array.isArray(qb.value)) {
-          setQuizBank(qb.value.filter((x) => x?.publish !== false));
-        }
-        if (p.status === "fulfilled" && Array.isArray(p.value)) {
-          setProjects(p.value.filter((x) => x?.publish !== false));
-        }
-        if (a.status === "fulfilled" && Array.isArray(a.value)) {
-          setAnnouncements(a.value.filter((x) => x?.publish !== false));
-        }
-      } catch (e) {
-        // Keep fallbacks silently
-        console.warn("Failed to load remote data; using fallbacks.", e);
+      // Roster
+      if (m.status === "fulfilled" && Array.isArray(m.value)) {
+        setMembers(m.value.filter((x) => x?.publish !== false));
+      } else {
+        setMembers(FALLBACK_MEMBERS);
+      }
+
+      // Quotes
+      if (q.status === "fulfilled" && Array.isArray(q.value)) {
+        setQuotes(q.value.filter((x) => x?.publish !== false));
+      } else {
+        setQuotes(FALLBACK_QUOTES);
+      }
+
+      // Quiz
+      if (qb.status === "fulfilled" && Array.isArray(qb.value)) {
+        setQuizBank(qb.value.filter((x) => x?.publish !== false));
+      } else {
+        setQuizBank(FALLBACK_QUIZ);
+      }
+
+      // Projects
+      if (p.status === "fulfilled" && Array.isArray(p.value)) {
+        setProjects(p.value.filter((x) => x?.publish !== false));
+      } else {
+        setProjects(FALLBACK_PROJECTS);
+      }
+
+      // Announcements
+      if (a.status === "fulfilled" && Array.isArray(a.value)) {
+        setAnnouncements(a.value.filter((x) => x?.publish !== false));
+      } else {
+        setAnnouncements(FALLBACK_ANNOUNCEMENTS);
       }
     })();
   }, []);
@@ -821,7 +836,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     return (
                       <div
                         key={m.id || m.name}
-                        className="group rounded-2xl border bg-white/60 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                        className="rounded-2xl border bg-white/60 p-4 shadow-sm"
                       >
                         <div className="grid grid-cols-3 gap-4 items-start">
                           {/* Photo (≈ 1/3 width) */}
@@ -833,9 +848,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <div className="col-span-2 min-w-0">
                             <div className="flex items-center gap-2">
                               <div className="truncate text-lg font-semibold leading-6">{m.name}</div>
-                              {primaryLink && (
-                                <ExternalLink className="h-4 w-4 opacity-60 transition group-hover:opacity-100" />
-                              )}
                             </div>
 
                             <div className="mt-1 text-sm text-muted-foreground">
