@@ -809,7 +809,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {filteredMembers.map((m) => {
-                    const primaryLink = m?.links?.website || m?.links?.scholar || m?.links?.github || "";
+                    const primaryLink =
+                      m?.links?.website || m?.links?.scholar || m?.links?.github || "";
+
+                    const programYear = [m?.program, m?.year].filter(Boolean).join(" • ");
+
                     return (
                       <a
                         key={m.id || m.name}
@@ -823,6 +827,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       >
                         <div className="flex items-start gap-3">
                           <Avatar name={m.name} photoUrl={m.photoUrl} />
+
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <div className="truncate text-sm font-semibold">{m.name}</div>
@@ -830,8 +835,34 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 <ExternalLink className="h-4 w-4 opacity-60 transition group-hover:opacity-100" />
                               )}
                             </div>
-                            <div className="mt-1 text-xs text-muted-foreground">{m.role}</div>
-                            <div className="mt-2 text-sm text-muted-foreground">{m.focus}</div>
+
+                            {/* role + program/year */}
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {m.role}
+                              {programYear ? <span className="ml-2">• {programYear}</span> : null}
+                            </div>
+
+                            {/* focus/bio */}
+                            {(m.focus || m.bio) && (
+                              <div className="mt-2 text-sm text-muted-foreground">
+                                {m.focus || m.bio}
+                              </div>
+                            )}
+
+                            {/* email */}
+                            {m.email && (
+                              <div className="mt-2 text-xs">
+                                <a
+                                  href={`mailto:${m.email}`}
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Email
+                                </a>
+                              </div>
+                            )}
+
+                            {/* links */}
                             {m?.links && (
                               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                                 {m.links.website && (
@@ -853,7 +884,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                     className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    Website
+                                    Scholar
                                   </a>
                                 )}
                                 {m.links.github && (
@@ -864,9 +895,20 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                     className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    Website
+                                    GitHub
                                   </a>
                                 )}
+                              </div>
+                            )}
+
+                            {/* keywords */}
+                            {Array.isArray(m.keywords) && m.keywords.length > 0 && (
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {m.keywords.slice(0, 8).map((k) => (
+                                  <Badge key={k} variant="secondary" className="rounded-full">
+                                    {k}
+                                  </Badge>
+                                ))}
                               </div>
                             )}
                           </div>
@@ -874,6 +916,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </a>
                     );
                   })}
+
                 </div>
 
                 <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
