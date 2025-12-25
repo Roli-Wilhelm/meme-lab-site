@@ -318,20 +318,24 @@ const FALLBACK_PROJECTS = [
  * - Generate stable public URLs of the form: https://drive.google.com/uc?id=FILE_ID
  * - Avoid direct Google Form upload links in the public site.
  */
-function Avatar({ name, photoUrl }) {
+function Avatar({ name, photoUrl, className = "" }) {
   const initial = (name || "?").trim().slice(0, 1).toUpperCase();
+  const base =
+    `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
+
   if (photoUrl) {
     return (
       <img
         src={photoUrl}
         alt={`${name} headshot`}
-        className="h-12 w-12 rounded-2xl border bg-white object-cover"
+        className={base}
         loading="lazy"
       />
     );
   }
+
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border bg-white text-sm font-semibold">
+    <div className={`flex items-center justify-center ${base} text-xl font-semibold`}>
       {initial}
     </div>
   );
@@ -783,7 +787,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Lab member directory</CardTitle>
+                <CardTitle className="text-xl">Member Directory</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -825,83 +829,33 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           if (!primaryLink) e.preventDefault();
                         }}
                       >
-                        <div className="flex items-start gap-3">
-                          <Avatar name={m.name} photoUrl={m.photoUrl} />
+                        <div className="grid grid-cols-3 gap-4 items-start">
+                          {/* Photo (≈ 1/3 width) */}
+                          <div className="col-span-1">
+                            <Avatar name={m.name} photoUrl={m.photoUrl} className="min-h-[140px]" />
+                          </div>
 
-                          <div className="min-w-0 flex-1">
+                          {/* Text (≈ 2/3 width) */}
+                          <div className="col-span-2 min-w-0">
                             <div className="flex items-center gap-2">
-                              <div className="truncate text-sm font-semibold">{m.name}</div>
+                              <div className="truncate text-lg font-semibold leading-6">{m.name}</div>
                               {primaryLink && (
                                 <ExternalLink className="h-4 w-4 opacity-60 transition group-hover:opacity-100" />
                               )}
                             </div>
 
-                            {/* role + program/year */}
-                            <div className="mt-1 text-xs text-muted-foreground">
+                            <div className="mt-1 text-sm text-muted-foreground">
                               {m.role}
                               {programYear ? <span className="ml-2">• {programYear}</span> : null}
                             </div>
 
-                            {/* focus/bio */}
                             {(m.focus || m.bio) && (
-                              <div className="mt-2 text-sm text-muted-foreground">
+                              <div className="mt-3 text-sm leading-6 text-muted-foreground">
                                 {m.focus || m.bio}
                               </div>
                             )}
 
-                            {/* email */}
-                            {m.email && (
-                              <div className="mt-2 text-xs">
-                                <a
-                                  href={`mailto:${m.email}`}
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Email
-                                </a>
-                              </div>
-                            )}
-
-                            {/* links */}
-                            {m?.links && (
-                              <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                                {m.links.website && (
-                                  <a
-                                    href={m.links.website}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    Website
-                                  </a>
-                                )}
-                                {m.links.scholar && (
-                                  <a
-                                    href={m.links.scholar}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    Scholar
-                                  </a>
-                                )}
-                                {m.links.github && (
-                                  <a
-                                    href={m.links.github}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    GitHub
-                                  </a>
-                                )}
-                              </div>
-                            )}
-
-                            {/* keywords */}
+                            {/* Keywords immediately after bio */}
                             {Array.isArray(m.keywords) && m.keywords.length > 0 && (
                               <div className="mt-3 flex flex-wrap gap-2">
                                 {m.keywords.slice(0, 8).map((k) => (
@@ -911,6 +865,53 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 ))}
                               </div>
                             )}
+
+                            {/* Email + Website/Scholar/GitHub on one row */}
+                            <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                              {m.email && (
+                                <a
+                                  href={`mailto:${m.email}`}
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Email
+                                </a>
+                              )}
+
+                              {m?.links?.website && (
+                                <a
+                                  href={m.links.website}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Website
+                                </a>
+                              )}
+                              {m?.links?.scholar && (
+                                <a
+                                  href={m.links.scholar}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Scholar
+                                </a>
+                              )}
+                              {m?.links?.github && (
+                                <a
+                                  href={m.links.github}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  GitHub
+                                </a>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </a>
