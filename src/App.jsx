@@ -620,7 +620,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </p>
                 </div>
                 <div className="rounded-2xl border bg-white/60 p-4 md:col-span-2">
-                  <div className="text-sm font-semibold">Pinned announcements (from Google Sheet)</div>
+                  <div className="text-sm font-semibold">Announcements</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => (
                       <li key={`${a.title || "a"}-${idx}`}>
@@ -797,7 +797,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Source of truth: Google Form → Google Sheet → JSON endpoint. Only publish-approved profiles appear here.
+                   Meet the current and past members of the MEME Lab.
                   </div>
                   <div className="flex w-full gap-2 md:w-auto">
                     <Input
@@ -862,8 +862,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </div>
 
                 <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                  Governance recommendation: students submit updates via the Form; a lab admin toggles publish=true and writes a stable
-                  Drive-backed photo URL (e.g., https://drive.google.com/uc?id=FILE_ID) into the roster.
+                  All opportunities to join the team will be posted in the Announcements section on the Home page.
                 </div>
               </CardContent>
             </Card>
@@ -1000,7 +999,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <CardTitle className="text-xl">Quotes (from Google Sheet)</CardTitle>
+                  <CardTitle className="text-xl">Quotes</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {(quotes || []).map((q, idx) => (
@@ -1016,15 +1015,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </div>
                     </div>
                   ))}
-                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                    Implementation: store quotes in a Google Sheet and expose a JSON endpoint that only returns publish=true rows.
-                  </div>
                 </CardContent>
               </Card>
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <CardTitle className="text-xl">Micro-quiz (randomized from a bank)</CardTitle>
+                  <CardTitle className="text-xl">Micro-quiz</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="rounded-2xl border bg-white/60 p-4">
@@ -1078,10 +1074,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         </div>
                       </>
                     )}
-                  </div>
-
-                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                    Implementation: keep the quiz bank in a Google Sheet; expose it as JSON (Apps Script). The UI shuffles once to avoid repeats.
                   </div>
                 </CardContent>
               </Card>
