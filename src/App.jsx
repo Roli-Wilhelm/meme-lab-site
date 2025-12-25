@@ -45,7 +45,7 @@ const PLACEHOLDER = {
   // Lab identity
   labName: "Managed Ecosystem Microbial Ecology Lab",
   shortName: "MEME Lab",
-  labEmail: "memelab@purdue.edu",
+  labEmail: "rcwilhelm@purdue.edu",
   dept: "Department of Agronomy, Purdue University",
   location: "West Lafayette, Indiana",
 
@@ -54,7 +54,7 @@ const PLACEHOLDER = {
 
   // Public-facing links
   calendarLink: "https://calendly.com/REPLACE_ME",
-  publications: "https://www.zotero.org/groups/REPLACE_ME/library",
+  publications: "https://www.zotero.org/groups/meme-lab-website/library",
   photoGallery: "https://photos.app.goo.gl/REPLACE_ME",
   dataRepo: "https://osf.io/REPLACE_ME/",
   notebooks: "https://notion.so/REPLACE_ME",
@@ -232,16 +232,7 @@ const FALLBACK_MEMBERS = [
     role: "PI / Lab Lead",
     focus: "Microbiome ecology, data standards, stable isotope probing",
     photoUrl: "",
-    links: { website: "https://REPLACE_ME" },
-    publish: true,
-  },
-  {
-    id: "raven-lewis",
-    name: "Raven Lewis",
-    role: "PhD Student",
-    focus: "Rhizosphere nutrient cycling and microbial interactions",
-    photoUrl: "",
-    links: { website: "https://REPLACE_ME" },
+    links: { website: "https://ag.purdue.edu/directory/rcwilhel" },
     publish: true,
   },
 ];
@@ -792,7 +783,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Lab members</CardTitle>
+                <CardTitle className="text-xl">Lab member directory</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -844,13 +835,37 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             {m?.links && (
                               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                                 {m.links.website && (
-                                  <span className="rounded-full border bg-white/70 px-2 py-1">Website</span>
+                                  <a
+                                    href={m.links.website}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    Website
+                                  </a>
                                 )}
                                 {m.links.scholar && (
-                                  <span className="rounded-full border bg-white/70 px-2 py-1">Scholar</span>
+                                  <a
+                                    href={m.links.scholar}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    Website
+                                  </a>
                                 )}
                                 {m.links.github && (
-                                  <span className="rounded-full border bg-white/70 px-2 py-1">GitHub</span>
+                                  <a
+                                    href={m.links.github}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-full border bg-white/70 px-2 py-1 hover:bg-white"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    Website
+                                  </a>
                                 )}
                               </div>
                             )}
