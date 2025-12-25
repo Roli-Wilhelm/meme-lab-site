@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { fetchView } from "@/lib/google";
 import {
   ExternalLink,
   Mail,
@@ -364,21 +365,35 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [quizPick, setQuizPick] = useState(null);
 
   useEffect(() => {
-    // Load content endpoints (if configured); otherwise keep fallbacks.
     (async () => {
-      const [m, q, qb, p, a] = await Promise.all([
-        safeFetchJson(PLACEHOLDER.rosterJsonUrl),
-        safeFetchJson(PLACEHOLDER.quotesJsonUrl),
-        safeFetchJson(PLACEHOLDER.quizJsonUrl),
-        safeFetchJson(PLACEHOLDER.projectsJsonUrl),
-        safeFetchJson(PLACEHOLDER.announcementsJsonUrl),
-      ]);
+      try {
+        const [m, q, qb, p, a] = await Promise.allSettled([
+          fetchView("roster"),
+          fetchView("quotes"),
+          fetchView("quiz"),
+          fetchView("projects"),
+          fetchView("announcements"),
+        ]);
 
-      if (Array.isArray(m) && m.length) setMembers(m.filter((x) => x?.publish !== false));
-      if (Array.isArray(q) && q.length) setQuotes(q.filter((x) => x?.publish !== false));
-      if (Array.isArray(qb) && qb.length) setQuizBank(qb.filter((x) => x?.publish !== false));
-      if (Array.isArray(p) && p.length) setProjects(p.filter((x) => x?.publish !== false));
-      if (Array.isArray(a) && a.length) setAnnouncements(a.filter((x) => x?.publish !== false));
+        if (m.status === "fulfilled" && Array.isArray(m.value)) {
+          setMembers(m.value.filter((x) => x?.publish !== false));
+        }
+        if (q.status === "fulfilled" && Array.isArray(q.value)) {
+          setQuotes(q.value.filter((x) => x?.publish !== false));
+        }
+        if (qb.status === "fulfilled" && Array.isArray(qb.value)) {
+          setQuizBank(qb.value.filter((x) => x?.publish !== false));
+        }
+        if (p.status === "fulfilled" && Array.isArray(p.value)) {
+          setProjects(p.value.filter((x) => x?.publish !== false));
+        }
+        if (a.status === "fulfilled" && Array.isArray(a.value)) {
+          setAnnouncements(a.value.filter((x) => x?.publish !== false));
+        }
+      } catch (e) {
+        // Keep fallbacks silently
+        console.warn("Failed to load remote data; using fallbacks.", e);
+      }
     })();
   }, []);
 
