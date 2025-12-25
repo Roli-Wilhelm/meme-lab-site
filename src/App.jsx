@@ -819,15 +819,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     const programYear = [m?.program, m?.year].filter(Boolean).join(" • ");
 
                     return (
-                      <a
+                      <div
                         key={m.id || m.name}
-                        href={primaryLink || "#"}
-                        target={primaryLink ? "_blank" : undefined}
-                        rel={primaryLink ? "noreferrer" : undefined}
                         className="group rounded-2xl border bg-white/60 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                        onClick={(e) => {
-                          if (!primaryLink) e.preventDefault();
-                        }}
                       >
                         <div className="grid grid-cols-3 gap-4 items-start">
                           {/* Photo (≈ 1/3 width) */}
@@ -871,7 +865,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                               {m.email && (
                                 <a
                                   href={`mailto:${m.email}`}
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Email
@@ -883,7 +877,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.website}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Website
@@ -894,7 +888,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.scholar}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Scholar
@@ -905,7 +899,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.github}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="rounded-full border bg-white/70 px-3 py-1.5 hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   GitHub
@@ -914,7 +908,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             </div>
                           </div>
                         </div>
-                      </a>
+                      </div>
                     );
                   })}
 
