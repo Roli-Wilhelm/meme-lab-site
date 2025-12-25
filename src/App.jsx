@@ -350,7 +350,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [quizBank, setQuizBank] = useState(null);
   const [announcements, setAnnouncements] = useState(null);
   const [projects, setProjects] = useState(null);
-
+  const [scholarly, setScholarly] = useState([]);
+  const [scholarlyLoaded, setScholarlyLoaded] = useState(false);
 
   // Members UI
   const [memberSearch, setMemberSearch] = useState("");
@@ -362,12 +363,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   useEffect(() => {
     (async () => {
-      const [m, q, qb, p, a] = await Promise.allSettled([
+      const [m, q, qb, p, a, s] = await Promise.allSettled([
         fetchView("roster"),
         fetchView("quotes"),
         fetchView("quiz"),
         fetchView("projects"),
         fetchView("announcements"),
+        fetchView("scholarly"), // NEW
       ]);
 
       // Roster
@@ -404,6 +406,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       } else {
         setAnnouncements(FALLBACK_ANNOUNCEMENTS);
       }
+
+      // Scholarly (Zotero feed via Apps Script) — NEW
+      if (s.status === "fulfilled" && Array.isArray(s.value)) {
+        setScholarly(s.value);
+      } else {
+        setScholarly([]); // or FALLBACK_SCHOLARLY if you have one
+      }
+      setScholarlyLoaded(true); // if you’re using the loaded flag
     })();
   }, []);
 
@@ -484,24 +494,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <Mail className="mr-1 h-3.5 w-3.5" />
               {PLACEHOLDER.labEmail}
             </Pill>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="rounded-2xl"
-              onClick={() => window.open(PLACEHOLDER.githubOrg, "_blank")}
-            >
-              <Github className="mr-2 h-4 w-4" />
-              Code
-            </Button>
-            <Button
-              className="rounded-2xl"
-              onClick={() => window.open(PLACEHOLDER.memberIntakeForm, "_blank")}
-            >
-              Join / Contact
-            </Button>
-          </div>
+          </div>          
         </div>
       </header>
 
@@ -615,7 +608,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">News / updates</CardTitle>
+                <CardTitle className="text-xl">Lab RSS News Feed</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border bg-white/60 p-4">
@@ -1152,23 +1145,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <div className="min-w-0">
               <div className="truncate font-medium text-slate-700">{PLACEHOLDER.dept}</div>
               <div className="truncate">{PLACEHOLDER.location}</div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="rounded-2xl"
-                onClick={() => window.open(PLACEHOLDER.calendarLink, "_blank")}
-              >
-                Meet
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-2xl"
-                onClick={() => window.open(`mailto:${PLACEHOLDER.labEmail}`, "_blank")}
-              >
-                Email
-              </Button>
-            </div>
+            </div>            
           </div>
           <div className="mt-4 text-xs">© {new Date().getFullYear()} {PLACEHOLDER.labName} — Purdue University</div>
         </footer>
