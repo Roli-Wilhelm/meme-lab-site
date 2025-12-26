@@ -55,7 +55,7 @@ const PLACEHOLDER = {
   // Public-facing links
   calendarLink: "https://calendly.com/REPLACE_ME",
   publications: "https://www.zotero.org/groups/meme-lab-website/library",
-  photoGallery: "https://photos.app.goo.gl/REPLACE_ME",
+  photoGallery: "https://photos.app.goo.gl/ZR5tYz2Lnmk84bQx9",
   dataRepo: "https://osf.io/REPLACE_ME/",
   notebooks: "https://notion.so/REPLACE_ME",
 
@@ -68,25 +68,22 @@ const PLACEHOLDER = {
   labHandbook: "https://docs.google.com/document/d/REPLACE_ME/edit",
 
   // Member intake (Google Form)
-  // Use a Form with File Upload + consent checkbox for headshot and public posting.
-  memberIntakeForm: "https://forms.gle/REPLACE_ME",
+  memberIntakeForm:
+    "https://docs.google.com/forms/d/e/1FAIpQLSdpsunIvIL1liqZONB_jKRUQlnYLL43oqPkOLOhyt1ExHIlNg/viewform?usp=sharing&ouid=103113252249213016667",
 
   // CONTENT APIS (Google Apps Script Web App endpoints returning JSON)
-  // Expected shapes are shown below. These endpoints should only return publish=true items.
   rosterJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=roster",
   quotesJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quotes",
   quizJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quiz",
   projectsJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=projects",
-  announcementsJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=announcements",
-  // Optional: public image/file links you want to surface on the website (e.g., brand assets, PDFs)
+  announcementsJsonUrl:
+    "https://script.google.com/macros/s/REPLACE_ME/exec?view=announcements",
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Optional RSS feed URL
   newsRss: "https://REPLACE_ME_RSS.xml",
 
   // Private / current members (restricted access)
-  // Recommended: Google Drive folder shared with a Google Group (e.g., meme-lab@purdue.edu)
-  // or a Google Site restricted to Purdue accounts.
   currentMembersHub: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Safety
@@ -107,9 +104,9 @@ const NAV = {
  *
  * Roster item:
  * {
- *  id: "raven-lewis",
- *  name: "Raven Lewis",
- *  role: "PhD Student",
+ *  id: "roland-wilhelm",
+ *  name: "Roland (Roli) Wilhelm",
+ *  role: "Principle Investigator",
  *  focus: "...",
  *  email: "..." (optional),
  *  links: { website?: "...", scholar?: "...", github?: "..." } (optional),
@@ -117,15 +114,41 @@ const NAV = {
  *  publish: true
  * }
  *
- * Quote item:
- * { text: "...", attribution: "...", category?: "...", publish: true }
- *
- * Quiz item:
- * { id: "...", question: "...", choices: ["..."], answerIndex: 0, explanation?: "...", tags?: ["..."], publish: true }
- *
- * Project item:
- * { title: "...", summary: "...", tags?: ["..."], readMoreUrl?: "...", dataUrl?: "...", publish: true }
+ * Scholarly item (from Zotero via Apps Script — recommended):
+ * {
+ *   title: "...",
+ *   url: "...",
+ *   creatorSummary?: "Bittleston et al.",
+ *   firstAuthor?: "Bittleston",
+ *   publicationTitle?: "mSystems",
+ *   journal?: "mSystems",
+ *   date?: "2025-02-20",
+ *   published?: "2025-12-25T03:08:11Z",
+ *   updated?: "2025-12-25T03:08:11Z",
+ *   source?: "Zotero"
+ * }
  */
+
+function toDateString_(v) {
+  if (!v) return "";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
+
+function pickFirstAuthor_(it) {
+  // Prefer explicit firstAuthor, otherwise try creatorSummary like "Bittleston et al."
+  if (it?.firstAuthor) return String(it.firstAuthor).trim();
+  if (it?.creatorSummary) return String(it.creatorSummary).trim();
+  return "";
+}
+
+function pickJournal_(it) {
+  // Prefer explicit journal/publicationTitle if you later add it from Zotero
+  if (it?.journal) return String(it.journal).trim();
+  if (it?.publicationTitle) return String(it.publicationTitle).trim();
+  return "";
+}
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -243,7 +266,11 @@ const FALLBACK_QUOTES = [
     attribution: "MEME Lab",
     publish: true,
   },
-  { text: "Data are not a byproduct; they are a deliverable.", attribution: "Lab principle", publish: true },
+  {
+    text: "Data are not a byproduct; they are a deliverable.",
+    attribution: "Lab principle",
+    publish: true,
+  },
 ];
 
 const FALLBACK_QUIZ = [
@@ -252,7 +279,8 @@ const FALLBACK_QUIZ = [
     question: "Which is typically considered a base cation in soils?",
     choices: ["K⁺", "NO₃⁻", "Cl⁻", "H₂O"],
     answerIndex: 0,
-    explanation: "K⁺ is a base cation along with Ca²⁺, Mg²⁺, Na⁺ (context-dependent).",
+    explanation:
+      "K⁺ is a base cation along with Ca²⁺, Mg²⁺, Na⁺ (context-dependent).",
     tags: ["soil-chemistry"],
     publish: true,
   },
@@ -266,7 +294,8 @@ const FALLBACK_QUIZ = [
       "Remove PCR inhibitors",
     ],
     answerIndex: 0,
-    explanation: "SIP links activity to identity by tracking isotope incorporation into nucleic acids.",
+    explanation:
+      "SIP links activity to identity by tracking isotope incorporation into nucleic acids.",
     tags: ["methods"],
     publish: true,
   },
@@ -296,7 +325,8 @@ const FALLBACK_ANNOUNCEMENTS = [
 const FALLBACK_PROJECTS = [
   {
     title: "Project title 1",
-    summary: "One-paragraph description: question, system, and what success looks like.",
+    summary:
+      "One-paragraph description: question, system, and what success looks like.",
     tags: ["System", "Methods", "Output"],
     readMoreUrl: "https://REPLACE_ME",
     dataUrl: "https://REPLACE_ME",
@@ -304,7 +334,8 @@ const FALLBACK_PROJECTS = [
   },
   {
     title: "Project title 2",
-    summary: "One-paragraph description: question, system, and what success looks like.",
+    summary:
+      "One-paragraph description: question, system, and what success looks like.",
     tags: ["System", "Methods", "Output"],
     readMoreUrl: "https://REPLACE_ME",
     dataUrl: "https://REPLACE_ME",
@@ -314,14 +345,10 @@ const FALLBACK_PROJECTS = [
 
 /**
  * Drive-hosted images
- * - Recommended: store approved headshots in a lab-owned Drive folder.
- * - Generate stable public URLs of the form: https://drive.google.com/uc?id=FILE_ID
- * - Avoid direct Google Form upload links in the public site.
  */
 function Avatar({ name, photoUrl, className = "" }) {
   const initial = (name || "?").trim().slice(0, 1).toUpperCase();
-  const base =
-    `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
+  const base = `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
 
   if (photoUrl) {
     return (
@@ -369,7 +396,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         fetchView("quiz"),
         fetchView("projects"),
         fetchView("announcements"),
-        fetchView("scholarly"), // NEW
+        fetchView("scholarly"),
       ]);
 
       // Roster
@@ -407,13 +434,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         setAnnouncements(FALLBACK_ANNOUNCEMENTS);
       }
 
-      // Scholarly (Zotero feed via Apps Script) — NEW
+      // Scholarly (Zotero feed via Apps Script)
       if (s.status === "fulfilled" && Array.isArray(s.value)) {
         setScholarly(s.value);
       } else {
-        setScholarly([]); // or FALLBACK_SCHOLARLY if you have one
+        setScholarly([]);
       }
-      setScholarlyLoaded(true); // if you’re using the loaded flag
+      setScholarlyLoaded(true);
     })();
   }, []);
 
@@ -440,6 +467,17 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       );
     });
   }, [members, memberSearch]);
+
+  // STEP 2: compute the top 5 most recent scholarly items
+  const recentScholarly = useMemo(() => {
+    const list = Array.isArray(scholarly) ? scholarly : [];
+    const sorted = [...list].sort((a, b) => {
+      const ta = new Date(a?.date || a?.published || a?.updated || 0).getTime();
+      const tb = new Date(b?.date || b?.published || b?.updated || 0).getTime();
+      return tb - ta;
+    });
+    return sorted.slice(0, 5);
+  }, [scholarly]);
 
   const currentQuiz = useMemo(() => {
     if (!quizOrder.length) return null;
@@ -480,8 +518,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <Microscope className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold leading-5">{PLACEHOLDER.labName}</div>
-              <div className="truncate text-xs text-muted-foreground">Purdue University</div>
+              <div className="truncate text-sm font-semibold leading-5">
+                {PLACEHOLDER.labName}
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                Purdue University
+              </div>
             </div>
           </div>
 
@@ -494,7 +536,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <Mail className="mr-1 h-3.5 w-3.5" />
               {PLACEHOLDER.labEmail}
             </Pill>
-          </div>          
+          </div>
         </div>
       </header>
 
@@ -610,18 +652,87 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardHeader>
                 <CardTitle className="text-xl">Lab RSS News Feed</CardTitle>
               </CardHeader>
+
               <CardContent className="grid gap-4 md:grid-cols-3">
+                {/* STEP 3: Replace RSS placeholder with Recent Scholarly Activities table */}
                 <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Rss className="h-4 w-4" />
-                    Optional RSS feed
+                    Recent scholarly activities
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Best practice is to source updates from a canonical stream (e.g., GitHub
-                    releases, a lab blog, or department news). Put that RSS URL into
-                    <code> newsRss </code> and replace this block with your preferred widget.
-                  </p>
+
+                  {!scholarlyLoaded ? (
+                    <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+                  ) : recentScholarly.length === 0 ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      No recent items found yet.
+                    </p>
+                  ) : (
+                    <div className="mt-3 overflow-x-auto">
+                      <table className="w-full border-separate border-spacing-0 text-sm">
+                        <thead>
+                          <tr className="text-left">
+                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
+                              First author
+                            </th>
+                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
+                              Journal
+                            </th>
+                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
+                              Pub date
+                            </th>
+                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
+                              Title
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {recentScholarly.map((it, idx) => {
+                            const firstAuthor = pickFirstAuthor_(it) || "—";
+                            const journal = pickJournal_(it) || "—";
+                            const pubDate =
+                              toDateString_(it?.date || it?.published) || "—";
+                            const title = it?.title ? String(it.title) : "Untitled";
+                            const url = it?.url ? String(it.url) : "";
+
+                            return (
+                              <tr key={`${url || title}-${idx}`} className="align-top">
+                                <td className="border-b px-3 py-2 text-muted-foreground">
+                                  {firstAuthor}
+                                </td>
+                                <td className="border-b px-3 py-2 text-muted-foreground">
+                                  {journal}
+                                </td>
+                                <td className="border-b px-3 py-2 text-muted-foreground">
+                                  {pubDate}
+                                </td>
+                                <td className="border-b px-3 py-2">
+                                  {url ? (
+                                    <a
+                                      href={url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
+                                    >
+                                      {title}
+                                    </a>
+                                  ) : (
+                                    <span className="font-medium">{title}</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Source: Zotero group library (via Apps Script)
+                      </p>
+                    </div>
+                  )}
                 </div>
+
                 <div className="rounded-2xl border bg-white/60 p-4 md:col-span-2">
                   <div className="text-sm font-semibold">Announcements</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -669,7 +780,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Projects (keep current via Google Sheets)</CardTitle>
+                <CardTitle className="text-xl">
+                  Projects (keep current via Google Sheets)
+                </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 {(projects || []).map((p) => (
@@ -685,7 +798,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {p.readMoreUrl && (
-                        <Button size="sm" className="rounded-2xl" onClick={() => window.open(p.readMoreUrl, "_blank")}>
+                        <Button
+                          size="sm"
+                          className="rounded-2xl"
+                          onClick={() => window.open(p.readMoreUrl, "_blank")}
+                        >
                           Read more
                         </Button>
                       )}
@@ -748,7 +865,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Keep the site current with third-party sources</CardTitle>
+                <CardTitle className="text-xl">
+                  Keep the site current with third-party sources
+                </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 md:grid-cols-2">
                 <LinkRow
@@ -800,7 +919,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                   Meet the current and past members of the MEME Lab.
+                    Meet the current and past members of the MEME Lab.
                   </div>
                   <div className="flex w-full gap-2 md:w-auto">
                     <Input
@@ -821,9 +940,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {filteredMembers.map((m) => {
-                    const primaryLink =
-                      m?.links?.website || m?.links?.scholar || m?.links?.github || "";
-
                     const programYear = [m?.program, m?.year].filter(Boolean).join(" • ");
 
                     return (
@@ -916,7 +1032,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </div>
                     );
                   })}
-
                 </div>
 
                 <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
@@ -1068,7 +1183,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         </div>
                         <div>
                           <div className="text-sm">“{q.text}”</div>
-                          <div className="mt-2 text-xs text-muted-foreground">— {q.attribution}</div>
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            — {q.attribution}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1115,7 +1232,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           })}
                         </div>
                         {quizPick !== null && currentQuiz.explanation && (
-                          <div className="mt-3 text-sm text-muted-foreground">{currentQuiz.explanation}</div>
+                          <div className="mt-3 text-sm text-muted-foreground">
+                            {currentQuiz.explanation}
+                          </div>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
                           <Button size="sm" className="rounded-2xl" onClick={nextQuizQuestion}>
@@ -1145,9 +1264,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <div className="min-w-0">
               <div className="truncate font-medium text-slate-700">{PLACEHOLDER.dept}</div>
               <div className="truncate">{PLACEHOLDER.location}</div>
-            </div>            
+            </div>
           </div>
-          <div className="mt-4 text-xs">© {new Date().getFullYear()} {PLACEHOLDER.labName} — Purdue University</div>
+          <div className="mt-4 text-xs">
+            © {new Date().getFullYear()} {PLACEHOLDER.labName} — Purdue University
+          </div>
         </footer>
       </main>
     </div>
