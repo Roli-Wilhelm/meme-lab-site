@@ -96,6 +96,18 @@ function toDateString_(v) {
   return d.toISOString().slice(0, 10);
 }
 
+function formatAnnouncementTime_(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function pickFirstAuthor_(it) {
   if (it?.firstAuthor) return String(it.firstAuthor).trim();
   if (Array.isArray(it?.authors) && it.authors.length > 0)
@@ -599,7 +611,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <LinkRow
                     icon={GraduationCap}
                     title="Prospective students"
-                    desc="Recruiting info, rotations, expectations"
+                    desc="Recruitment information"
                     href={PLACEHOLDER.onboardingDoc}
                   />
                   <LinkRow
@@ -611,13 +623,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <LinkRow
                     icon={BookOpen}
                     title="Publications library"
-                    desc="Zotero group library (public)"
+                    desc="Zotero group library"
                     href={PLACEHOLDER.publications}
                   />
                   <LinkRow
                     icon={Database}
                     title="Open data"
-                    desc="Datasets, code, and materials (OSF)"
+                    desc="Accessioned Datasets & Code"
                     href={PLACEHOLDER.dataRepo}
                   />
                 </CardContent>
@@ -719,26 +731,46 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="text-sm font-semibold">Announcements</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    {(announcements || []).map((a, idx) => (
-                      <li key={`${a.title || "a"}-${idx}`}>
-                        <span className="font-medium text-slate-700">
-                          {a.title}:
-                        </span>{" "}
-                        {a.url ? (
-                          <a
-                            href={a.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
-                          >
-                            {a.text}
-                          </a>
-                        ) : (
-                          a.text
-                        )}
-                      </li>
-                    ))}
+                  <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                    {(announcements || []).map((a, idx) => {
+                      const when = formatAnnouncementTime_(a.time);
+
+                      return (
+                        <li
+                          key={`${a.title || "a"}-${idx}`}
+                          className="rounded-xl border bg-white/70 px-3 py-2"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="font-medium text-slate-700">
+                                {a.title}
+                              </div>
+
+                              <div className="mt-1">
+                                {a.url ? (
+                                  <a
+                                    href={a.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
+                                  >
+                                    {a.text}
+                                  </a>
+                                ) : (
+                                  a.text
+                                )}
+                              </div>
+                            </div>
+
+                            {when && (
+                              <div className="shrink-0 text-xs text-muted-foreground">
+                                {when}
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </CardContent>
@@ -1055,11 +1087,10 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Here is a random assortment of lab photos!{" "}
-                    <span className="font-medium text-slate-800">
+                      <span className="font-medium text-slate-800">
                       Visit our lab photo album
                     </span>{" "}
-                    for a look at all the highlights from our field work,
+                    for a full look at highlights from our field work,
                     outreach, teaching, and research.
                   </div>
 
@@ -1214,11 +1245,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </div>
           </TabsContent>
 
-          {/* CURRENT MEMBERS (restricted) */}
+          {/* CURRENT MEMBER PORTAL (restricted) */}
           <TabsContent value={NAV.current} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Current members</CardTitle>
+                <CardTitle className="text-xl">Member portals</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-3">
                 <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
