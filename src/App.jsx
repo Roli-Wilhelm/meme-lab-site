@@ -54,11 +54,11 @@ const PLACEHOLDER = {
   githubOrg: "https://github.com/REPLACE_ME",
 
   // Public-facing links
-  calendarLink: "https://calendly.com/REPLACE_ME",
+  //calendarLink: "https://calendly.com/REPLACE_ME",
   publications: "https://www.zotero.org/groups/meme-lab-website/library",
   photoGallery: "https://photos.app.goo.gl/ZR5tYz2Lnmk84bQx9",
-  dataRepo: "https://osf.io/REPLACE_ME/",
-  notebooks: "https://notion.so/REPLACE_ME",
+  dataRepo: "https://osf.io/6nepb/",
+  //notebooks: "https://notion.so/REPLACE_ME",
 
   // Protocols (now a subsection under Research)
   protocolsIoWorkspace: "https://www.protocols.io/workspaces/REPLACE_ME",
@@ -324,12 +324,12 @@ const FALLBACK_PROJECTS = [
 const FALLBACK_GALLERY_PHOTOS = [
   // Populate with your own public image URLs (Drive, OSF, etc.)
   // Example Drive format: https://drive.google.com/uc?export=view&id=FILE_ID
-  "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?auto=format&fit=crop&w=1200&q=60",
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=60",
-  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=60",
-  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=60",
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=60",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=60",
+  "https://photos.app.goo.gl/a34KLz7R6E1Hm1Hh7",
+  "https://photos.app.goo.gl/ZrPXvHfVgmKRi14fA",
+  "https://photos.app.goo.gl/iLu9ewFdFjVUaCyF9",
+  "https://photos.app.goo.gl/D4MJDXNcSSgtXbXq6",
+  "https://photos.app.goo.gl/FBhuLVfCpy5mQFSq6",
+  "https://photos.app.goo.gl/qGbQeyKc7X9a6GRY8",
 ];
 
 function Avatar({ name, photoUrl, className = "" }) {
@@ -1175,6 +1175,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
+                    Here is a random assortment of lab photos!
                     <span className="font-medium text-slate-800">
                       Visit our lab photo album
                     </span>{" "}
