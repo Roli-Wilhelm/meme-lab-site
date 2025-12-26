@@ -20,6 +20,7 @@ import {
   Github,
   Lock,
   FileText,
+  Database,
 } from "lucide-react";
 
 /**
@@ -142,7 +143,8 @@ function toDateString_(v) {
 
 function pickFirstAuthor_(it) {
   if (it?.firstAuthor) return String(it.firstAuthor).trim();
-  if (Array.isArray(it?.authors) && it.authors.length > 0) return String(it.authors[0]).trim();
+  if (Array.isArray(it?.authors) && it.authors.length > 0)
+    return String(it.authors[0]).trim();
   if (it?.creatorSummary) return String(it.creatorSummary).trim();
   return "";
 }
@@ -365,7 +367,9 @@ function Avatar({ name, photoUrl, className = "" }) {
   }
 
   return (
-    <div className={`flex items-center justify-center ${base} text-xl font-semibold`}>
+    <div
+      className={`flex items-center justify-center ${base} text-xl font-semibold`}
+    >
       {initial}
     </div>
   );
@@ -475,13 +479,26 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const recentScholarly = useMemo(() => {
     const list = Array.isArray(scholarly) ? scholarly : [];
     const sorted = [...list].sort((a, b) => {
-      const ta = new Date(a?.publicationDate || a?.date || a?.addedToLibrary || a?.published || a?.updated || 0).getTime();
-      const tb = new Date(b?.publicationDate || b?.date || b?.addedToLibrary || b?.published || b?.updated || 0).getTime();
+      const ta = new Date(
+        a?.publicationDate ||
+          a?.date ||
+          a?.addedToLibrary ||
+          a?.published ||
+          a?.updated ||
+          0
+      ).getTime();
+      const tb = new Date(
+        b?.publicationDate ||
+          b?.date ||
+          b?.addedToLibrary ||
+          b?.published ||
+          b?.updated ||
+          0
+      ).getTime();
       return tb - ta;
     });
     return sorted.slice(0, 5);
   }, [scholarly]);
-
 
   const currentQuiz = useMemo(() => {
     if (!quizOrder.length) return null;
@@ -577,10 +594,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm leading-6 text-muted-foreground">
-                    The {PLACEHOLDER.shortName} studies how land management shapes microbial
-                    communities and how those communities, in turn, regulate nutrient cycling,
-                    plant health, and ecosystem services. We develop reproducible workflows and
-                    open data assets to make microbiome science more predictive and actionable.
+                    The {PLACEHOLDER.shortName} studies how land management
+                    shapes microbial communities and how those communities, in
+                    turn, regulate nutrient cycling, plant health, and ecosystem
+                    services. We develop reproducible workflows and open data
+                    assets to make microbiome science more predictive and
+                    actionable.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="rounded-full">
@@ -597,23 +616,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     </Badge>
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button className="rounded-2xl" onClick={() => setActiveTab(NAV.research)}>
+                    <Button
+                      className="rounded-2xl"
+                      onClick={() => setActiveTab(NAV.research)}
+                    >
                       Explore research
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.publications, "_blank")}
-                    >
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Publications library
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.dataRepo, "_blank")}
-                    >
-                      Open data & materials
                     </Button>
                   </div>
                 </CardContent>
@@ -630,23 +637,26 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     desc="Recruiting info, rotations, expectations"
                     href={PLACEHOLDER.onboardingDoc}
                   />
-                  <LinkRow
-                    icon={Users}
-                    title="Lab handbook"
-                    desc="Living document for policies and norms"
-                    href={PLACEHOLDER.labHandbook}
-                  />
+
                   <LinkRow
                     icon={FlaskConical}
                     title="Protocols"
                     desc="SOPs and methods (Research → Protocols)"
                     onClick={goToResearchProtocols}
                   />
+
                   <LinkRow
-                    icon={Images}
-                    title="Photo gallery"
-                    desc="Field work, lab life, outreach"
-                    href={PLACEHOLDER.photoGallery}
+                    icon={BookOpen}
+                    title="Publications library"
+                    desc="Zotero group library (public)"
+                    href={PLACEHOLDER.publications}
+                  />
+
+                  <LinkRow
+                    icon={Database}
+                    title="Open data"
+                    desc="Datasets, code, and materials (OSF)"
+                    href={PLACEHOLDER.dataRepo}
                   />
                 </CardContent>
               </Card>
@@ -662,7 +672,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Rss className="h-4 w-4" />
-                    Recent scholarly activities
+                    Recent Scholarly Activities Involving MEME Lab Members
                   </div>
 
                   {!scholarlyLoaded ? (
@@ -694,12 +704,22 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           {recentScholarly.map((it, idx) => {
                             const firstAuthor = pickFirstAuthor_(it) || "—";
                             const journal = pickJournal_(it) || "—";
-                            const pubDate = toDateString_(it?.publicationDate) || "—";
-                            const title = it?.title ? String(it.title) : "Untitled";
-                            const url = it?.articleUrl ? String(it.articleUrl) : (it?.zoteroUrl ? String(it.zoteroUrl) : "");
+                            const pubDate =
+                              toDateString_(it?.publicationDate) || "—";
+                            const title = it?.title
+                              ? String(it.title)
+                              : "Untitled";
+                            const url = it?.articleUrl
+                              ? String(it.articleUrl)
+                              : it?.zoteroUrl
+                              ? String(it.zoteroUrl)
+                              : "";
 
                             return (
-                              <tr key={`${url || title}-${idx}`} className="align-top">
+                              <tr
+                                key={`${url || title}-${idx}`}
+                                className="align-top"
+                              >
                                 <td className="border-b px-3 py-2 text-muted-foreground">
                                   {firstAuthor}
                                 </td>
@@ -741,7 +761,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => (
                       <li key={`${a.title || "a"}-${idx}`}>
-                        <span className="font-medium text-slate-700">{a.title}:</span>{" "}
+                        <span className="font-medium text-slate-700">
+                          {a.title}:
+                        </span>{" "}
                         {a.url ? (
                           <a
                             href={a.url}
@@ -789,12 +811,21 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 {(projects || []).map((p) => (
-                  <div key={p.title} className="rounded-2xl border bg-white/60 p-4">
+                  <div
+                    key={p.title}
+                    className="rounded-2xl border bg-white/60 p-4"
+                  >
                     <div className="text-sm font-semibold">{p.title}</div>
-                    <p className="mt-2 text-sm text-muted-foreground">{p.summary}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {p.summary}
+                    </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {(p.tags || []).slice(0, 6).map((t) => (
-                        <Badge key={t} variant="secondary" className="rounded-full">
+                        <Badge
+                          key={t}
+                          variant="secondary"
+                          className="rounded-full"
+                        >
                           {t}
                         </Badge>
                       ))}
@@ -934,7 +965,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <Button
                       variant="outline"
                       className="h-10 rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.memberIntakeForm, "_blank")}
+                      onClick={() =>
+                        window.open(PLACEHOLDER.memberIntakeForm, "_blank")
+                      }
                     >
                       Update your profile
                     </Button>
@@ -943,7 +976,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {filteredMembers.map((m) => {
-                    const programYear = [m?.program, m?.year].filter(Boolean).join(" • ");
+                    const programYear = [m?.program, m?.year]
+                      .filter(Boolean)
+                      .join(" • ");
 
                     return (
                       <div
@@ -953,18 +988,26 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         <div className="grid grid-cols-3 gap-4 items-start">
                           {/* Photo (≈ 1/3 width) */}
                           <div className="col-span-1">
-                            <Avatar name={m.name} photoUrl={m.photoUrl} className="min-h-[140px]" />
+                            <Avatar
+                              name={m.name}
+                              photoUrl={m.photoUrl}
+                              className="min-h-[140px]"
+                            />
                           </div>
 
                           {/* Text (≈ 2/3 width) */}
                           <div className="col-span-2 min-w-0">
                             <div className="flex items-center gap-2">
-                              <div className="truncate text-lg font-semibold leading-6">{m.name}</div>
+                              <div className="truncate text-lg font-semibold leading-6">
+                                {m.name}
+                              </div>
                             </div>
 
                             <div className="mt-1 text-sm text-muted-foreground">
                               {m.role}
-                              {programYear ? <span className="ml-2">• {programYear}</span> : null}
+                              {programYear ? (
+                                <span className="ml-2">• {programYear}</span>
+                              ) : null}
                             </div>
 
                             {(m.focus || m.bio) && (
@@ -974,15 +1017,20 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             )}
 
                             {/* Keywords immediately after bio */}
-                            {Array.isArray(m.keywords) && m.keywords.length > 0 && (
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {m.keywords.slice(0, 8).map((k) => (
-                                  <Badge key={k} variant="secondary" className="rounded-full">
-                                    {k}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
+                            {Array.isArray(m.keywords) &&
+                              m.keywords.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {m.keywords.slice(0, 8).map((k) => (
+                                    <Badge
+                                      key={k}
+                                      variant="secondary"
+                                      className="rounded-full"
+                                    >
+                                      {k}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
 
                             {/* Email + Website/Scholar/GitHub on one row */}
                             <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -1038,7 +1086,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </div>
 
                 <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                  All opportunities to join the team will be posted in the Announcements section on the Home page.
+                  All opportunities to join the team will be posted in the
+                  Announcements section on the Home page.
                 </div>
               </CardContent>
             </Card>
@@ -1057,11 +1106,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     Restricted hub
                   </div>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    This tab links to password-protected (account-restricted) resources hosted in Google Drive / Google Sites.
-                    Because this website is hosted on GitHub Pages (static), authentication must be handled by Google.
+                    This tab links to password-protected (account-restricted)
+                    resources hosted in Google Drive / Google Sites. Because this
+                    website is hosted on GitHub Pages (static), authentication
+                    must be handled by Google.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button className="rounded-2xl" onClick={() => window.open(PLACEHOLDER.currentMembersHub, "_blank")}>
+                    <Button
+                      className="rounded-2xl"
+                      onClick={() =>
+                        window.open(PLACEHOLDER.currentMembersHub, "_blank")
+                      }
+                    >
                       Open current members hub
                     </Button>
                     <Button
@@ -1122,18 +1178,32 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <div className="rounded-2xl border bg-white/60 p-4">
                     <div className="text-sm font-semibold">Best practice</div>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Host images on a third-party album (Google Photos, Flickr, SmugMug) and link here.
-                      This keeps the website lightweight and avoids redeployments for new photos.
+                      Host images on a third-party album (Google Photos, Flickr,
+                      SmugMug) and link here. This keeps the website lightweight
+                      and avoids redeployments for new photos.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <Button className="rounded-2xl" onClick={() => window.open(PLACEHOLDER.photoGallery, "_blank")}>
+                      <Button
+                        className="rounded-2xl"
+                        onClick={() =>
+                          window.open(PLACEHOLDER.photoGallery, "_blank")
+                        }
+                      >
                         <Images className="mr-2 h-4 w-4" />
                         Open gallery album
                       </Button>
-                      <Button variant="outline" className="rounded-2xl" onClick={() => window.open("https://REPLACE_ME", "_blank")}>
+                      <Button
+                        variant="outline"
+                        className="rounded-2xl"
+                        onClick={() => window.open("https://REPLACE_ME", "_blank")}
+                      >
                         Fieldwork highlights
                       </Button>
-                      <Button variant="outline" className="rounded-2xl" onClick={() => window.open("https://REPLACE_ME", "_blank")}>
+                      <Button
+                        variant="outline"
+                        className="rounded-2xl"
+                        onClick={() => window.open("https://REPLACE_ME", "_blank")}
+                      >
                         Outreach & teaching
                       </Button>
                     </div>
@@ -1153,7 +1223,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Placeholder grid (optional; replace with embeds)</CardTitle>
+                <CardTitle className="text-xl">
+                  Placeholder grid (optional; replace with embeds)
+                </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -1203,10 +1275,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <CardContent className="space-y-4">
                   <div className="rounded-2xl border bg-white/60 p-4">
                     {!currentQuiz ? (
-                      <div className="text-sm text-muted-foreground">Loading quiz…</div>
+                      <div className="text-sm text-muted-foreground">
+                        Loading quiz…
+                      </div>
                     ) : (
                       <>
-                        <div className="text-sm font-semibold">{currentQuiz.question}</div>
+                        <div className="text-sm font-semibold">
+                          {currentQuiz.question}
+                        </div>
                         <div className="mt-3 grid gap-2">
                           {currentQuiz.choices.map((c, i) => {
                             const picked = quizPick === i;
@@ -1224,11 +1300,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   {show && i === currentQuiz.answerIndex && (
                                     <Badge className="rounded-full">Correct</Badge>
                                   )}
-                                  {show && picked && i !== currentQuiz.answerIndex && (
-                                    <Badge variant="destructive" className="rounded-full">
-                                      Not quite
-                                    </Badge>
-                                  )}
+                                  {show &&
+                                    picked &&
+                                    i !== currentQuiz.answerIndex && (
+                                      <Badge
+                                        variant="destructive"
+                                        className="rounded-full"
+                                      >
+                                        Not quite
+                                      </Badge>
+                                    )}
                                 </div>
                               </button>
                             );
@@ -1240,7 +1321,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           </div>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
-                          <Button size="sm" className="rounded-2xl" onClick={nextQuizQuestion}>
+                          <Button
+                            size="sm"
+                            className="rounded-2xl"
+                            onClick={nextQuizQuestion}
+                          >
                             Next question
                           </Button>
                           <Button
@@ -1265,7 +1350,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         <footer className="mt-10 border-t pt-6 text-sm text-muted-foreground">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
-              <div className="truncate font-medium text-slate-700">{PLACEHOLDER.dept}</div>
+              <div className="truncate font-medium text-slate-700">
+                {PLACEHOLDER.dept}
+              </div>
               <div className="truncate">{PLACEHOLDER.location}</div>
             </div>
           </div>
