@@ -100,39 +100,8 @@ const NAV = {
   quotes: "quotes",
 };
 
-/**
- * Data shapes expected from JSON endpoints (examples)
- *
- * Roster item:
- * {
- *  id: "roland-wilhelm",
- *  name: "Roland (Roli) Wilhelm",
- *  role: "Principle Investigator",
- *  focus: "...",
- *  email: "..." (optional),
- *  links: { website?: "...", scholar?: "...", github?: "..." } (optional),
- *  photoUrl: "https://drive.google.com/uc?id=..." (optional),
- *  publish: true
- * }
- *
- * Scholarly item (from Zotero via Apps Script — recommended):
- * {
- *   title: "...",
- *   url: "...",
- *   creatorSummary?: "Bittleston et al.",
- *   firstAuthor?: "Bittleston",
- *   publicationTitle?: "mSystems",
- *   journal?: "mSystems",
- *   date?: "2025-02-20",
- *   published?: "2025-12-25T03:08:11Z",
- *   updated?: "2025-12-25T03:08:11Z",
- *   source?: "Zotero"
- * }
- */
-
 function toDateString_(v) {
   if (!v) return "";
-  // If it's already YYYY-MM-DD, keep it
   const s = String(v).trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
 
@@ -349,11 +318,24 @@ const FALLBACK_PROJECTS = [
 ];
 
 /**
- * Drive-hosted images
+ * Gallery photo fallback:
+ * Use publicly accessible image URLs (recommended: Drive "uc?export=view&id=FILE_ID" links).
  */
+const FALLBACK_GALLERY_PHOTOS = [
+  // Populate with your own public image URLs (Drive, OSF, etc.)
+  // Example Drive format: https://drive.google.com/uc?export=view&id=FILE_ID
+  "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?auto=format&fit=crop&w=1200&q=60",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=60",
+  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=60",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=60",
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=60",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=60",
+];
+
 function Avatar({ name, photoUrl, className = "" }) {
   const initial = (name || "?").trim().slice(0, 1).toUpperCase();
-  const base = `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
+  const base =
+    `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
 
   if (photoUrl) {
     return (
@@ -387,6 +369,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [scholarly, setScholarly] = useState([]);
   const [scholarlyLoaded, setScholarlyLoaded] = useState(false);
 
+  // Gallery (Drive folder via Apps Script endpoint: view=gallery)
+  const [galleryPhotos, setGalleryPhotos] = useState(null);
+
   // Members UI
   const [memberSearch, setMemberSearch] = useState("");
 
@@ -397,13 +382,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   useEffect(() => {
     (async () => {
-      const [m, q, qb, p, a, s] = await Promise.allSettled([
+      const [m, q, qb, p, a, s, g] = await Promise.allSettled([
         fetchView("roster"),
         fetchView("quotes"),
         fetchView("quiz"),
         fetchView("projects"),
         fetchView("announcements"),
         fetchView("scholarly"),
+        fetchView("gallery"), // NEW: Drive folder photo list via Apps Script
       ]);
 
       // Roster
@@ -448,6 +434,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         setScholarly([]);
       }
       setScholarlyLoaded(true);
+
+      // Gallery photos
+      if (g.status === "fulfilled" && Array.isArray(g.value)) {
+        // Support either:
+        //   ["https://...","https://..."] OR [{url:"https://..."}, ...]
+        const urls = g.value
+          .map((x) => (typeof x === "string" ? x : x?.url))
+          .filter(Boolean);
+        setGalleryPhotos(urls.length ? urls : FALLBACK_GALLERY_PHOTOS);
+      } else {
+        setGalleryPhotos(FALLBACK_GALLERY_PHOTOS);
+      }
     })();
   }, []);
 
@@ -475,7 +473,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     });
   }, [members, memberSearch]);
 
-  // STEP 2: compute the top 5 most recent scholarly items
+  // Top 5 most recent scholarly items
   const recentScholarly = useMemo(() => {
     const list = Array.isArray(scholarly) ? scholarly : [];
     const sorted = [...list].sort((a, b) => {
@@ -505,6 +503,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     return quizBank[quizOrder[quizPos]];
   }, [quizBank, quizOrder, quizPos]);
 
+  // Random subset for gallery grid (reshuffles when the list changes)
+  const randomGallery = useMemo(() => {
+    const list = Array.isArray(galleryPhotos) ? galleryPhotos : [];
+    if (!list.length) return [];
+    return shuffleArray(list).slice(0, 12);
+  }, [galleryPhotos]);
+
   function nextQuizQuestion() {
     if (!quizOrder.length) return;
     const nextPos = quizPos + 1;
@@ -513,7 +518,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       setQuizPick(null);
       return;
     }
-    // Reshuffle on cycle end
     const indices = quizBank.map((_, i) => i);
     setQuizOrder(shuffleArray(indices));
     setQuizPos(0);
@@ -522,7 +526,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   function goToResearchProtocols() {
     setActiveTab(NAV.research);
-    // Give the tab time to render before scrolling.
     setTimeout(() => {
       const el = document.getElementById("protocols");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -668,7 +671,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </CardHeader>
 
               <CardContent className="grid gap-4 md:grid-cols-2">
-                {/* STEP 3: Replace RSS placeholder with Recent Scholarly Activities table */}
                 <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Rss className="h-4 w-4" />
@@ -750,7 +752,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </table>
 
                       <p className="mt-2 text-xs text-muted-foreground">
-                        Source: Zotero group library (via Apps Script)
+                        Source: Zotero group library
                       </p>
                     </div>
                   )}
@@ -986,7 +988,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         className="rounded-2xl border bg-white/60 p-4 shadow-sm"
                       >
                         <div className="grid grid-cols-3 gap-4 items-start">
-                          {/* Photo (≈ 1/3 width) */}
                           <div className="col-span-1">
                             <Avatar
                               name={m.name}
@@ -995,7 +996,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             />
                           </div>
 
-                          {/* Text (≈ 2/3 width) */}
                           <div className="col-span-2 min-w-0">
                             <div className="flex items-center gap-2">
                               <div className="truncate text-lg font-semibold leading-6">
@@ -1016,7 +1016,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                               </div>
                             )}
 
-                            {/* Keywords immediately after bio */}
                             {Array.isArray(m.keywords) &&
                               m.keywords.length > 0 && (
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1032,7 +1031,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 </div>
                               )}
 
-                            {/* Email + Website/Scholar/GitHub on one row */}
                             <div className="mt-4 flex flex-wrap gap-2 text-xs">
                               {m.email && (
                                 <a
@@ -1167,47 +1165,59 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </Card>
           </TabsContent>
 
-          {/* GALLERY */}
+          {/* GALLERY (renovated) */}
           <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Picture gallery</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2">
-                  <div className="rounded-2xl border bg-white/60 p-4">
-                    <div className="text-sm font-semibold">Best practice</div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Host images on a third-party album (Google Photos, Flickr,
-                      SmugMug) and link here. This keeps the website lightweight
-                      and avoids redeployments for new photos.
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Button
-                        className="rounded-2xl"
-                        onClick={() =>
-                          window.open(PLACEHOLDER.photoGallery, "_blank")
-                        }
-                      >
-                        <Images className="mr-2 h-4 w-4" />
-                        Open gallery album
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="rounded-2xl"
-                        onClick={() => window.open("https://REPLACE_ME", "_blank")}
-                      >
-                        Fieldwork highlights
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="rounded-2xl"
-                        onClick={() => window.open("https://REPLACE_ME", "_blank")}
-                      >
-                        Outreach & teaching
-                      </Button>
-                    </div>
+
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-slate-800">
+                      Visit our lab photo album
+                    </span>{" "}
+                    for a look at all the highlights from our field work,
+                    outreach, teaching, and research.
                   </div>
+
+                  <Button
+                    className="rounded-2xl"
+                    onClick={() => window.open(PLACEHOLDER.photoGallery, "_blank")}
+                  >
+                    <Images className="mr-2 h-4 w-4" />
+                    Open gallery album
+                  </Button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  {randomGallery.length === 0 ? (
+                    <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                      No photos configured yet. Provide a <code>fetchView("gallery")</code>{" "}
+                      feed (recommended) or populate <code>FALLBACK_GALLERY_PHOTOS</code>.
+                    </div>
+                  ) : (
+                    randomGallery.map((url, i) => (
+                      <a
+                        key={`${url}-${i}`}
+                        href={PLACEHOLDER.photoGallery}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
+                        title="Open the full album"
+                      >
+                        <div className="aspect-[4/3] w-full overflow-hidden">
+                          <img
+                            src={url}
+                            alt={`Gallery photo ${i + 1}`}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                            loading="lazy"
+                          />
+                        </div>
+                      </a>
+                    ))
+                  )}
                 </div>
 
                 <div className="rounded-2xl border bg-white/60 p-4">
@@ -1218,26 +1228,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <li>Avoid sharing sensitive locations.</li>
                   </ul>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  Placeholder grid (optional; replace with embeds)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="aspect-[4/3] rounded-2xl border bg-gradient-to-br from-slate-50 to-white shadow-sm"
-                  >
-                    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                      Image tile {i + 1}
-                    </div>
-                  </div>
-                ))}
               </CardContent>
             </Card>
           </TabsContent>
@@ -1300,16 +1290,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   {show && i === currentQuiz.answerIndex && (
                                     <Badge className="rounded-full">Correct</Badge>
                                   )}
-                                  {show &&
-                                    picked &&
-                                    i !== currentQuiz.answerIndex && (
-                                      <Badge
-                                        variant="destructive"
-                                        className="rounded-full"
-                                      >
-                                        Not quite
-                                      </Badge>
-                                    )}
+                                  {show && picked && i !== currentQuiz.answerIndex && (
+                                    <Badge
+                                      variant="destructive"
+                                      className="rounded-full"
+                                    >
+                                      Not quite
+                                    </Badge>
+                                  )}
                                 </div>
                               </button>
                             );
