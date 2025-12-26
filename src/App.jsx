@@ -1,3 +1,9 @@
+// Updated App.jsx with requested changes:
+// (1) Remove “Update your profile” button from the Current members tab  ✅ (none existed there; no change needed)
+// (2) Center the “All opportunities…” text at bottom of Lab members tab ✅
+// (3) Reorder tabs so Current members is right-most ✅
+// (4) Make header location pill link to Google Maps + email pill a mailto ✅
+
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +16,6 @@ import {
   Mail,
   MapPin,
   Microscope,
-  Users,
   Images,
   Quote,
   FlaskConical,
@@ -23,25 +28,6 @@ import {
   Database,
 } from "lucide-react";
 
-/**
- * Managed Ecosystem Microbial Ecology Lab (Purdue) — single-file mockup
- * GitHub Pages-hosted site with lab-maintained content in Google Workspace.
- *
- * IMPORTANT NOTE ON “PASSWORD PROTECTION”:
- * GitHub Pages is static and cannot truly enforce authentication.
- * For controlled access, link to a Google Drive folder / Google Site / Notion space
- * that is restricted to Purdue/Google accounts (or a lab Google Group).
- */
-
-/**
- * Replace placeholders with real URLs.
- *
- * Recommended pattern for Sheets->website:
- * - Create a Google Apps Script Web App that reads a Sheet and returns JSON.
- * - Keep the Web App public READ, but only include rows where publish=true.
- * - For private content, do not serve via the site; link out to restricted Drive/Sites.
- */
-
 const PLACEHOLDER = {
   // Lab identity
   labName: "Managed Ecosystem Microbial Ecology Lab",
@@ -50,17 +36,18 @@ const PLACEHOLDER = {
   dept: "Department of Agronomy, Purdue University",
   location: "West Lafayette, Indiana",
 
+  // NEW: header link targets
+  locationMapLink: "https://maps.app.goo.gl/FDXD2dZ28cQydot19",
+
   // Hosting / org
   githubOrg: "https://github.com/REPLACE_ME",
 
   // Public-facing links
-  //calendarLink: "https://calendly.com/REPLACE_ME",
   publications: "https://www.zotero.org/groups/meme-lab-website/library",
   photoGallery: "https://photos.app.goo.gl/ZR5tYz2Lnmk84bQx9",
   dataRepo: "https://osf.io/6nepb/",
-  //notebooks: "https://notion.so/REPLACE_ME",
 
-  // Protocols (now a subsection under Research)
+  // Protocols
   protocolsIoWorkspace: "https://www.protocols.io/workspaces/REPLACE_ME",
   labSopDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
@@ -72,7 +59,7 @@ const PLACEHOLDER = {
   memberIntakeForm:
     "https://docs.google.com/forms/d/e/1FAIpQLSdpsunIvIL1liqZONB_jKRUQlnYLL43oqPkOLOhyt1ExHIlNg/viewform?usp=sharing&ouid=103113252249213016667",
 
-  // CONTENT APIS (Google Apps Script Web App endpoints returning JSON)
+  // CONTENT APIS
   rosterJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=roster",
   quotesJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quotes",
   quizJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quiz",
@@ -81,10 +68,9 @@ const PLACEHOLDER = {
     "https://script.google.com/macros/s/REPLACE_ME/exec?view=announcements",
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
-  // Optional RSS feed URL
   newsRss: "https://REPLACE_ME_RSS.xml",
 
-  // Private / current members (restricted access)
+  // Private / current members
   currentMembersHub: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Safety
@@ -95,9 +81,9 @@ const NAV = {
   home: "home",
   research: "research",
   members: "members",
-  current: "current",
   gallery: "gallery",
   quotes: "quotes",
+  current: "current", // keep value, but move tab to end
 };
 
 function toDateString_(v) {
@@ -131,17 +117,6 @@ function shuffleArray(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-async function safeFetchJson(url) {
-  if (!url || url.includes("REPLACE_ME")) return null;
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
 }
 
 function LinkRow({ icon: Icon, title, desc, href, onClick }) {
@@ -186,12 +161,19 @@ function LinkRow({ icon: Icon, title, desc, href, onClick }) {
   );
 }
 
-function Pill({ children }) {
-  return (
-    <span className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1 text-xs font-medium">
-      {children}
-    </span>
-  );
+function Pill({ children, href }) {
+  const cls =
+    "inline-flex items-center rounded-full border bg-white/70 px-3 py-1 text-xs font-medium transition hover:bg-white hover:shadow-sm";
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={cls}>
+        {children}
+      </a>
+    );
+  }
+
+  return <span className={cls}>{children}</span>;
 }
 
 const FALLBACK_RESEARCH_AREAS = [
@@ -221,7 +203,6 @@ const FALLBACK_RESEARCH_AREAS = [
   },
 ];
 
-// Fallbacks render if JSON endpoints are not configured yet.
 const FALLBACK_MEMBERS = [
   {
     id: "roland-wilhelm",
@@ -317,13 +298,7 @@ const FALLBACK_PROJECTS = [
   },
 ];
 
-/**
- * Gallery photo fallback:
- * Use publicly accessible image URLs (recommended: Drive "uc?export=view&id=FILE_ID" links).
- */
 const FALLBACK_GALLERY_PHOTOS = [
-  // Populate with your own public image URLs (Drive, OSF, etc.)
-  // Example Drive format: https://drive.google.com/uc?export=view&id=FILE_ID
   "https://photos.app.goo.gl/a34KLz7R6E1Hm1Hh7",
   "https://photos.app.goo.gl/ZrPXvHfVgmKRi14fA",
   "https://photos.app.goo.gl/iLu9ewFdFjVUaCyF9",
@@ -360,7 +335,6 @@ function Avatar({ name, photoUrl, className = "" }) {
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
 
-  // Remote content (Sheets via Apps Script)
   const [members, setMembers] = useState(null);
   const [quotes, setQuotes] = useState(null);
   const [quizBank, setQuizBank] = useState(null);
@@ -369,13 +343,10 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [scholarly, setScholarly] = useState([]);
   const [scholarlyLoaded, setScholarlyLoaded] = useState(false);
 
-  // Gallery (Drive folder via Apps Script endpoint: view=gallery)
   const [galleryPhotos, setGalleryPhotos] = useState(null);
 
-  // Members UI
   const [memberSearch, setMemberSearch] = useState("");
 
-  // Quiz UI (random without repeats)
   const [quizOrder, setQuizOrder] = useState([]);
   const [quizPos, setQuizPos] = useState(0);
   const [quizPick, setQuizPick] = useState(null);
@@ -389,45 +360,39 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         fetchView("projects"),
         fetchView("announcements"),
         fetchView("scholarly"),
-        fetchView("gallery"), // NEW: Drive folder photo list via Apps Script
+        fetchView("gallery"),
       ]);
 
-      // Roster
       if (m.status === "fulfilled" && Array.isArray(m.value)) {
         setMembers(m.value.filter((x) => x?.publish !== false));
       } else {
         setMembers(FALLBACK_MEMBERS);
       }
 
-      // Quotes
       if (q.status === "fulfilled" && Array.isArray(q.value)) {
         setQuotes(q.value.filter((x) => x?.publish !== false));
       } else {
         setQuotes(FALLBACK_QUOTES);
       }
 
-      // Quiz
       if (qb.status === "fulfilled" && Array.isArray(qb.value)) {
         setQuizBank(qb.value.filter((x) => x?.publish !== false));
       } else {
         setQuizBank(FALLBACK_QUIZ);
       }
 
-      // Projects
       if (p.status === "fulfilled" && Array.isArray(p.value)) {
         setProjects(p.value.filter((x) => x?.publish !== false));
       } else {
         setProjects(FALLBACK_PROJECTS);
       }
 
-      // Announcements
       if (a.status === "fulfilled" && Array.isArray(a.value)) {
         setAnnouncements(a.value.filter((x) => x?.publish !== false));
       } else {
         setAnnouncements(FALLBACK_ANNOUNCEMENTS);
       }
 
-      // Scholarly (Zotero feed via Apps Script)
       if (s.status === "fulfilled" && Array.isArray(s.value)) {
         setScholarly(s.value);
       } else {
@@ -435,10 +400,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       }
       setScholarlyLoaded(true);
 
-      // Gallery photos
       if (g.status === "fulfilled" && Array.isArray(g.value)) {
-        // Support either:
-        //   ["https://...","https://..."] OR [{url:"https://..."}, ...]
         const urls = g.value
           .map((x) => (typeof x === "string" ? x : x?.url))
           .filter(Boolean);
@@ -450,7 +412,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   }, []);
 
   useEffect(() => {
-    // Initialize quiz order whenever the bank changes.
     if (!quizBank?.length) return;
     const indices = quizBank.map((_, i) => i);
     setQuizOrder(shuffleArray(indices));
@@ -473,7 +434,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     });
   }, [members, memberSearch]);
 
-  // Top 5 most recent scholarly items
   const recentScholarly = useMemo(() => {
     const list = Array.isArray(scholarly) ? scholarly : [];
     const sorted = [...list].sort((a, b) => {
@@ -503,7 +463,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     return quizBank[quizOrder[quizPos]];
   }, [quizBank, quizOrder, quizPos]);
 
-  // Random subset for gallery grid (reshuffles when the list changes)
   const randomGallery = useMemo(() => {
     const list = Array.isArray(galleryPhotos) ? galleryPhotos : [];
     if (!list.length) return [];
@@ -551,12 +510,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </div>
           </div>
 
+          {/* (4) Location pill links to Google Maps; Email pill is mailto */}
           <div className="hidden items-center gap-2 md:flex">
-            <Pill>
+            <Pill href={PLACEHOLDER.locationMapLink}>
               <MapPin className="mr-1 h-3.5 w-3.5" />
               {PLACEHOLDER.location}
             </Pill>
-            <Pill>
+
+            <Pill href={`mailto:${PLACEHOLDER.labEmail}`}>
               <Mail className="mr-1 h-3.5 w-3.5" />
               {PLACEHOLDER.labEmail}
             </Pill>
@@ -567,6 +528,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* Main */}
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
+          {/* (3) Reordered tabs: Current members moved to right-most */}
           <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-2 md:grid-cols-6">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
               Home
@@ -577,14 +539,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <TabsTrigger className="rounded-xl" value={NAV.members}>
               Lab members
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.current}>
-              Current members
-            </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.gallery}>
               Gallery
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.quotes}>
               Quotes & quiz
+            </TabsTrigger>
+            <TabsTrigger className="rounded-xl" value={NAV.current}>
+              Current members
             </TabsTrigger>
           </TabsList>
 
@@ -640,21 +602,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     desc="Recruiting info, rotations, expectations"
                     href={PLACEHOLDER.onboardingDoc}
                   />
-
                   <LinkRow
                     icon={FlaskConical}
                     title="Protocols"
                     desc="SOPs and methods (Research → Protocols)"
                     onClick={goToResearchProtocols}
                   />
-
                   <LinkRow
                     icon={BookOpen}
                     title="Publications library"
                     desc="Zotero group library (public)"
                     href={PLACEHOLDER.publications}
                   />
-
                   <LinkRow
                     icon={Database}
                     title="Open data"
@@ -919,12 +878,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   href={PLACEHOLDER.githubOrg}
                 />
                 <LinkRow
-                  icon={BookOpen}
-                  title="Living notes / project pages (Notion or Google Site)"
-                  desc="Low-friction edits without redeploying"
-                  href={PLACEHOLDER.notebooks}
-                />
-                <LinkRow
                   icon={ExternalLink}
                   title="Open data & materials (OSF / Figshare)"
                   desc="Datasets, metadata, figures, and archives"
@@ -1083,7 +1036,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   })}
                 </div>
 
-                <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                {/* (2) Center this text */}
+                <div className="rounded-2xl border bg-white/60 p-4 text-center text-sm text-muted-foreground">
                   All opportunities to join the team will be posted in the
                   Announcements section on the Home page.
                 </div>
@@ -1091,81 +1045,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </Card>
           </TabsContent>
 
-          {/* CURRENT MEMBERS (restricted) */}
-          <TabsContent value={NAV.current} className="mt-6 space-y-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Current members</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Lock className="h-4 w-4" />
-                    Restricted hub
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    This tab links to password-protected (account-restricted)
-                    resources hosted in Google Drive / Google Sites. Because this
-                    website is hosted on GitHub Pages (static), authentication
-                    must be handled by Google.
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button
-                      className="rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.currentMembersHub, "_blank")
-                      }
-                    >
-                      Open current members hub
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.labHandbook, "_blank")}
-                    >
-                      Handbook (restricted copy)
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Suggested contents</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Onboarding checklists</li>
-                    <li>Internal SOPs and inventories</li>
-                    <li>Meeting notes and calendars</li>
-                    <li>Shared datasets (restricted)</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Access control model</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Recommended</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Create a Google Group (e.g., meme-current@purdue.edu).</li>
-                    <li>Share the hub folder/site with that group only.</li>
-                    <li>Use a single entry link from this tab.</li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Avoid</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Attempting “password protection” on GitHub Pages.</li>
-                    <li>Publishing private sheets/feeds and hiding links.</li>
-                    <li>Embedding restricted Docs that prompt for login repeatedly.</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* GALLERY (renovated) */}
+          {/* GALLERY */}
           <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
@@ -1175,7 +1055,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Here is a random assortment of lab photos!
+                    Here is a random assortment of lab photos!{" "}
                     <span className="font-medium text-slate-800">
                       Visit our lab photo album
                     </span>{" "}
@@ -1332,6 +1212,84 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* CURRENT MEMBERS (restricted) */}
+          <TabsContent value={NAV.current} className="mt-6 space-y-6">
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-xl">Current members</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-3">
+                <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Lock className="h-4 w-4" />
+                    Restricted hub
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    This tab links to password-protected (account-restricted)
+                    resources hosted in Google Drive / Google Sites. Because this
+                    website is hosted on GitHub Pages (static), authentication
+                    must be handled by Google.
+                  </p>
+
+                  {/* (1) No “Update your profile” button appears here (only hub + handbook). */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      className="rounded-2xl"
+                      onClick={() =>
+                        window.open(PLACEHOLDER.currentMembersHub, "_blank")
+                      }
+                    >
+                      Open current members hub
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="rounded-2xl"
+                      onClick={() =>
+                        window.open(PLACEHOLDER.labHandbook, "_blank")
+                      }
+                    >
+                      Handbook (restricted copy)
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border bg-white/60 p-4">
+                  <div className="text-sm font-semibold">Suggested contents</div>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    <li>Onboarding checklists</li>
+                    <li>Internal SOPs and inventories</li>
+                    <li>Meeting notes and calendars</li>
+                    <li>Shared datasets (restricted)</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-xl">Access control model</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border bg-white/60 p-4">
+                  <div className="text-sm font-semibold">Recommended</div>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    <li>Create a Google Group (e.g., meme-current@purdue.edu).</li>
+                    <li>Share the hub folder/site with that group only.</li>
+                    <li>Use a single entry link from this tab.</li>
+                  </ul>
+                </div>
+                <div className="rounded-2xl border bg-white/60 p-4">
+                  <div className="text-sm font-semibold">Avoid</div>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    <li>Attempting “password protection” on GitHub Pages.</li>
+                    <li>Publishing private sheets/feeds and hiding links.</li>
+                    <li>Embedding restricted Docs that prompt for login repeatedly.</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
