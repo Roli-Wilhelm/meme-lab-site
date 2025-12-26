@@ -131,20 +131,23 @@ const NAV = {
 
 function toDateString_(v) {
   if (!v) return "";
-  const d = new Date(v);
+  // If it's already YYYY-MM-DD, keep it
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  const d = new Date(s);
   if (Number.isNaN(d.getTime())) return "";
   return d.toISOString().slice(0, 10);
 }
 
 function pickFirstAuthor_(it) {
-  // Prefer explicit firstAuthor, otherwise try creatorSummary like "Bittleston et al."
   if (it?.firstAuthor) return String(it.firstAuthor).trim();
+  if (Array.isArray(it?.authors) && it.authors.length > 0) return String(it.authors[0]).trim();
   if (it?.creatorSummary) return String(it.creatorSummary).trim();
   return "";
 }
 
 function pickJournal_(it) {
-  // Prefer explicit journal/publicationTitle if you later add it from Zotero
   if (it?.journal) return String(it.journal).trim();
   if (it?.publicationTitle) return String(it.publicationTitle).trim();
   return "";
@@ -472,12 +475,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const recentScholarly = useMemo(() => {
     const list = Array.isArray(scholarly) ? scholarly : [];
     const sorted = [...list].sort((a, b) => {
-      const ta = new Date(a?.date || a?.published || a?.updated || 0).getTime();
-      const tb = new Date(b?.date || b?.published || b?.updated || 0).getTime();
+      const ta = new Date(a?.publicationDate || a?.date || a?.addedToLibrary || a?.published || a?.updated || 0).getTime();
+      const tb = new Date(b?.publicationDate || b?.date || b?.addedToLibrary || b?.published || b?.updated || 0).getTime();
       return tb - ta;
     });
     return sorted.slice(0, 5);
   }, [scholarly]);
+
 
   const currentQuiz = useMemo(() => {
     if (!quizOrder.length) return null;
@@ -650,10 +654,10 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Lab RSS News Feed</CardTitle>
+                <CardTitle className="text-xl">Lab News</CardTitle>
               </CardHeader>
 
-              <CardContent className="grid gap-4 md:grid-cols-3">
+              <CardContent className="grid gap-4 md:grid-cols-2">
                 {/* STEP 3: Replace RSS placeholder with Recent Scholarly Activities table */}
                 <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
@@ -690,10 +694,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           {recentScholarly.map((it, idx) => {
                             const firstAuthor = pickFirstAuthor_(it) || "—";
                             const journal = pickJournal_(it) || "—";
-                            const pubDate =
-                              toDateString_(it?.date || it?.published) || "—";
+                            const pubDate = toDateString_(it?.publicationDate) || "—";
                             const title = it?.title ? String(it.title) : "Untitled";
-                            const url = it?.url ? String(it.url) : "";
+                            const url = it?.articleUrl ? String(it.articleUrl) : (it?.zoteroUrl ? String(it.zoteroUrl) : "");
 
                             return (
                               <tr key={`${url || title}-${idx}`} className="align-top">
@@ -733,7 +736,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border bg-white/60 p-4 md:col-span-2">
+                <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="text-sm font-semibold">Announcements</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => (
