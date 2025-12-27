@@ -1,8 +1,6 @@
-// Updated App.jsx with requested changes:
-// (1) Remove “Update your profile” button from the Current members tab  ✅ (none existed there; no change needed)
-// (2) Center the “All opportunities…” text at bottom of Lab members tab ✅
-// (3) Reorder tabs so Current members is right-most ✅
-// (4) Make header location pill link to Google Maps + email pill a mailto ✅
+// App.jsx — Updated with requested changes:
+// (A) Make Scholarly Activities + Announcements blocks mobile-friendly (no spillover on phones; unchanged look on desktop)
+// (B) Add vertical scroll areas so viewers can browse ALL entries (not just the most recent)
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +34,7 @@ const PLACEHOLDER = {
   dept: "Department of Agronomy, Purdue University",
   location: "West Lafayette, Indiana",
 
-  // NEW: header link targets
+  // Header link targets
   locationMapLink: "https://maps.app.goo.gl/FDXD2dZ28cQydot19",
 
   // Hosting / org
@@ -83,7 +81,7 @@ const NAV = {
   members: "members",
   gallery: "gallery",
   quotes: "quotes",
-  current: "current", // keep value, but move tab to end
+  current: "current",
 };
 
 function toDateString_(v) {
@@ -101,6 +99,7 @@ function formatAnnouncementTime_(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
 
+  // Elegant, compact. Locale-aware.
   return d.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -274,18 +273,21 @@ const FALLBACK_ANNOUNCEMENTS = [
     text: "Short call-to-action with link to the intake form.",
     url: "https://REPLACE_ME",
     publish: true,
+    time: "",
   },
   {
     title: "Latest paper / preprint",
     text: "Link to DOI or preprint server.",
     url: "https://REPLACE_ME",
     publish: true,
+    time: "",
   },
   {
     title: "Recent field campaign",
     text: "Link to the gallery album.",
     url: "https://REPLACE_ME",
     publish: true,
+    time: "",
   },
 ];
 
@@ -446,7 +448,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     });
   }, [members, memberSearch]);
 
-  const recentScholarly = useMemo(() => {
+  // (B) Scholarly: sort newest → oldest, and display ALL in a scrollable table
+  const sortedScholarly = useMemo(() => {
     const list = Array.isArray(scholarly) ? scholarly : [];
     const sorted = [...list].sort((a, b) => {
       const ta = new Date(
@@ -467,7 +470,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       ).getTime();
       return tb - ta;
     });
-    return sorted.slice(0, 5);
+    return sorted;
   }, [scholarly]);
 
   const currentQuiz = useMemo(() => {
@@ -522,7 +525,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </div>
           </div>
 
-          {/* (4) Location pill links to Google Maps; Email pill is mailto */}
+          {/* Location pill links to Google Maps; Email pill is mailto */}
           <div className="hidden items-center gap-2 md:flex">
             <Pill href={PLACEHOLDER.locationMapLink}>
               <MapPin className="mr-1 h-3.5 w-3.5" />
@@ -540,7 +543,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* Main */}
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          {/* (3) Reordered tabs: Current members moved to right-most */}
+          {/* Tabs: Current members right-most */}
           <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-2 md:grid-cols-6">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
               Home
@@ -641,137 +644,153 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <CardTitle className="text-xl">Lab News</CardTitle>
               </CardHeader>
 
+              {/* (A)+(B) Mobile-friendly headers + scrollable containers */}
               <CardContent className="grid gap-4 md:grid-cols-2">
+                {/* Scholarly */}
                 <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Rss className="h-4 w-4" />
-                    Recent Scholarly Activities Involving MEME Lab Members
+                  <div className="flex min-w-0 items-start gap-2">
+                    <Rss className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold leading-5 break-words">
+                        Recent Scholarly Activities Involving MEME Lab Members
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Source: Zotero group library
+                      </div>
+                    </div>
                   </div>
 
                   {!scholarlyLoaded ? (
                     <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
-                  ) : recentScholarly.length === 0 ? (
+                  ) : sortedScholarly.length === 0 ? (
                     <p className="mt-2 text-sm text-muted-foreground">
                       No recent items found yet.
                     </p>
                   ) : (
                     <div className="mt-3 overflow-x-auto">
-                      <table className="w-full border-separate border-spacing-0 text-sm">
-                        <thead>
-                          <tr className="text-left">
-                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
-                              First author
-                            </th>
-                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
-                              Journal
-                            </th>
-                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
-                              Pub date
-                            </th>
-                            <th className="border-b bg-white/40 px-3 py-2 font-semibold">
-                              Title
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {recentScholarly.map((it, idx) => {
-                            const firstAuthor = pickFirstAuthor_(it) || "—";
-                            const journal = pickJournal_(it) || "—";
-                            const pubDate =
-                              toDateString_(it?.publicationDate) || "—";
-                            const title = it?.title
-                              ? String(it.title)
-                              : "Untitled";
-                            const url = it?.articleUrl
-                              ? String(it.articleUrl)
-                              : it?.zoteroUrl
-                              ? String(it.zoteroUrl)
-                              : "";
+                      <div className="max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
+                        <table className="w-full border-separate border-spacing-0 text-sm">
+                          <thead className="sticky top-0 z-10">
+                            <tr className="text-left">
+                              <th className="border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                First author
+                              </th>
+                              <th className="border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                Journal
+                              </th>
+                              <th className="border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                Pub date
+                              </th>
+                              <th className="border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                Title
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sortedScholarly.map((it, idx) => {
+                              const firstAuthor = pickFirstAuthor_(it) || "—";
+                              const journal = pickJournal_(it) || "—";
+                              const pubDate =
+                                toDateString_(it?.publicationDate) || "—";
+                              const title = it?.title
+                                ? String(it.title)
+                                : "Untitled";
+                              const url = it?.articleUrl
+                                ? String(it.articleUrl)
+                                : it?.zoteroUrl
+                                ? String(it.zoteroUrl)
+                                : "";
 
-                            return (
-                              <tr
-                                key={`${url || title}-${idx}`}
-                                className="align-top"
-                              >
-                                <td className="border-b px-3 py-2 text-muted-foreground">
-                                  {firstAuthor}
-                                </td>
-                                <td className="border-b px-3 py-2 text-muted-foreground">
-                                  {journal}
-                                </td>
-                                <td className="border-b px-3 py-2 text-muted-foreground">
-                                  {pubDate}
-                                </td>
-                                <td className="border-b px-3 py-2">
-                                  {url ? (
-                                    <a
-                                      href={url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
-                                    >
-                                      {title}
-                                    </a>
-                                  ) : (
-                                    <span className="font-medium">{title}</span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Source: Zotero group library
-                      </p>
+                              return (
+                                <tr
+                                  key={`${url || title}-${idx}`}
+                                  className="align-top"
+                                >
+                                  <td className="border-b px-3 py-2 text-muted-foreground">
+                                    {firstAuthor}
+                                  </td>
+                                  <td className="border-b px-3 py-2 text-muted-foreground">
+                                    {journal}
+                                  </td>
+                                  <td className="border-b px-3 py-2 text-muted-foreground">
+                                    {pubDate}
+                                  </td>
+                                  <td className="border-b px-3 py-2 min-w-0">
+                                    {url ? (
+                                      <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                      >
+                                        {title}
+                                      </a>
+                                    ) : (
+                                      <span className="font-medium break-words">
+                                        {title}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
                 </div>
 
+                {/* Announcements */}
                 <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Announcements</div>
-                  <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                    {(announcements || []).map((a, idx) => {
-                      const when = formatAnnouncementTime_(a.time);
+                  <div className="text-sm font-semibold break-words">
+                    Announcements
+                  </div>
 
-                      return (
-                        <li
-                          key={`${a.title || "a"}-${idx}`}
-                          className="rounded-xl border bg-white/70 px-3 py-2"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <div className="font-medium text-slate-700">
-                                {a.title}
+                  <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {(announcements || []).map((a, idx) => {
+                        const when = formatAnnouncementTime_(a.time);
+
+                        return (
+                          <li
+                            key={`${a.title || "a"}-${idx}`}
+                            className="rounded-xl border bg-white/70 px-3 py-2"
+                          >
+                            {/* Mobile: stack; Desktop: row with timestamp right */}
+                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                              <div className="min-w-0">
+                                <div className="font-medium text-slate-700 break-words">
+                                  {a.title}
+                                </div>
+
+                                <div className="mt-1 break-words">
+                                  {a.url ? (
+                                    <a
+                                      href={a.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words"
+                                    >
+                                      {a.text}
+                                    </a>
+                                  ) : (
+                                    <span className="break-words">{a.text}</span>
+                                  )}
+                                </div>
                               </div>
 
-                              <div className="mt-1">
-                                {a.url ? (
-                                  <a
-                                    href={a.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
-                                  >
-                                    {a.text}
-                                  </a>
-                                ) : (
-                                  a.text
-                                )}
-                              </div>
+                              {when && (
+                                <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
+                                  {when}
+                                </div>
+                              )}
                             </div>
-
-                            {when && (
-                              <div className="shrink-0 text-xs text-muted-foreground">
-                                {when}
-                              </div>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1068,7 +1087,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   })}
                 </div>
 
-                {/* (2) Center this text */}
                 <div className="rounded-2xl border bg-white/60 p-4 text-center text-sm text-muted-foreground">
                   All opportunities to join the team will be posted in the
                   Announcements section on the Home page.
@@ -1087,11 +1105,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                      <span className="font-medium text-slate-800">
+                    <span className="font-medium text-slate-800">
                       Visit our lab photo album
                     </span>{" "}
-                    for a full look at highlights from our field work,
-                    outreach, teaching, and research.
+                    for a full look at highlights from our field work, outreach,
+                    teaching, and research.
                   </div>
 
                   <Button
@@ -1106,8 +1124,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                   {randomGallery.length === 0 ? (
                     <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                      No photos configured yet. Provide a <code>fetchView("gallery")</code>{" "}
-                      feed (recommended) or populate <code>FALLBACK_GALLERY_PHOTOS</code>.
+                      No photos configured yet. Provide a{" "}
+                      <code>fetchView("gallery")</code> feed (recommended) or
+                      populate <code>FALLBACK_GALLERY_PHOTOS</code>.
                     </div>
                   ) : (
                     randomGallery.map((url, i) => (
@@ -1249,7 +1268,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.current} className="mt-6 space-y-6">
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Member portals</CardTitle>
+                <CardTitle className="text-xl">Member portal</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-3">
                 <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
@@ -1264,7 +1283,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     must be handled by Google.
                   </p>
 
-                  {/* (1) No “Update your profile” button appears here (only hub + handbook). */}
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Button
                       className="rounded-2xl"
