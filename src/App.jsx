@@ -1,9 +1,7 @@
-// App.jsx — Updated with stronger mobile fixes for Scholarly Activities + Announcements
-// Key changes (mobile-only; desktop look preserved):
-// 1) Scholarly: on mobile, render as stacked “cards” (no multi-column table overflow)
-// 2) Scholarly (md+): keep table, but force safe wrapping + fixed layout inside scroll container
-// 3) Announcements: enforce wrapping/containment for long titles/URLs/text with min-w-0 + break-*
-// 4) Add defensive overflow guards on the two panels so nothing can extend past viewport
+// App.jsx — Aesthetic updates
+// (1) Slightly thicker outlines for Badges + Buttons (border-2)
+// (2) Add a subtle “wallpaper” behind the TabsList + main content area, at ~50% opacity
+//     Uses your Google Drive image via a direct file endpoint.
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +27,18 @@ import {
   Database,
 } from "lucide-react";
 
+/**
+ * Google Drive "view" links often won’t render as images directly.
+ * This "uc" endpoint usually works for public files.
+ */
+const WALLPAPER_URL =
+  "https://drive.google.com/uc?export=download&id=1U13qxF9we4pzm-ws60oe6ix9IuJoTUZb";
+
+// Small, reusable style tokens for the aesthetic tweak
+const BADGE_OUTLINE = "border-2";
+const BUTTON_OUTLINE = "border-2";
+const CHIP_OUTLINE = "border-2";
+
 const PLACEHOLDER = {
   // Lab identity
   labName: "Managed Ecosystem Microbial Ecology Lab",
@@ -49,7 +59,7 @@ const PLACEHOLDER = {
   dataRepo: "https://osf.io/6nepb/",
 
   // Protocols
-  protocolsIoWorkspace: "https://www.zotero.org/groups/6361023/meme-lab-website/library",
+  protocolsIoWorkspace: "https://www.protocols.io/workspaces/meme-lab-protocols/publications",
   labSopDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Recruiting / onboarding
@@ -175,7 +185,7 @@ function LinkRow({ icon: Icon, title, desc, href, onClick }) {
 
 function Pill({ children, href }) {
   const cls =
-    "inline-flex items-center rounded-full border bg-white/70 px-3 py-1 text-xs font-medium transition hover:bg-white hover:shadow-sm";
+    `inline-flex items-center rounded-full ${CHIP_OUTLINE} bg-white/70 px-3 py-1 text-xs font-medium transition hover:bg-white hover:shadow-sm`.trim();
 
   if (href) {
     return (
@@ -540,874 +550,917 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
       {/* Main */}
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-2 md:grid-cols-6">
-            <TabsTrigger className="rounded-xl" value={NAV.home}>
-              Home
-            </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.research}>
-              Research
-            </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.members}>
-              Lab members
-            </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.gallery}>
-              Gallery
-            </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.quotes}>
-              Quotes & quiz
-            </TabsTrigger>
-            <TabsTrigger className="rounded-xl" value={NAV.current}>
-              Current members
-            </TabsTrigger>
-          </TabsList>
+        {/* Wallpaper wrapper behind TabsList + tab content */}
+        <div className="relative overflow-hidden rounded-3xl border bg-white/40">
+          {/* Wallpaper image layer */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              backgroundImage: `url("${WALLPAPER_URL}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+          {/* Soft white veil to keep text crisp (still lets wallpaper show) */}
+          <div className="pointer-events-none absolute inset-0 bg-white/40" />
 
-          {/* HOME */}
-          <TabsContent value={NAV.home} className="mt-6 space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
-              <Card className="rounded-2xl md:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-xl">What we do</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    The {PLACEHOLDER.shortName} studies how land management
-                    shapes microbial communities and how those communities, in
-                    turn, regulate nutrient cycling, plant health, and ecosystem
-                    services. We develop reproducible workflows and open data
-                    assets to make microbiome science more predictive and
-                    actionable.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="rounded-full">
-                      Rhizosphere biogeochemistry
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Stable isotope probing
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Data standards & FAIR workflows
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Managed ecosystems
-                    </Badge>
-                  </div>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      className="rounded-2xl"
-                      onClick={() => setActiveTab(NAV.research)}
-                    >
-                      Explore research
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Foreground content */}
+          <div className="relative z-10 p-2 sm:p-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100/70 p-2 md:grid-cols-6">
+                <TabsTrigger className="rounded-xl" value={NAV.home}>
+                  Home
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl" value={NAV.research}>
+                  Research
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl" value={NAV.members}>
+                  Lab members
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl" value={NAV.gallery}>
+                  Gallery
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl" value={NAV.quotes}>
+                  Quotes & quiz
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl" value={NAV.current}>
+                  Current members
+                </TabsTrigger>
+              </TabsList>
 
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl">Quick links</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <LinkRow
-                    icon={GraduationCap}
-                    title="Prospective students"
-                    desc="Recruitment information"
-                    href={PLACEHOLDER.onboardingDoc}
-                  />
-                  <LinkRow
-                    icon={FlaskConical}
-                    title="Protocols"
-                    desc="SOPs and methods"
-                    onClick={goToResearchProtocols}
-                  />
-                  <LinkRow
-                    icon={BookOpen}
-                    title="Publications library"
-                    desc="Zotero group library"
-                    href={PLACEHOLDER.publications}
-                  />
-                  <LinkRow
-                    icon={Database}
-                    title="Open data"
-                    desc="Accessioned Datasets & Code"
-                    href={PLACEHOLDER.dataRepo}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Lab News</CardTitle>
-              </CardHeader>
-
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                {/* Scholarly panel (mobile-safe) */}
-                <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
-                  <div className="flex min-w-0 items-start gap-2">
-                    <Rss className="mt-0.5 h-4 w-4 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold leading-5 break-words">
-                        Recent Scholarly Activities Involving MEME Lab Members
+              {/* HOME */}
+              <TabsContent value={NAV.home} className="mt-4 space-y-6">
+                <div className="grid gap-6 md:grid-cols-3">
+                  <Card className="rounded-2xl md:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-xl">What we do</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm leading-6 text-muted-foreground">
+                        The {PLACEHOLDER.shortName} studies how land management
+                        shapes microbial communities and how those communities, in
+                        turn, regulate nutrient cycling, plant health, and ecosystem
+                        services. We develop reproducible workflows and open data
+                        assets to make microbiome science more predictive and
+                        actionable.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full ${BADGE_OUTLINE}`}
+                        >
+                          Rhizosphere biogeochemistry
+                        </Badge>
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full ${BADGE_OUTLINE}`}
+                        >
+                          Stable isotope probing
+                        </Badge>
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full ${BADGE_OUTLINE}`}
+                        >
+                          Data standards & FAIR workflows
+                        </Badge>
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full ${BADGE_OUTLINE}`}
+                        >
+                          Managed ecosystems
+                        </Badge>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Source: Zotero group library
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Button
+                          className={`rounded-2xl ${BUTTON_OUTLINE} border-slate-200/60`}
+                          onClick={() => setActiveTab(NAV.research)}
+                        >
+                          Explore research
+                        </Button>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Quick links</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <LinkRow
+                        icon={GraduationCap}
+                        title="Prospective students"
+                        desc="Recruitment information"
+                        href={PLACEHOLDER.onboardingDoc}
+                      />
+                      <LinkRow
+                        icon={FlaskConical}
+                        title="Protocols"
+                        desc="Lab Methods and SOPs"
+                        onClick={goToResearchProtocols}
+                      />
+                      <LinkRow
+                        icon={BookOpen}
+                        title="Publications library"
+                        desc="Zotero group library"
+                        href={PLACEHOLDER.publications}
+                      />
+                      <LinkRow
+                        icon={Database}
+                        title="Open data"
+                        desc="Accessioned Datasets & Code"
+                        href={PLACEHOLDER.dataRepo}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Lab News</CardTitle>
+                  </CardHeader>
+
+                  <CardContent className="grid gap-4 md:grid-cols-2">
+                    {/* Scholarly panel (mobile-safe) */}
+                    <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+                      <div className="flex min-w-0 items-start gap-2">
+                        <Rss className="mt-0.5 h-4 w-4 shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold leading-5 break-words">
+                            Recent Scholarly Activities Involving MEME Lab Members
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            Source: Zotero group library
+                          </div>
+                        </div>
+                      </div>
+
+                      {!scholarlyLoaded ? (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Loading…
+                        </p>
+                      ) : sortedScholarly.length === 0 ? (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          No recent items found yet.
+                        </p>
+                      ) : (
+                        <>
+                          {/* MOBILE: cards */}
+                          <div className="mt-3 md:hidden max-h-80 overflow-y-auto pr-1">
+                            <div className="space-y-2">
+                              {sortedScholarly.map((it, idx) => {
+                                const firstAuthor = pickFirstAuthor_(it) || "—";
+                                const journal = pickJournal_(it) || "—";
+                                const pubDate =
+                                  toDateString_(it?.publicationDate) || "—";
+                                const title = it?.title
+                                  ? String(it.title)
+                                  : "Untitled";
+                                const url = it?.articleUrl
+                                  ? String(it.articleUrl)
+                                  : it?.zoteroUrl
+                                  ? String(it.zoteroUrl)
+                                  : "";
+
+                                return (
+                                  <div
+                                    key={`${url || title}-${idx}`}
+                                    className="rounded-xl border bg-white/70 px-3 py-2"
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="min-w-0">
+                                        <div className="text-xs text-muted-foreground break-words">
+                                          {firstAuthor} • {journal}
+                                        </div>
+                                        <div className="mt-1 min-w-0">
+                                          {url ? (
+                                            <a
+                                              href={url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                            >
+                                              {title}
+                                            </a>
+                                          ) : (
+                                            <span className="font-medium break-words">
+                                              {title}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="shrink-0 text-[11px] text-muted-foreground">
+                                        {pubDate}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* DESKTOP/TABLET: table */}
+                          <div className="mt-3 hidden md:block">
+                            <div className="max-h-[420px] overflow-y-auto pr-1">
+                              <div className="overflow-x-auto max-w-full">
+                                <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                                  <thead className="sticky top-0 z-10">
+                                    <tr className="text-left">
+                                      <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                        First author
+                                      </th>
+                                      <th className="w-[22%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                        Journal
+                                      </th>
+                                      <th className="w-[14%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                        Pub date
+                                      </th>
+                                      <th className="w-[46%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                        Title
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {sortedScholarly.map((it, idx) => {
+                                      const firstAuthor =
+                                        pickFirstAuthor_(it) || "—";
+                                      const journal = pickJournal_(it) || "—";
+                                      const pubDate =
+                                        toDateString_(it?.publicationDate) ||
+                                        "—";
+                                      const title = it?.title
+                                        ? String(it.title)
+                                        : "Untitled";
+                                      const url = it?.articleUrl
+                                        ? String(it.articleUrl)
+                                        : it?.zoteroUrl
+                                        ? String(it.zoteroUrl)
+                                        : "";
+
+                                      return (
+                                        <tr
+                                          key={`${url || title}-${idx}`}
+                                          className="align-top"
+                                        >
+                                          <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                            {firstAuthor}
+                                          </td>
+                                          <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                            {journal}
+                                          </td>
+                                          <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                            {pubDate}
+                                          </td>
+                                          <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
+                                            {url ? (
+                                              <a
+                                                href={url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
+                                              >
+                                                {title}
+                                              </a>
+                                            ) : (
+                                              <span className="font-medium break-words whitespace-normal">
+                                                {title}
+                                              </span>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </div>
 
-                  {!scholarlyLoaded ? (
-                    <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
-                  ) : sortedScholarly.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      No recent items found yet.
-                    </p>
-                  ) : (
-                    <>
-                      {/* MOBILE: cards (no table) */}
-                      <div className="mt-3 md:hidden max-h-80 overflow-y-auto pr-1">
-                        <div className="space-y-2">
-                          {sortedScholarly.map((it, idx) => {
-                            const firstAuthor = pickFirstAuthor_(it) || "—";
-                            const journal = pickJournal_(it) || "—";
-                            const pubDate =
-                              toDateString_(it?.publicationDate) || "—";
-                            const title = it?.title
-                              ? String(it.title)
-                              : "Untitled";
-                            const url = it?.articleUrl
-                              ? String(it.articleUrl)
-                              : it?.zoteroUrl
-                              ? String(it.zoteroUrl)
-                              : "";
+                    {/* Announcements panel */}
+                    <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+                      <div className="text-sm font-semibold break-words">
+                        Announcements
+                      </div>
+
+                      <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          {(announcements || []).map((a, idx) => {
+                            const when = formatAnnouncementTime_(a.time);
 
                             return (
-                              <div
-                                key={`${url || title}-${idx}`}
-                                className="rounded-xl border bg-white/70 px-3 py-2"
+                              <li
+                                key={`${a.title || "a"}-${idx}`}
+                                className="rounded-xl border bg-white/70 px-3 py-2 max-w-full overflow-hidden"
                               >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0">
-                                    <div className="text-xs text-muted-foreground break-words">
-                                      {firstAuthor} • {journal}
+                                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                  <div className="min-w-0 max-w-full">
+                                    <div className="font-medium text-slate-700 break-words whitespace-normal">
+                                      {a.title}
                                     </div>
-                                    <div className="mt-1 min-w-0">
-                                      {url ? (
+
+                                    <div className="mt-1 break-words whitespace-normal max-w-full">
+                                      {a.url ? (
                                         <a
-                                          href={url}
+                                          href={a.url}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                          className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
+                                          style={{
+                                            overflowWrap: "anywhere",
+                                            wordBreak: "break-word",
+                                          }}
                                         >
-                                          {title}
+                                          {a.text}
                                         </a>
                                       ) : (
-                                        <span className="font-medium break-words">
-                                          {title}
+                                        <span
+                                          className="break-words whitespace-normal"
+                                          style={{
+                                            overflowWrap: "anywhere",
+                                            wordBreak: "break-word",
+                                          }}
+                                        >
+                                          {a.text}
                                         </span>
                                       )}
                                     </div>
                                   </div>
-                                  <div className="shrink-0 text-[11px] text-muted-foreground">
-                                    {pubDate}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
 
-                      {/* DESKTOP/TABLET: table (kept), but wrapped + fixed layout */}
-                      <div className="mt-3 hidden md:block">
-                        <div className="max-h-[420px] overflow-y-auto pr-1">
-                          <div className="overflow-x-auto max-w-full">
-                            <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
-                              <thead className="sticky top-0 z-10">
-                                <tr className="text-left">
-                                  <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    First author
-                                  </th>
-                                  <th className="w-[22%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Journal
-                                  </th>
-                                  <th className="w-[14%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Pub date
-                                  </th>
-                                  <th className="w-[46%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Title
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {sortedScholarly.map((it, idx) => {
-                                  const firstAuthor =
-                                    pickFirstAuthor_(it) || "—";
-                                  const journal = pickJournal_(it) || "—";
-                                  const pubDate =
-                                    toDateString_(it?.publicationDate) || "—";
-                                  const title = it?.title
-                                    ? String(it.title)
-                                    : "Untitled";
-                                  const url = it?.articleUrl
-                                    ? String(it.articleUrl)
-                                    : it?.zoteroUrl
-                                    ? String(it.zoteroUrl)
-                                    : "";
-
-                                  return (
-                                    <tr
-                                      key={`${url || title}-${idx}`}
-                                      className="align-top"
-                                    >
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {firstAuthor}
-                                      </td>
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {journal}
-                                      </td>
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {pubDate}
-                                      </td>
-                                      <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
-                                        {url ? (
-                                          <a
-                                            href={url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
-                                          >
-                                            {title}
-                                          </a>
-                                        ) : (
-                                          <span className="font-medium break-words whitespace-normal">
-                                            {title}
-                                          </span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Announcements panel (mobile-safe) */}
-                <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
-                  <div className="text-sm font-semibold break-words">
-                    Announcements
-                  </div>
-
-                  <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      {(announcements || []).map((a, idx) => {
-                        const when = formatAnnouncementTime_(a.time);
-
-                        return (
-                          <li
-                            key={`${a.title || "a"}-${idx}`}
-                            className="rounded-xl border bg-white/70 px-3 py-2 max-w-full overflow-hidden"
-                          >
-                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                              <div className="min-w-0 max-w-full">
-                                <div className="font-medium text-slate-700 break-words whitespace-normal">
-                                  {a.title}
-                                </div>
-
-                                <div className="mt-1 break-words whitespace-normal max-w-full">
-                                  {a.url ? (
-                                    <a
-                                      href={a.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
-                                      style={{
-                                        overflowWrap: "anywhere",
-                                        wordBreak: "break-word",
-                                      }}
-                                    >
-                                      {a.text}
-                                    </a>
-                                  ) : (
-                                    <span
-                                      className="break-words whitespace-normal"
-                                      style={{
-                                        overflowWrap: "anywhere",
-                                        wordBreak: "break-word",
-                                      }}
-                                    >
-                                      {a.text}
-                                    </span>
+                                  {when && (
+                                    <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
+                                      {when}
+                                    </div>
                                   )}
                                 </div>
-                              </div>
-
-                              {when && (
-                                <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
-                                  {when}
-                                </div>
-                              )}
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* RESEARCH */}
-          <TabsContent value={NAV.research} className="mt-6 space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
-              {FALLBACK_RESEARCH_AREAS.map((a) => (
-                <Card key={a.title} className="rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{a.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                      {a.bullets.map((b) => (
-                        <li key={b}>{b}</li>
-                      ))}
-                    </ul>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              </TabsContent>
 
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  Projects (keep current via Google Sheets)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                {(projects || []).map((p) => (
-                  <div
-                    key={p.title}
-                    className="rounded-2xl border bg-white/60 p-4"
-                  >
-                    <div className="text-sm font-semibold">{p.title}</div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {p.summary}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {(p.tags || []).slice(0, 6).map((t) => (
-                        <Badge
-                          key={t}
-                          variant="secondary"
-                          className="rounded-full"
-                        >
-                          {t}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {p.readMoreUrl && (
-                        <Button
-                          size="sm"
-                          className="rounded-2xl"
-                          onClick={() => window.open(p.readMoreUrl, "_blank")}
-                        >
-                          Read more
-                        </Button>
-                      )}
-                      {p.dataUrl && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-2xl"
-                          onClick={() => window.open(p.dataUrl, "_blank")}
-                        >
-                          Data / code
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl" id="protocols">
-              <CardHeader>
-                <CardTitle className="text-xl">Protocols & SOPs</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 space-y-3">
-                  <LinkRow
-                    icon={FlaskConical}
-                    title="protocols.io workspace"
-                    desc="Versioned methods (optionally citable)"
-                    href={PLACEHOLDER.protocolsIoWorkspace}
-                  />
-                  <LinkRow
-                    icon={FileText}
-                    title="Lab SOP binder (Google Drive folder)"
-                    desc="Day-to-day SOPs: media prep, DNA extraction, safety"
-                    href={PLACEHOLDER.labSopDriveFolder}
-                  />
-                  <LinkRow
-                    icon={Github}
-                    title="Analysis SOPs (GitHub)"
-                    desc="Pipelines, env files, templates, reproducible analyses"
-                    href={PLACEHOLDER.githubOrg}
-                  />
-                </div>
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Safety</div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Link to Purdue EHPS plus any lab-specific training checklists.
-                  </p>
-                  <Button
-                    className="mt-3 rounded-2xl"
-                    variant="outline"
-                    onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
-                  >
-                    Open safety resources
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  Keep the site current with third-party sources
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-2">
-                <LinkRow
-                  icon={BookOpen}
-                  title="Publications (Zotero group library)"
-                  desc="Add papers once; website stays up to date"
-                  href={PLACEHOLDER.publications}
-                />
-                <LinkRow
-                  icon={Github}
-                  title="Code & pipelines (GitHub org)"
-                  desc="Repos for analyses, tools, lab utilities"
-                  href={PLACEHOLDER.githubOrg}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Open data & materials (OSF / Figshare)"
-                  desc="Datasets, metadata, figures, and archives"
-                  href={PLACEHOLDER.dataRepo}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Lab handbook (Google Doc)"
-                  desc="Policies, expectations, onboarding"
-                  href={PLACEHOLDER.labHandbook}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Member profile intake (Google Form)"
-                  desc="Students update their own bio + headshot"
-                  href={PLACEHOLDER.memberIntakeForm}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* LAB MEMBERS (public) */}
-          <TabsContent value={NAV.members} className="mt-6 space-y-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Member Directory</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Meet the current and past members of the MEME Lab.
-                  </div>
-                  <div className="flex w-full gap-2 md:w-auto">
-                    <Input
-                      value={memberSearch}
-                      onChange={(e) => setMemberSearch(e.target.value)}
-                      placeholder="Search by name / role / topic"
-                      className="h-10 rounded-2xl"
-                    />
-                    <Button
-                      variant="outline"
-                      className="h-10 rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.memberIntakeForm, "_blank")
-                      }
-                    >
-                      Update your profile
-                    </Button>
-                  </div>
+              {/* RESEARCH */}
+              <TabsContent value={NAV.research} className="mt-4 space-y-6">
+                <div className="grid gap-6 md:grid-cols-3">
+                  {FALLBACK_RESEARCH_AREAS.map((a) => (
+                    <Card key={a.title} className="rounded-2xl">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{a.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                          {a.bullets.map((b) => (
+                            <li key={b}>{b}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  {filteredMembers.map((m) => {
-                    const programYear = [m?.program, m?.year]
-                      .filter(Boolean)
-                      .join(" • ");
-
-                    return (
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      Projects (keep current via Google Sheets)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 md:grid-cols-2">
+                    {(projects || []).map((p) => (
                       <div
-                        key={m.id || m.name}
-                        className="rounded-2xl border bg-white/60 p-4 shadow-sm"
+                        key={p.title}
+                        className="rounded-2xl border bg-white/60 p-4"
                       >
-                        <div className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1">
-                            <Avatar
-                              name={m.name}
-                              photoUrl={m.photoUrl}
-                              className="min-h-[140px]"
-                            />
-                          </div>
+                        <div className="text-sm font-semibold">{p.title}</div>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {p.summary}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(p.tags || []).slice(0, 6).map((t) => (
+                            <Badge
+                              key={t}
+                              variant="secondary"
+                              className={`rounded-full ${BADGE_OUTLINE}`}
+                            >
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {p.readMoreUrl && (
+                            <Button
+                              size="sm"
+                              className={`rounded-2xl ${BUTTON_OUTLINE} border-slate-200/60`}
+                              onClick={() => window.open(p.readMoreUrl, "_blank")}
+                            >
+                              Read more
+                            </Button>
+                          )}
+                          {p.dataUrl && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={`rounded-2xl ${BUTTON_OUTLINE}`}
+                              onClick={() => window.open(p.dataUrl, "_blank")}
+                            >
+                              Data / code
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
 
-                          <div className="col-span-2 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <div className="truncate text-lg font-semibold leading-6">
-                                {m.name}
+                <Card className="rounded-2xl" id="protocols">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Protocols & SOPs</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 md:grid-cols-3">
+                    <div className="md:col-span-2 space-y-3">
+                      <LinkRow
+                        icon={FlaskConical}
+                        title="protocols.io workspace"
+                        desc="Versioned methods (optionally citable)"
+                        href={PLACEHOLDER.protocolsIoWorkspace}
+                      />
+                      <LinkRow
+                        icon={FileText}
+                        title="Lab SOP binder (Google Drive folder)"
+                        desc="Day-to-day SOPs: media prep, DNA extraction, safety"
+                        href={PLACEHOLDER.labSopDriveFolder}
+                      />
+                      <LinkRow
+                        icon={Github}
+                        title="Analysis SOPs (GitHub)"
+                        desc="Pipelines, env files, templates, reproducible analyses"
+                        href={PLACEHOLDER.githubOrg}
+                      />
+                    </div>
+                    <div className="rounded-2xl border bg-white/60 p-4">
+                      <div className="text-sm font-semibold">Safety</div>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Link to Purdue EHPS plus any lab-specific training checklists.
+                      </p>
+                      <Button
+                        className={`mt-3 rounded-2xl ${BUTTON_OUTLINE}`}
+                        variant="outline"
+                        onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
+                      >
+                        Open safety resources
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      Keep the site current with third-party sources
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-3 md:grid-cols-2">
+                    <LinkRow
+                      icon={BookOpen}
+                      title="Publications (Zotero group library)"
+                      desc="Add papers once; website stays up to date"
+                      href={PLACEHOLDER.publications}
+                    />
+                    <LinkRow
+                      icon={Github}
+                      title="Code & pipelines (GitHub org)"
+                      desc="Repos for analyses, tools, lab utilities"
+                      href={PLACEHOLDER.githubOrg}
+                    />
+                    <LinkRow
+                      icon={ExternalLink}
+                      title="Open data & materials (OSF / Figshare)"
+                      desc="Datasets, metadata, figures, and archives"
+                      href={PLACEHOLDER.dataRepo}
+                    />
+                    <LinkRow
+                      icon={ExternalLink}
+                      title="Lab handbook (Google Doc)"
+                      desc="Policies, expectations, onboarding"
+                      href={PLACEHOLDER.labHandbook}
+                    />
+                    <LinkRow
+                      icon={ExternalLink}
+                      title="Member profile intake (Google Form)"
+                      desc="Students update their own bio + headshot"
+                      href={PLACEHOLDER.memberIntakeForm}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* LAB MEMBERS (public) */}
+              <TabsContent value={NAV.members} className="mt-4 space-y-6">
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Member Directory</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        Meet the current and past members of the MEME Lab.
+                      </div>
+                      <div className="flex w-full gap-2 md:w-auto">
+                        <Input
+                          value={memberSearch}
+                          onChange={(e) => setMemberSearch(e.target.value)}
+                          placeholder="Search by name / role / topic"
+                          className="h-10 rounded-2xl"
+                        />
+                        <Button
+                          variant="outline"
+                          className={`h-10 rounded-2xl ${BUTTON_OUTLINE}`}
+                          onClick={() =>
+                            window.open(PLACEHOLDER.memberIntakeForm, "_blank")
+                          }
+                        >
+                          Update your profile
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {filteredMembers.map((m) => {
+                        const programYear = [m?.program, m?.year]
+                          .filter(Boolean)
+                          .join(" • ");
+
+                        return (
+                          <div
+                            key={m.id || m.name}
+                            className="rounded-2xl border bg-white/60 p-4 shadow-sm"
+                          >
+                            <div className="grid grid-cols-3 gap-4 items-start">
+                              <div className="col-span-1">
+                                <Avatar
+                                  name={m.name}
+                                  photoUrl={m.photoUrl}
+                                  className="min-h-[140px]"
+                                />
+                              </div>
+
+                              <div className="col-span-2 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <div className="truncate text-lg font-semibold leading-6">
+                                    {m.name}
+                                  </div>
+                                </div>
+
+                                <div className="mt-1 text-sm text-muted-foreground">
+                                  {m.role}
+                                  {programYear ? (
+                                    <span className="ml-2">• {programYear}</span>
+                                  ) : null}
+                                </div>
+
+                                {(m.focus || m.bio) && (
+                                  <div className="mt-3 text-sm leading-6 text-muted-foreground">
+                                    {m.focus || m.bio}
+                                  </div>
+                                )}
+
+                                {Array.isArray(m.keywords) &&
+                                  m.keywords.length > 0 && (
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                      {m.keywords.slice(0, 8).map((k) => (
+                                        <Badge
+                                          key={k}
+                                          variant="secondary"
+                                          className={`rounded-full ${BADGE_OUTLINE}`}
+                                        >
+                                          {k}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                                  {m.email && (
+                                    <a
+                                      href={`mailto:${m.email}`}
+                                      className={`inline-flex items-center rounded-full ${CHIP_OUTLINE} bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white`}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Email
+                                    </a>
+                                  )}
+
+                                  {m?.links?.website && (
+                                    <a
+                                      href={m.links.website}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className={`inline-flex items-center rounded-full ${CHIP_OUTLINE} bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white`}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Website
+                                    </a>
+                                  )}
+                                  {m?.links?.scholar && (
+                                    <a
+                                      href={m.links.scholar}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className={`inline-flex items-center rounded-full ${CHIP_OUTLINE} bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white`}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Scholar
+                                    </a>
+                                  )}
+                                  {m?.links?.github && (
+                                    <a
+                                      href={m.links.github}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className={`inline-flex items-center rounded-full ${CHIP_OUTLINE} bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white`}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      GitHub
+                                    </a>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                            <div className="mt-1 text-sm text-muted-foreground">
-                              {m.role}
-                              {programYear ? (
-                                <span className="ml-2">• {programYear}</span>
-                              ) : null}
+                    <div className="rounded-2xl border bg-white/60 p-4 text-center text-sm text-muted-foreground">
+                      All opportunities to join the team will be posted in the
+                      Announcements section on the Home page.
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* GALLERY */}
+              <TabsContent value={NAV.gallery} className="mt-4 space-y-6">
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Picture gallery</CardTitle>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        <span className="font-medium text-slate-800">
+                          Visit our lab photo album
+                        </span>{" "}
+                        for a full look at highlights from our field work, outreach,
+                        teaching, and research.
+                      </div>
+
+                      <Button
+                        className={`rounded-2xl ${BUTTON_OUTLINE} border-slate-200/60`}
+                        onClick={() =>
+                          window.open(PLACEHOLDER.photoGallery, "_blank")
+                        }
+                      >
+                        <Images className="mr-2 h-4 w-4" />
+                        Open gallery album
+                      </Button>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                      {randomGallery.length === 0 ? (
+                        <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                          No photos configured yet. Provide a{" "}
+                          <code>fetchView("gallery")</code> feed (recommended) or
+                          populate <code>FALLBACK_GALLERY_PHOTOS</code>.
+                        </div>
+                      ) : (
+                        randomGallery.map((url, i) => (
+                          <a
+                            key={`${url}-${i}`}
+                            href={PLACEHOLDER.photoGallery}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
+                            title="Open the full album"
+                          >
+                            <div className="aspect-[4/3] w-full overflow-hidden">
+                              <img
+                                src={url}
+                                alt={`Gallery photo ${i + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
                             </div>
+                          </a>
+                        ))
+                      )}
+                    </div>
 
-                            {(m.focus || m.bio) && (
-                              <div className="mt-3 text-sm leading-6 text-muted-foreground">
-                                {m.focus || m.bio}
+                    <div className="rounded-2xl border bg-white/60 p-4">
+                      <div className="text-sm font-semibold">Photo policy</div>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                        <li>Default: only post photos with consent.</li>
+                        <li>Label field sites appropriately.</li>
+                        <li>Avoid sharing sensitive locations.</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* QUOTES & QUIZ */}
+              <TabsContent value={NAV.quotes} className="mt-4 space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Card className="rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Quotes</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {(quotes || []).map((q, idx) => (
+                        <div
+                          key={idx}
+                          className="rounded-2xl border bg-white/60 p-4"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="mt-0.5 rounded-xl border bg-white p-2">
+                              <Quote className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <div className="text-sm">“{q.text}”</div>
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                — {q.attribution}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Micro-quiz</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="rounded-2xl border bg-white/60 p-4">
+                        {!currentQuiz ? (
+                          <div className="text-sm text-muted-foreground">
+                            Loading quiz…
+                          </div>
+                        ) : (
+                          <>
+                            <div className="text-sm font-semibold">
+                              {currentQuiz.question}
+                            </div>
+                            <div className="mt-3 grid gap-2">
+                              {currentQuiz.choices.map((c, i) => {
+                                const picked = quizPick === i;
+                                const show = quizPick !== null;
+                                return (
+                                  <button
+                                    key={`${currentQuiz.id || "q"}-${i}`}
+                                    className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${
+                                      picked ? "bg-white" : "bg-white/70"
+                                    }`}
+                                    onClick={() => setQuizPick(i)}
+                                  >
+                                    <div className="flex items-center justify-between gap-3">
+                                      <span>{c}</span>
+                                      {show && i === currentQuiz.answerIndex && (
+                                        <Badge
+                                          className={`rounded-full ${BADGE_OUTLINE}`}
+                                        >
+                                          Correct
+                                        </Badge>
+                                      )}
+                                      {show &&
+                                        picked &&
+                                        i !== currentQuiz.answerIndex && (
+                                          <Badge
+                                            variant="destructive"
+                                            className={`rounded-full ${BADGE_OUTLINE}`}
+                                          >
+                                            Not quite
+                                          </Badge>
+                                        )}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {quizPick !== null && currentQuiz.explanation && (
+                              <div className="mt-3 text-sm text-muted-foreground">
+                                {currentQuiz.explanation}
                               </div>
                             )}
-
-                            {Array.isArray(m.keywords) &&
-                              m.keywords.length > 0 && (
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  {m.keywords.slice(0, 8).map((k) => (
-                                    <Badge
-                                      key={k}
-                                      variant="secondary"
-                                      className="rounded-full"
-                                    >
-                                      {k}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              )}
-
-                            <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                              {m.email && (
-                                <a
-                                  href={`mailto:${m.email}`}
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Email
-                                </a>
-                              )}
-
-                              {m?.links?.website && (
-                                <a
-                                  href={m.links.website}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Website
-                                </a>
-                              )}
-                              {m?.links?.scholar && (
-                                <a
-                                  href={m.links.scholar}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Scholar
-                                </a>
-                              )}
-                              {m?.links?.github && (
-                                <a
-                                  href={m.links.github}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  GitHub
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="rounded-2xl border bg-white/60 p-4 text-center text-sm text-muted-foreground">
-                  All opportunities to join the team will be posted in the
-                  Announcements section on the Home page.
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* GALLERY */}
-          <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Picture gallery</CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium text-slate-800">
-                      Visit our lab photo album
-                    </span>{" "}
-                    for a full look at highlights from our field work, outreach,
-                    teaching, and research.
-                  </div>
-
-                  <Button
-                    className="rounded-2xl"
-                    onClick={() => window.open(PLACEHOLDER.photoGallery, "_blank")}
-                  >
-                    <Images className="mr-2 h-4 w-4" />
-                    Open gallery album
-                  </Button>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                  {randomGallery.length === 0 ? (
-                    <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                      No photos configured yet. Provide a{" "}
-                      <code>fetchView("gallery")</code> feed (recommended) or
-                      populate <code>FALLBACK_GALLERY_PHOTOS</code>.
-                    </div>
-                  ) : (
-                    randomGallery.map((url, i) => (
-                      <a
-                        key={`${url}-${i}`}
-                        href={PLACEHOLDER.photoGallery}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
-                        title="Open the full album"
-                      >
-                        <div className="aspect-[4/3] w-full overflow-hidden">
-                          <img
-                            src={url}
-                            alt={`Gallery photo ${i + 1}`}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                            loading="lazy"
-                          />
-                        </div>
-                      </a>
-                    ))
-                  )}
-                </div>
-
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Photo policy</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Default: only post photos with consent.</li>
-                    <li>Label field sites appropriately.</li>
-                    <li>Avoid sharing sensitive locations.</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* QUOTES & QUIZ */}
-          <TabsContent value={NAV.quotes} className="mt-6 space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl">Quotes</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {(quotes || []).map((q, idx) => (
-                    <div key={idx} className="rounded-2xl border bg-white/60 p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5 rounded-xl border bg-white p-2">
-                          <Quote className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm">“{q.text}”</div>
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            — {q.attribution}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl">Micro-quiz</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="rounded-2xl border bg-white/60 p-4">
-                    {!currentQuiz ? (
-                      <div className="text-sm text-muted-foreground">
-                        Loading quiz…
-                      </div>
-                    ) : (
-                      <>
-                        <div className="text-sm font-semibold">
-                          {currentQuiz.question}
-                        </div>
-                        <div className="mt-3 grid gap-2">
-                          {currentQuiz.choices.map((c, i) => {
-                            const picked = quizPick === i;
-                            const show = quizPick !== null;
-                            return (
-                              <button
-                                key={`${currentQuiz.id || "q"}-${i}`}
-                                className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${
-                                  picked ? "bg-white" : "bg-white/70"
-                                }`}
-                                onClick={() => setQuizPick(i)}
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                className={`rounded-2xl ${BUTTON_OUTLINE} border-slate-200/60`}
+                                onClick={nextQuizQuestion}
                               >
-                                <div className="flex items-center justify-between gap-3">
-                                  <span>{c}</span>
-                                  {show && i === currentQuiz.answerIndex && (
-                                    <Badge className="rounded-full">Correct</Badge>
-                                  )}
-                                  {show &&
-                                    picked &&
-                                    i !== currentQuiz.answerIndex && (
-                                      <Badge
-                                        variant="destructive"
-                                        className="rounded-full"
-                                      >
-                                        Not quite
-                                      </Badge>
-                                    )}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {quizPick !== null && currentQuiz.explanation && (
-                          <div className="mt-3 text-sm text-muted-foreground">
-                            {currentQuiz.explanation}
-                          </div>
+                                Next question
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className={`rounded-2xl ${BUTTON_OUTLINE}`}
+                                onClick={() => setQuizPick(null)}
+                              >
+                                Reset
+                              </Button>
+                            </div>
+                          </>
                         )}
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            className="rounded-2xl"
-                            onClick={nextQuizQuestion}
-                          >
-                            Next question
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-2xl"
-                            onClick={() => setQuizPick(null)}
-                          >
-                            Reset
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* CURRENT MEMBER PORTAL (restricted) */}
-          <TabsContent value={NAV.current} className="mt-6 space-y-6">
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Member portal</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Lock className="h-4 w-4" />
-                    Restricted hub
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    This tab links to password-protected (account-restricted)
-                    resources hosted in Google Drive / Google Sites. Because this
-                    website is hosted on GitHub Pages (static), authentication
-                    must be handled by Google.
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button
-                      className="rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.currentMembersHub, "_blank")
-                      }
-                    >
-                      Open current members hub
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.labHandbook, "_blank")}
-                    >
-                      Handbook (restricted copy)
-                    </Button>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
+              </TabsContent>
 
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Suggested contents</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Onboarding checklists</li>
-                    <li>Internal SOPs and inventories</li>
-                    <li>Meeting notes and calendars</li>
-                    <li>Shared datasets (restricted)</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+              {/* CURRENT MEMBER PORTAL */}
+              <TabsContent value={NAV.current} className="mt-4 space-y-6">
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Member portal</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 md:grid-cols-3">
+                    <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Lock className="h-4 w-4" />
+                        Restricted hub
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        This tab links to password-protected (account-restricted)
+                        resources hosted in Google Drive / Google Sites. Because this
+                        website is hosted on GitHub Pages (static), authentication
+                        must be handled by Google.
+                      </p>
 
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Access control model</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Recommended</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Create a Google Group (e.g., meme-current@purdue.edu).</li>
-                    <li>Share the hub folder/site with that group only.</li>
-                    <li>Use a single entry link from this tab.</li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Avoid</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Attempting “password protection” on GitHub Pages.</li>
-                    <li>Publishing private sheets/feeds and hiding links.</li>
-                    <li>Embedding restricted Docs that prompt for login repeatedly.</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Button
+                          className={`rounded-2xl ${BUTTON_OUTLINE} border-slate-200/60`}
+                          onClick={() =>
+                            window.open(PLACEHOLDER.currentMembersHub, "_blank")
+                          }
+                        >
+                          Open current members hub
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className={`rounded-2xl ${BUTTON_OUTLINE}`}
+                          onClick={() => window.open(PLACEHOLDER.labHandbook, "_blank")}
+                        >
+                          Handbook (restricted copy)
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border bg-white/60 p-4">
+                      <div className="text-sm font-semibold">Suggested contents</div>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                        <li>Onboarding checklists</li>
+                        <li>Internal SOPs and inventories</li>
+                        <li>Meeting notes and calendars</li>
+                        <li>Shared datasets (restricted)</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Access control model</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border bg-white/60 p-4">
+                      <div className="text-sm font-semibold">Recommended</div>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                        <li>Create a Google Group (e.g., meme-current@purdue.edu).</li>
+                        <li>Share the hub folder/site with that group only.</li>
+                        <li>Use a single entry link from this tab.</li>
+                      </ul>
+                    </div>
+                    <div className="rounded-2xl border bg-white/60 p-4">
+                      <div className="text-sm font-semibold">Avoid</div>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                        <li>Attempting “password protection” on GitHub Pages.</li>
+                        <li>Publishing private sheets/feeds and hiding links.</li>
+                        <li>Embedding restricted Docs that prompt for login repeatedly.</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
 
         {/* Footer */}
         <footer className="mt-10 border-t pt-6 text-sm text-muted-foreground">
