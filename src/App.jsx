@@ -27,8 +27,8 @@ import {
   Database,
 } from "lucide-react";
 
-// Static asset from /public (Vite serves it from the site root)
-const WALLPAPER_URL = "/background.einstein.tile.color.png";
+// Static asset from /public (GitHub Pages-safe; respects repo base path)
+const WALLPAPER_URL = `${import.meta.env.BASE_URL}background.einstein.tile.color.png`;
 
 const PLACEHOLDER = {
   // Lab identity
@@ -129,7 +129,8 @@ function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[j]];
+    // FIX: correct Fisher–Yates swap
+    [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
@@ -247,7 +248,8 @@ const FALLBACK_QUIZ = [
   {
     id: "base-cation-k",
     question: "Which is typically considered a base cation in soils?",
-    choices: ["K⁺", "NO₃⁻, "Cl⁻", "H₂O"],
+    // FIX: corrected quotes so the array parses
+    choices: ["K⁺", "NO₃⁻", "Cl⁻", "H₂O"],
     answerIndex: 0,
     explanation:
       "K⁺ is a base cation along with Ca²⁺, Mg²⁺, Na⁺ (context-dependent).",
