@@ -485,7 +485,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   const normalizedProjects = useMemo(() => {
     const list = Array.isArray(projects) ? projects : [];
-    // Normalize keys defensively: allow funder/fundingAgency, url/readMoreUrl, etc.
     return list
       .map((p, idx) => {
         const title = p?.title ? String(p.title) : `Project ${idx + 1}`;
@@ -496,15 +495,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           p?.funding_agency ||
           p?.agency ||
           "";
+        const date = p?.date || p?.dates || p?.period || "";
         const url = p?.url || p?.readMoreUrl || p?.link || "";
+
         return {
           title,
           summary,
           funder: funder ? String(funder) : "",
+          date: date ? String(date) : "",
           url: url ? String(url) : "",
         };
       })
-      .filter((p) => p.title || p.summary || p.funder);
+      .filter((p) => p.title || p.summary || p.funder || p.date);
   }, [projects]);
 
   function nextQuizQuestion() {
@@ -924,130 +926,118 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
                 ) : (
                   <>
-                    {/* MOBILE: cards (no table) */}
-                    <div className="md:hidden space-y-2">
-                      {normalizedProjects.map((p, idx) => (
-                        <div
-                          key={`${p.url || p.title}-${idx}`}
-                          className="rounded-xl border bg-white/70 px-3 py-2"
-                        >
-                          <div className="flex items-start justify-between gap-2">
+                      {/* MOBILE: cards (no table) */}
+                      <div className="md:hidden space-y-2">
+                        {normalizedProjects.map((p, idx) => (
+                          <div
+                            key={`${p.url || p.title}-${idx}`}
+                            className="rounded-xl border bg-white/70 px-3 py-2"
+                          >
                             <div className="min-w-0">
-                              <div className="min-w-0">
-                                {p.url ? (
-                                  <a
-                                    href={p.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="font-semibold underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
-                                    style={{
-                                      overflowWrap: "anywhere",
-                                      wordBreak: "break-word",
-                                    }}
-                                  >
-                                    {p.title}
-                                  </a>
-                                ) : (
-                                  <div
-                                    className="font-semibold break-words"
-                                    style={{
-                                      overflowWrap: "anywhere",
-                                      wordBreak: "break-word",
-                                    }}
-                                  >
-                                    {p.title}
-                                  </div>
-                                )}
-                              </div>
+                              {p.url ? (
+                                <a
+                                  href={p.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="font-semibold underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                >
+                                  {p.title}
+                                </a>
+                              ) : (
+                                <div
+                                  className="font-semibold break-words"
+                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                >
+                                  {p.title}
+                                </div>
+                              )}
 
-                              {p.funder ? (
+                              {(p.funder || p.date) ? (
                                 <div className="mt-1 text-xs text-muted-foreground break-words">
-                                  Funding: {p.funder}
+                                  {p.funder ? <>Funding: {p.funder}</> : null}
+                                  {p.funder && p.date ? <span> • </span> : null}
+                                  {p.date ? <>Date: {p.date}</> : null}
                                 </div>
                               ) : null}
 
                               {p.summary ? (
                                 <div
                                   className="mt-2 text-sm text-muted-foreground break-words whitespace-normal"
-                                  style={{
-                                    overflowWrap: "anywhere",
-                                    wordBreak: "break-word",
-                                  }}
+                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
                                 >
                                   {p.summary}
                                 </div>
                               ) : null}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    {/* DESKTOP/TABLET: table */}
-                    <div className="hidden md:block">
-                      <div className="max-h-[520px] overflow-y-auto pr-1">
-                        <div className="overflow-x-auto max-w-full">
-                          <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
-                            <thead className="sticky top-0 z-10">
-                              <tr className="text-left">
-                                <th className="w-[30%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                  Title
-                                </th>
-                                <th className="w-[50%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                  Summary
-                                </th>
-                                <th className="w-[20%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                  Funding agency
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {normalizedProjects.map((p, idx) => (
-                                <tr
-                                  key={`${p.url || p.title}-${idx}`}
-                                  className="align-top"
-                                >
-                                  <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
-                                    {p.url ? (
-                                      <a
-                                        href={p.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
-                                        style={{
-                                          overflowWrap: "anywhere",
-                                          wordBreak: "break-word",
-                                        }}
-                                      >
-                                        {p.title}
-                                      </a>
-                                    ) : (
-                                      <span
-                                        className="font-medium break-words whitespace-normal"
-                                        style={{
-                                          overflowWrap: "anywhere",
-                                          wordBreak: "break-word",
-                                        }}
-                                      >
-                                        {p.title}
-                                      </span>
-                                    )}
-                                  </td>
-
-                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                    {p.summary || "—"}
-                                  </td>
-
-                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                    {p.funder || "—"}
-                                  </td>
+                      {/* DESKTOP/TABLET: table */}
+                      <div className="hidden md:block">
+                        <div className="max-h-[520px] overflow-y-auto pr-1">
+                          <div className="overflow-x-auto max-w-full">
+                            <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                              <thead className="sticky top-0 z-10">
+                                <tr className="text-left">
+                                  <th className="w-[26%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                    Title
+                                  </th>
+                                  <th className="w-[44%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                    Summary
+                                  </th>
+                                  <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                    Funding agency
+                                  </th>
+                                  <th className="w-[12%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                    Date
+                                  </th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+
+                              <tbody>
+                                {normalizedProjects.map((p, idx) => (
+                                  <tr key={`${p.url || p.title}-${idx}`} className="align-top">
+                                    <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
+                                      {p.url ? (
+                                        <a
+                                          href={p.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
+                                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                        >
+                                          {p.title}
+                                        </a>
+                                      ) : (
+                                        <span
+                                          className="font-medium break-words whitespace-normal"
+                                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                        >
+                                          {p.title}
+                                        </span>
+                                      )}
+                                    </td>
+
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {p.summary || "—"}
+                                    </td>
+
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {p.funder || "—"}
+                                    </td>
+
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {p.date || "—"}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
-                    </div>
                   </>
                 )}
               </CardContent>
