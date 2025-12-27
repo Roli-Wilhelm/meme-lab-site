@@ -1,9 +1,8 @@
-// App.jsx — Updated with stronger mobile fixes for Scholarly Activities + Announcements
-// Key changes (mobile-only; desktop look preserved):
-// 1) Scholarly: on mobile, render as stacked “cards” (no multi-column table overflow)
-// 2) Scholarly (md+): keep table, but force safe wrapping + fixed layout inside scroll container
-// 3) Announcements: enforce wrapping/containment for long titles/URLs/text with min-w-0 + break-*
-// 4) Add defensive overflow guards on the two panels so nothing can extend past viewport
+// App.jsx — Updated with Projects table (Google Sheet → Apps Script JSON → fetchView("projects"))
+// Projects now render as:
+// - Mobile: stacked cards (title + funder + summary)
+// - md+: a 3-column table (Title, Summary, Funding agency)
+// If `url` is present, the Title becomes a link.
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +48,8 @@ const PLACEHOLDER = {
   dataRepo: "https://osf.io/6nepb/",
 
   // Protocols
-  protocolsIoWorkspace: "https://www.protocols.io/workspaces/meme-lab-protocols/publications",
+  protocolsIoWorkspace:
+    "https://www.protocols.io/workspaces/meme-lab-protocols/publications",
   labSopDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Recruiting / onboarding
@@ -64,7 +64,8 @@ const PLACEHOLDER = {
   rosterJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=roster",
   quotesJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quotes",
   quizJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quiz",
-  projectsJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=projects",
+  projectsJsonUrl:
+    "https://script.google.com/macros/s/REPLACE_ME/exec?view=projects",
   announcementsJsonUrl:
     "https://script.google.com/macros/s/REPLACE_ME/exec?view=announcements",
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
@@ -292,23 +293,22 @@ const FALLBACK_ANNOUNCEMENTS = [
   },
 ];
 
+// UPDATED: Projects are now table-driven (title, summary, funder, url)
 const FALLBACK_PROJECTS = [
   {
     title: "Project title 1",
     summary:
       "One-paragraph description: question, system, and what success looks like.",
-    tags: ["System", "Methods", "Output"],
-    readMoreUrl: "https://REPLACE_ME",
-    dataUrl: "https://REPLACE_ME",
+    funder: "Funding agency / program",
+    url: "https://REPLACE_ME",
     publish: true,
   },
   {
     title: "Project title 2",
     summary:
       "One-paragraph description: question, system, and what success looks like.",
-    tags: ["System", "Methods", "Output"],
-    readMoreUrl: "https://REPLACE_ME",
-    dataUrl: "https://REPLACE_ME",
+    funder: "Funding agency / program",
+    url: "",
     publish: true,
   },
 ];
@@ -483,6 +483,30 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     return shuffleArray(list).slice(0, 12);
   }, [galleryPhotos]);
 
+  const normalizedProjects = useMemo(() => {
+    const list = Array.isArray(projects) ? projects : [];
+    // Normalize keys defensively: allow funder/fundingAgency, url/readMoreUrl, etc.
+    return list
+      .map((p, idx) => {
+        const title = p?.title ? String(p.title) : `Project ${idx + 1}`;
+        const summary = p?.summary ? String(p.summary) : "";
+        const funder =
+          p?.funder ||
+          p?.fundingAgency ||
+          p?.funding_agency ||
+          p?.agency ||
+          "";
+        const url = p?.url || p?.readMoreUrl || p?.link || "";
+        return {
+          title,
+          summary,
+          funder: funder ? String(funder) : "",
+          url: url ? String(url) : "",
+        };
+      })
+      .filter((p) => p.title || p.summary || p.funder);
+  }, [projects]);
+
   function nextQuizQuestion() {
     if (!quizOrder.length) return;
     const nextPos = quizPos + 1;
@@ -564,6 +588,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* HOME */}
           <TabsContent value={NAV.home} className="mt-6 space-y-6">
+            {/* ... unchanged HOME content ... */}
             <div className="grid gap-6 md:grid-cols-3">
               <Card className="rounded-2xl md:col-span-2">
                 <CardHeader>
@@ -657,7 +682,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
 
                   {!scholarlyLoaded ? (
-                    <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Loading…
+                    </p>
                   ) : sortedScholarly.length === 0 ? (
                     <p className="mt-2 text-sm text-muted-foreground">
                       No recent items found yet.
@@ -882,56 +909,147 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               ))}
             </div>
 
+            {/* UPDATED: Projects table fed from fetchView("projects") */}
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">
-                  Projects (keep current via Google Sheets)
-                </CardTitle>
+                <CardTitle className="text-xl">Projects</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                {(projects || []).map((p) => (
-                  <div
-                    key={p.title}
-                    className="rounded-2xl border bg-white/60 p-4"
-                  >
-                    <div className="text-sm font-semibold">{p.title}</div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {p.summary}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {(p.tags || []).slice(0, 6).map((t) => (
-                        <Badge
-                          key={t}
-                          variant="secondary"
-                          className="rounded-full"
+
+              <CardContent className="space-y-3">
+                {normalizedProjects.length === 0 ? (
+                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                    No projects found yet. Populate the Projects Google Sheet (via
+                    <code>fetchView("projects")</code>) or update{" "}
+                    <code>FALLBACK_PROJECTS</code>.
+                  </div>
+                ) : (
+                  <>
+                    {/* MOBILE: cards (no table) */}
+                    <div className="md:hidden space-y-2">
+                      {normalizedProjects.map((p, idx) => (
+                        <div
+                          key={`${p.url || p.title}-${idx}`}
+                          className="rounded-xl border bg-white/70 px-3 py-2"
                         >
-                          {t}
-                        </Badge>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="min-w-0">
+                                {p.url ? (
+                                  <a
+                                    href={p.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="font-semibold underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                    style={{
+                                      overflowWrap: "anywhere",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {p.title}
+                                  </a>
+                                ) : (
+                                  <div
+                                    className="font-semibold break-words"
+                                    style={{
+                                      overflowWrap: "anywhere",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {p.title}
+                                  </div>
+                                )}
+                              </div>
+
+                              {p.funder ? (
+                                <div className="mt-1 text-xs text-muted-foreground break-words">
+                                  Funding: {p.funder}
+                                </div>
+                              ) : null}
+
+                              {p.summary ? (
+                                <div
+                                  className="mt-2 text-sm text-muted-foreground break-words whitespace-normal"
+                                  style={{
+                                    overflowWrap: "anywhere",
+                                    wordBreak: "break-word",
+                                  }}
+                                >
+                                  {p.summary}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {p.readMoreUrl && (
-                        <Button
-                          size="sm"
-                          className="rounded-2xl"
-                          onClick={() => window.open(p.readMoreUrl, "_blank")}
-                        >
-                          Read more
-                        </Button>
-                      )}
-                      {p.dataUrl && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-2xl"
-                          onClick={() => window.open(p.dataUrl, "_blank")}
-                        >
-                          Data / code
-                        </Button>
-                      )}
+
+                    {/* DESKTOP/TABLET: table */}
+                    <div className="hidden md:block">
+                      <div className="max-h-[520px] overflow-y-auto pr-1">
+                        <div className="overflow-x-auto max-w-full">
+                          <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                            <thead className="sticky top-0 z-10">
+                              <tr className="text-left">
+                                <th className="w-[30%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Title
+                                </th>
+                                <th className="w-[50%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Summary
+                                </th>
+                                <th className="w-[20%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Funding agency
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {normalizedProjects.map((p, idx) => (
+                                <tr
+                                  key={`${p.url || p.title}-${idx}`}
+                                  className="align-top"
+                                >
+                                  <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
+                                    {p.url ? (
+                                      <a
+                                        href={p.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
+                                        style={{
+                                          overflowWrap: "anywhere",
+                                          wordBreak: "break-word",
+                                        }}
+                                      >
+                                        {p.title}
+                                      </a>
+                                    ) : (
+                                      <span
+                                        className="font-medium break-words whitespace-normal"
+                                        style={{
+                                          overflowWrap: "anywhere",
+                                          wordBreak: "break-word",
+                                        }}
+                                      >
+                                        {p.title}
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                    {p.summary || "—"}
+                                  </td>
+
+                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                    {p.funder || "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -1019,6 +1137,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* LAB MEMBERS (public) */}
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
+            {/* ... unchanged MEMBERS content ... */}
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Member Directory</CardTitle>
@@ -1164,6 +1283,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* GALLERY */}
           <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
+            {/* ... unchanged GALLERY content ... */}
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Picture gallery</CardTitle>
@@ -1181,7 +1301,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                   <Button
                     className="rounded-2xl"
-                    onClick={() => window.open(PLACEHOLDER.photoGallery, "_blank")}
+                    onClick={() =>
+                      window.open(PLACEHOLDER.photoGallery, "_blank")
+                    }
                   >
                     <Images className="mr-2 h-4 w-4" />
                     Open gallery album
@@ -1222,8 +1344,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <div className="text-sm font-semibold">Photo policy</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                     <li>Default: only post photos with consent.</li>
-                    <li>Label field sites appropriately.</li>
                     <li>Avoid sharing sensitive locations.</li>
+                    <li>Blury photo? Use AI to convert it to a cartoon.</li>
                   </ul>
                 </div>
               </CardContent>
@@ -1232,6 +1354,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* QUOTES & QUIZ */}
           <TabsContent value={NAV.quotes} className="mt-6 space-y-6">
+            {/* ... unchanged QUOTES & QUIZ content ... */}
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="rounded-2xl">
                 <CardHeader>
@@ -1335,6 +1458,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* CURRENT MEMBER PORTAL (restricted) */}
           <TabsContent value={NAV.current} className="mt-6 space-y-6">
+            {/* ... unchanged CURRENT content ... */}
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Member portal</CardTitle>
@@ -1364,7 +1488,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <Button
                       variant="outline"
                       className="rounded-2xl"
-                      onClick={() => window.open(PLACEHOLDER.labHandbook, "_blank")}
+                      onClick={() =>
+                        window.open(PLACEHOLDER.labHandbook, "_blank")
+                      }
                     >
                       Handbook (restricted copy)
                     </Button>
