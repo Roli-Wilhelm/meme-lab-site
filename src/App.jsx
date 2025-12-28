@@ -645,7 +645,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     icon={FlaskConical}
                     title="Protocols"
                     desc="Lab research methods and SOPs"
-                    onClick={goToResearchProtocols}
+                    https://www.protocols.io/workspaces/meme-lab-protocols/publications
                   />
                   <LinkRow
                     icon={BookOpen}
@@ -1141,18 +1141,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <Input
                       value={memberSearch}
                       onChange={(e) => setMemberSearch(e.target.value)}
-                      placeholder="Search by name / role / topic"
+                      placeholder="Search by name / role"
                       className="h-10 rounded-2xl"
                     />
-                    <Button
-                      variant="outline"
-                      className="h-10 rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.memberIntakeForm, "_blank")
-                      }
-                    >
-                      Update your profile
-                    </Button>
                   </div>
                 </div>
 
