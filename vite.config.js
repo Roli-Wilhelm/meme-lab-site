@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig({
-  base: "/meme-lab-site/",
+  base: "/",
   plugins: [react()],
   resolve: {
     alias: {
