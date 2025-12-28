@@ -645,7 +645,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     icon={FlaskConical}
                     title="Protocols"
                     desc="Lab research methods and SOPs"
-                    https://www.protocols.io/workspaces/meme-lab-protocols/publications
+                    href={PLACEHOLDER.protocolsIoWorkspace}
                   />
                   <LinkRow
                     icon={BookOpen}
