@@ -564,11 +564,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <div className="flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-2xl border bg-white shadow-sm">              
               <img
                 src={headerLogoSrc}
                 alt="MEME Lab logo"
-                className="h-8 w-8 object-contain"
+                className="h-full w-full object-contain"
                 loading="eager"
               />
             </div>
