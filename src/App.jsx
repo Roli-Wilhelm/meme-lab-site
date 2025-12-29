@@ -28,6 +28,11 @@ import {
   Database,
 } from "lucide-react";
 
+// Header logo assets from /public (Vite serves them from the site root)
+const HEADER_LOGO_DEFAULT = "/meme.logo.png";
+const HEADER_LOGO_EASTER_EGG = "/meme.logo.joyful.discovery.png";
+
+
 const PLACEHOLDER = {
   // Lab identity
   labName: "Managed Ecosystem Microbial Ecology Lab",
@@ -349,6 +354,7 @@ function Avatar({ name, photoUrl, className = "" }) {
 
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
+  const [headerLogoSrc, setHeaderLogoSrc] = useState(HEADER_LOGO_DEFAULT);
 
   const [members, setMembers] = useState(null);
   const [quotes, setQuotes] = useState(null);
@@ -424,6 +430,27 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         setGalleryPhotos(FALLBACK_GALLERY_PHOTOS);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    let unlocked = false;
+
+    function onScroll() {
+      if (unlocked) return;
+
+      const doc = document.documentElement;
+      const atBottom =
+        window.innerHeight + window.scrollY >= doc.scrollHeight - 10;
+
+      if (atBottom) {
+        unlocked = true;
+        setHeaderLogoSrc(HEADER_LOGO_EASTER_EGG);
+        window.removeEventListener("scroll", onScroll);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -537,8 +564,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border bg-white shadow-sm">
-              <Microscope className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border bg-white shadow-sm overflow-hidden">
+              <img
+                src={headerLogoSrc}
+                alt="MEME Lab logo"
+                className="h-8 w-8 object-contain"
+                loading="eager"
+              />
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold leading-5">
@@ -584,7 +616,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               Quotes & quiz
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.current}>
-              Current members
+              Member Portal
             </TabsTrigger>
           </TabsList>
 
@@ -1339,7 +1371,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <CardTitle className="text-xl">Quotes</CardTitle>
+                  <CardTitle className="text-xl">Quotes (and MEMEs)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {(quotes || []).map((q, idx) => (
