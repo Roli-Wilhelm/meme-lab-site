@@ -492,22 +492,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     setQuizPick(null);
   }, [quizBank]);
 
-  useEffect(() => {
-    if (!normalizedQuotes.length) return;
-    if (quotePaused) return;
-
-    const t = window.setInterval(() => {
-      setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
-    }, 8000); // 8 seconds per item (adjust as desired)
-
-    return () => window.clearInterval(t);
-  }, [normalizedQuotes.length, quotePaused]);
-
-  useEffect(() => {
-    setQuoteIndex(0);
-  }, [normalizedQuotes.length]);
-
-
   const filteredMembers = useMemo(() => {
     const q = memberSearch.trim().toLowerCase();
     const list = Array.isArray(members) ? members : [];
@@ -556,30 +540,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     if (!list.length) return [];
     return shuffleArray(list).slice(0, 12);
   }, [galleryPhotos]);
-
-  const normalizedQuotes = useMemo(() => {
-    const list = Array.isArray(quotes) ? quotes : [];
-    return list
-      .map((q, idx) => {
-        const text = q?.text ? String(q.text).trim() : "";
-        const attribution = q?.attribution ? String(q.attribution).trim() : "";
-        const category = q?.category ? String(q.category).trim() : "";
-        const url = q?.url ? String(q.url).trim() : "";
-
-        // Type: "image" if url exists and text is blank; otherwise "text"
-        const type = url && !text ? "image" : "text";
-
-        return {
-          id: q?.id || `${type}-${idx}`,
-          type,
-          text,
-          attribution,
-          category,
-          url,
-        };
-      })
-      .filter((x) => x.text || x.url); // keep non-empty items
-  }, [quotes]);
 
   function prevQuote() {
     if (!normalizedQuotes.length) return;
@@ -630,6 +590,45 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     setQuizPos(0);
     setQuizPick(null);
   }
+
+  const normalizedQuotes = useMemo(() => {
+    const list = Array.isArray(quotes) ? quotes : [];
+    return list
+      .map((q, idx) => {
+        const text = q?.text ? String(q.text).trim() : "";
+        const attribution = q?.attribution ? String(q.attribution).trim() : "";
+        const category = q?.category ? String(q.category).trim() : "";
+        const url = q?.url ? String(q.url).trim() : "";
+
+        // Type: "image" if url exists and text is blank; otherwise "text"
+        const type = url && !text ? "image" : "text";
+
+        return {
+          id: q?.id || `${type}-${idx}`,
+          type,
+          text,
+          attribution,
+          category,
+          url,
+        };
+      })
+      .filter((x) => x.text || x.url); // keep non-empty items
+  }, [quotes]);
+
+  useEffect(() => {
+    if (!normalizedQuotes.length) return;
+    if (quotePaused) return;
+
+    const t = window.setInterval(() => {
+      setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
+    }, 8000); // 8 seconds per item (adjust as desired)
+
+    return () => window.clearInterval(t);
+  }, [normalizedQuotes.length, quotePaused]);
+
+  useEffect(() => {
+    setQuoteIndex(0);
+  }, [normalizedQuotes.length]);
 
   function goToResearchProtocols() {
     setActiveTab(NAV.research);
