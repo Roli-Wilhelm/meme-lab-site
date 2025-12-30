@@ -356,8 +356,36 @@ function Avatar({ name, photoUrl, className = "" }) {
   );
 }
 
+function trackTabPageView(tabKey) {
+  if (typeof window === "undefined") return;
+  if (typeof window.gtag !== "function") return;
+
+  const key = String(tabKey || "unknown");
+  const label = (TAB_LABELS && TAB_LABELS[key]) ? TAB_LABELS[key] : key;
+
+  window.gtag("event", "page_view", {
+    page_path: `/${key}`,
+    page_title: `MEME Lab — ${label}`,
+    tab_name: label,
+  });
+}
+
+const TAB_LABELS = {
+  home: "Home",
+  research: "Research",
+  members: "Lab members",
+  gallery: "Gallery",
+  quotes: "Quotes & Quiz",
+  current: "Member portal",
+};
+
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
+  
+  useEffect(() => {
+    trackTabPageView(activeTab);
+  }, [activeTab]);
+
   const [headerLogoSrc, setHeaderLogoSrc] = useState(HEADER_LOGO_DEFAULT);
 
   const [quoteIndex, setQuoteIndex] = useState(0);
@@ -470,7 +498,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         timeoutId = setTimeout(() => {
           setHeaderLogoSrc(HEADER_LOGO_DEFAULT);
           timeoutId = null;
-        }, 1000);
+        }, 1500);
       }
     }
 
@@ -693,7 +721,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               Gallery
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.quotes}>
-              Quotes & quiz
+              Quotes & Quiz
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.current}>
               Member Portal
@@ -1579,7 +1607,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   )}
                 </div>
               </CardContent>
-
 
               <Card className="rounded-2xl">
                 <CardHeader>
