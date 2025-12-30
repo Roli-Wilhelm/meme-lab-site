@@ -433,21 +433,40 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   }, []);
 
   useEffect(() => {
-    let unlocked = false;
+    let timeoutId = null;
 
     function onScroll() {
-      if (unlocked) return;
-
       const doc = document.documentElement;
       const atBottom =
         window.innerHeight + window.scrollY >= doc.scrollHeight - 10;
 
       if (atBottom) {
-        unlocked = true;
+        // Switch to easter egg logo
         setHeaderLogoSrc(HEADER_LOGO_EASTER_EGG);
-        window.removeEventListener("scroll", onScroll);
+
+        // Clear any existing timer
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        // Revert back after 10 seconds
+        timeoutId = setTimeout(() => {
+          setHeaderLogoSrc(HEADER_LOGO_DEFAULT);
+          timeoutId = null;
+        }, 10000);
       }
     }
+
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
+
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
