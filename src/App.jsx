@@ -466,11 +466,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           clearTimeout(timeoutId);
         }
 
-        // Revert back after 10 seconds
+        // Revert back after 1 second
         timeoutId = setTimeout(() => {
           setHeaderLogoSrc(HEADER_LOGO_DEFAULT);
           timeoutId = null;
-        }, 2500);
+        }, 1000);
       }
     }
 
@@ -1485,7 +1485,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   onBlur={() => setQuotePaused(false)}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold">Featured</div>
+                    <div className="text-sm font-semibold">Quotes</div>
 
                     {/* Controls */}
                     <div className="flex items-center gap-1">
