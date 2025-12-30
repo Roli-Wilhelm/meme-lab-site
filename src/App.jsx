@@ -422,13 +422,23 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       setScholarlyLoaded(true);
 
       if (g.status === "fulfilled" && Array.isArray(g.value)) {
-        const urls = g.value
-          .map((x) => (typeof x === "string" ? x : x?.url))
-          .filter(Boolean);
-        setGalleryPhotos(urls.length ? urls : FALLBACK_GALLERY_PHOTOS);
+        const items = g.value
+          .map((x) => {
+            // Support both object feeds and legacy string URL feeds
+            if (typeof x === "string") return { id: "", url: x };
+            return {
+              id: x?.id ? String(x.id) : "",
+              url: x?.url ? String(x.url) : "",
+            };
+          })
+          .filter((x) => x.url);
+
+        const fallbackItems = FALLBACK_GALLERY_PHOTOS.map((u) => ({ id: "", url: u }));
+        setGalleryPhotos(items.length ? items : fallbackItems);
       } else {
-        setGalleryPhotos(FALLBACK_GALLERY_PHOTOS);
+        setGalleryPhotos(FALLBACK_GALLERY_PHOTOS.map((u) => ({ id: "", url: u })));
       }
+
     })();
   }, []);
 
@@ -465,11 +475,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         clearTimeout(timeoutId);
       }
     };
-  }, []);
-
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -1198,6 +1203,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
                 </div>
 
+                {members === null ? (
+                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                    Profiles loading…
+                  </div>
+                ) : null}
+
                 <div className="grid gap-4 md:grid-cols-2">
                   {filteredMembers.map((m) => {
                     const programYear = [m?.program, m?.year]
@@ -1352,25 +1363,35 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       populate <code>FALLBACK_GALLERY_PHOTOS</code>.
                     </div>
                   ) : (
-                    randomGallery.map((url, i) => (
-                      <a
-                        key={`${url}-${i}`}
-                        href={PLACEHOLDER.photoGallery}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
-                        title="Open the full album"
-                      >
-                        <div className="aspect-[4/3] w-full overflow-hidden">
-                          <img
-                            src={url}
-                            alt={`Gallery photo ${i + 1}`}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                            loading="lazy"
-                          />
-                        </div>
-                      </a>
-                    ))
+                      randomGallery.map((it, i) => {
+                        const imgSrc = it.url;
+
+                        // Best UX: open a specific image page (not the whole album)
+                        // Option A (preferred): Drive direct viewer for the file id
+                        const openHref = it.id
+                          ? `https://drive.google.com/uc?id=${it.id}&export=view`
+                          : it.url;
+
+                        return (
+                          <a
+                            key={`${it.id || it.url}-${i}`}
+                            href={openHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
+                            title="Open image"
+                          >
+                            <div className="aspect-[4/3] w-full overflow-hidden">
+                              <img
+                                src={imgSrc}
+                                alt={`Gallery photo ${i + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            </div>
+                          </a>
+                        );
+                      })
                   )}
                 </div>
 
