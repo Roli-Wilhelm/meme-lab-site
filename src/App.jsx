@@ -26,6 +26,7 @@ import {
   Lock,
   FileText,
   Database,
+  Megaphone 
 } from "lucide-react";
 
 // Header logo assets from /public (Vite serves them from the site root)
@@ -463,7 +464,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         timeoutId = setTimeout(() => {
           setHeaderLogoSrc(HEADER_LOGO_DEFAULT);
           timeoutId = null;
-        }, 10000);
+        }, 5000);
       }
     }
 
@@ -884,8 +885,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 {/* Announcements panel (mobile-safe) */}
                 <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
-                  <div className="text-sm font-semibold break-words">
-                    Announcements
+                  <div className="flex min-w-0 items-start gap-2">
+                    <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold leading-5 break-words">
+                        Announcements
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Lab updates and notices
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
@@ -970,7 +979,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             {/* UPDATED: Projects table fed from fetchView("projects") */}
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle className="text-xl">Projects</CardTitle>
+                <CardTitle className="text-xl">Current and Past Research Projects</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-3">
@@ -1369,7 +1378,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         // Best UX: open a specific image page (not the whole album)
                         // Option A (preferred): Drive direct viewer for the file id
                         const openHref = it.id
-                          ? `https://drive.google.com/uc?id=${it.id}&export=view`
+                          ? `https://drive.google.com/uc?id=${it.id}/view`
                           : it.url;
 
                         return (
