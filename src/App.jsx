@@ -26,7 +26,10 @@ import {
   Lock,
   FileText,
   Database,
-  Megaphone 
+  Megaphone,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
 } from "lucide-react";
 
 // Header logo assets from /public (Vite serves them from the site root)
@@ -357,6 +360,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
   const [headerLogoSrc, setHeaderLogoSrc] = useState(HEADER_LOGO_DEFAULT);
 
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [quotePaused, setQuotePaused] = useState(false);
+
   const [members, setMembers] = useState(null);
   const [quotes, setQuotes] = useState(null);
   const [quizBank, setQuizBank] = useState(null);
@@ -464,7 +470,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         timeoutId = setTimeout(() => {
           setHeaderLogoSrc(HEADER_LOGO_DEFAULT);
           timeoutId = null;
-        }, 5000);
+        }, 2500);
       }
     }
 
@@ -485,6 +491,22 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     setQuizPos(0);
     setQuizPick(null);
   }, [quizBank]);
+
+  useEffect(() => {
+    if (!normalizedQuotes.length) return;
+    if (quotePaused) return;
+
+    const t = window.setInterval(() => {
+      setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
+    }, 8000); // 8 seconds per item (adjust as desired)
+
+    return () => window.clearInterval(t);
+  }, [normalizedQuotes.length, quotePaused]);
+
+  useEffect(() => {
+    setQuoteIndex(0);
+  }, [normalizedQuotes.length]);
+
 
   const filteredMembers = useMemo(() => {
     const q = memberSearch.trim().toLowerCase();
@@ -534,6 +556,40 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     if (!list.length) return [];
     return shuffleArray(list).slice(0, 12);
   }, [galleryPhotos]);
+
+  const normalizedQuotes = useMemo(() => {
+    const list = Array.isArray(quotes) ? quotes : [];
+    return list
+      .map((q, idx) => {
+        const text = q?.text ? String(q.text).trim() : "";
+        const attribution = q?.attribution ? String(q.attribution).trim() : "";
+        const category = q?.category ? String(q.category).trim() : "";
+        const url = q?.url ? String(q.url).trim() : "";
+
+        // Type: "image" if url exists and text is blank; otherwise "text"
+        const type = url && !text ? "image" : "text";
+
+        return {
+          id: q?.id || `${type}-${idx}`,
+          type,
+          text,
+          attribution,
+          category,
+          url,
+        };
+      })
+      .filter((x) => x.text || x.url); // keep non-empty items
+  }, [quotes]);
+
+  function prevQuote() {
+    if (!normalizedQuotes.length) return;
+    setQuoteIndex((i) => (i - 1 + normalizedQuotes.length) % normalizedQuotes.length);
+  }
+
+  function nextQuote() {
+    if (!normalizedQuotes.length) return;
+    setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
+  }
 
   const normalizedProjects = useMemo(() => {
     const list = Array.isArray(projects) ? projects : [];
@@ -732,7 +788,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <Rss className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="min-w-0">
                       <div className="text-sm font-semibold leading-5 break-words">
-                        Recent Scholarly Activities Involving MEME Lab Members
+                        MEME Lab Member Scholarly Activities
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         Source: Zotero group library
@@ -1378,7 +1434,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         // Best UX: open a specific image page (not the whole album)
                         // Option A (preferred): Drive direct viewer for the file id
                         const openHref = it.id
-                          ? `https://drive.google.com/uc?id=${it.id}/view`
+                          ? `https://drive.google.com/file/d/${it.id}/view`
                           : it.url;
 
                         return (
@@ -1420,28 +1476,111 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.quotes} className="mt-6 space-y-6">
             {/* ... unchanged QUOTES & QUIZ content ... */}
             <div className="grid gap-6 md:grid-cols-2">
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl">Quotes (and MEMEs)</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {(quotes || []).map((q, idx) => (
-                    <div key={idx} className="rounded-2xl border bg-white/60 p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5 rounded-xl border bg-white p-2">
-                          <Quote className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm">“{q.text}”</div>
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            — {q.attribution}
-                          </div>
-                        </div>
-                      </div>
+              <CardContent className="space-y-3">
+                {/* Fixed viewer sized to match the Micro-quiz card footprint */}
+                <div
+                  className="rounded-2xl border bg-white/60 p-4"
+                  onMouseEnter={() => setQuotePaused(true)}
+                  onMouseLeave={() => setQuotePaused(false)}
+                  onFocus={() => setQuotePaused(true)}
+                  onBlur={() => setQuotePaused(false)}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-sm font-semibold">Featured</div>
+
+                    {/* Controls */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={prevQuote}
+                        className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                        aria-label="Previous"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={nextQuote}
+                        className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                        aria-label="Next"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  </div>
+
+                  {normalizedQuotes.length === 0 ? (
+                    <div className="mt-3 text-sm text-muted-foreground">
+                      No quotes or MEMEs published yet.
+                    </div>
+                  ) : (
+                    (() => {
+                      const item = normalizedQuotes[Math.min(quoteIndex, normalizedQuotes.length - 1)];
+
+                      // Outer frame keeps a stable footprint.
+                      // Inside is either: a quote block or a 1:1 image box.
+                      return (
+                        <div className="mt-3">
+                          {item.type === "image" ? (
+                            <div className="grid gap-2">
+                              <div className="w-full max-w-[360px] mx-auto">
+                                <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
+                                  <img
+                                    src={item.url}
+                                    alt={item.category ? `MEME: ${item.category}` : "MEME"}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                  <ImageIcon className="h-3.5 w-3.5" />
+                                  <span>{item.category || "MEME"}</span>
+                                </div>
+                                <div>
+                                  {item.attribution ? `— ${item.attribution}` : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="rounded-2xl border bg-white/70 p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="mt-0.5 rounded-xl border bg-white p-2">
+                                  <Quote className="h-5 w-5" />
+                                </div>
+
+                                <div className="min-w-0">
+                                  <div className="text-sm break-words">
+                                    “{item.text}”
+                                  </div>
+
+                                  <div className="mt-2 text-xs text-muted-foreground break-words">
+                                    {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
+                                    {item.category ? <span className="ml-2">• {item.category}</span> : null}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
+                  )}
+
+                  {/* Little progress indicator */}
+                  {normalizedQuotes.length > 0 && (
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      {quoteIndex + 1} / {normalizedQuotes.length}
+                      <span className="ml-2">
+                        {quotePaused ? "(paused)" : "(auto)"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+
 
               <Card className="rounded-2xl">
                 <CardHeader>
