@@ -564,7 +564,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-2xl border bg-white shadow-sm"> 
+            <div className="flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-2xl"> 
               <img
                 src={headerLogoSrc}
                 alt="MEME Lab logo"
@@ -572,8 +572,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 loading="eager"
               />
             </div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold leading-5">
+            <div className="min-w-0 flex flex-col justify-center">
+              <div className="truncate text-sm md:text-base lg:text-lg font-semibold leading-tight">
                 {PLACEHOLDER.labName}
               </div>
               <div className="truncate text-xs text-muted-foreground">
@@ -1190,18 +1190,20 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         key={m.id || m.name}
                         className="rounded-2xl border bg-white/60 p-4 shadow-sm"
                       >
-                        <div className="grid grid-cols-3 gap-4 items-start">
-                          <div className="col-span-1">
-                            <Avatar
-                              name={m.name}
-                              photoUrl={m.photoUrl}
-                              className="min-h-[140px]"
-                            />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-start">
+                          <div className="w-full sm:col-span-1">
+                            <div className="mx-auto w-32 sm:w-full">
+                              <Avatar
+                                name={m.name}
+                                photoUrl={m.photoUrl}
+                                className="w-full"
+                              />
+                            </div>
                           </div>
 
                           <div className="col-span-2 min-w-0">
                             <div className="flex items-center gap-2">
-                              <div className="truncate text-lg font-semibold leading-6">
+                              <div className="text-base sm:text-lg font-semibold leading-snug break-words whitespace-normal">
                                 {m.name}
                               </div>
                             </div>
