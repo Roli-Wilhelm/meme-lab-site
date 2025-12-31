@@ -1521,7 +1521,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={prevQuote}
+                        onClick={prevQuoteSet}
                         className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
                         aria-label="Previous"
                       >
@@ -1529,7 +1529,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </button>
                       <button
                         type="button"
-                        onClick={nextQuote}
+                        onClick={nextQuoteSet}
                         className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
                         aria-label="Next"
                       >
