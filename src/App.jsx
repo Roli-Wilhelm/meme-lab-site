@@ -572,13 +572,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const QUOTES_PER_SET = 3;
 
   function prevQuoteSet() {
-    if (!normalizedQuotes.length) return;
-    setQuoteIndex((i) => (i - QUOTES_PER_SET + normalizedQuotes.length) % normalizedQuotes.length);
+    if (!displayItems.length) return;
+    setQuoteIndex((i) => (i - 1 + displayItems.length) % displayItems.length);
   }
 
   function nextQuoteSet() {
-    if (!normalizedQuotes.length) return;
-    setQuoteIndex((i) => (i + QUOTES_PER_SET) % normalizedQuotes.length);
+    if (!displayItems.length) return;
+    setQuoteIndex((i) => (i + 1) % displayItems.length);
   }
 
   const normalizedProjects = useMemo(() => {
@@ -645,20 +645,52 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       .filter((x) => x.text || x.url); // keep non-empty items
   }, [quotes]);
 
+  const displayItems = useMemo(() => {
+    const list = Array.isArray(normalizedQuotes) ? normalizedQuotes : [];
+    if (!list.length) return [];
+
+    const out = [];
+    let buffer = [];
+
+    for (const it of list) {
+      if (it.type === "image") {
+        // flush any pending text quotes before showing an image
+        if (buffer.length) {
+          out.push({ kind: "textset", items: buffer });
+          buffer = [];
+        }
+        out.push({ kind: "image", item: it });
+        continue;
+      }
+
+      // text quote
+      buffer.push(it);
+      if (buffer.length === QUOTES_PER_SET) {
+        out.push({ kind: "textset", items: buffer });
+        buffer = [];
+      }
+    }
+
+    // flush trailing text quotes (1–2)
+    if (buffer.length) out.push({ kind: "textset", items: buffer });
+
+    return out;
+  }, [normalizedQuotes]);
+
   useEffect(() => {
-    if (!normalizedQuotes.length) return;
+    if (!displayItems.length) return;
     if (quotePaused) return;
 
     const t = window.setInterval(() => {
-      setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
-    }, 5000); // 5 seconds per item (adjust as desired)
+      setQuoteIndex((i) => (i + 1) % displayItems.length);
+    }, 3000); // faster; adjust to taste
 
     return () => window.clearInterval(t);
-  }, [normalizedQuotes.length, quotePaused]);
+  }, [displayItems.length, quotePaused]);
 
   useEffect(() => {
     setQuoteIndex(0);
-  }, [normalizedQuotes.length]);
+  }, [displayItems.length]);
 
   function goToResearchProtocols() {
     setActiveTab(NAV.research);
@@ -1544,59 +1576,67 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     </div>
                   ) : (
                       (() => {
-                        const list = normalizedQuotes;
-                        const n = list.length;
+                        if (!displayItems.length) return null;
 
-                        const visible = Array.from({ length: Math.min(QUOTES_PER_SET, n) }, (_, k) => {
-                          return list[(quoteIndex + k) % n];
-                        });
+                        const current = displayItems[quoteIndex % displayItems.length];
 
+                        if (current.kind === "image") {
+                          const item = current.item;
+                          return (
+                            <div className="mt-3">
+                              <div className="rounded-2xl border bg-white/70 p-4">
+                                <div className="grid gap-2">
+                                  <div className="w-full max-w-[360px] mx-auto">
+                                    <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
+                                      <img
+                                        src={item.url}
+                                        alt={item.category ? `MEME: ${item.category}` : "MEME"}
+                                        className="h-full w-full object-cover"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                      <ImageIcon className="h-3.5 w-3.5" />
+                                      <span>{item.category || "MEME"}</span>
+                                    </div>
+                                    <div>{item.attribution ? `— ${item.attribution}` : null}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // textset
                         return (
                           <div className="mt-3 space-y-3">
-                            {visible.map((item) => (
+                            {current.items.map((item) => (
                               <div key={item.id} className="rounded-2xl border bg-white/70 p-4">
-                                {item.type === "image" ? (
-                                  <div className="grid gap-2">
-                                    <div className="w-full max-w-[360px] mx-auto">
-                                      <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
-                                        <img
-                                          src={item.url}
-                                          alt={item.category ? `MEME: ${item.category}` : "MEME"}
-                                          className="h-full w-full object-cover"
-                                          loading="lazy"
-                                        />
-                                      </div>
-                                    </div>
+                                <div className="flex items-start gap-3">
+                                  <div className="mt-0.5 rounded-xl border bg-white p-2">
+                                    <Quote className="h-5 w-5" />
+                                  </div>
 
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                      <div className="flex items-center gap-2">
-                                        <ImageIcon className="h-3.5 w-3.5" />
-                                        <span>{item.category || "MEME"}</span>
-                                      </div>
-                                      <div>{item.attribution ? `— ${item.attribution}` : null}</div>
+                                  <div className="min-w-0">
+                                    <div className="text-sm break-words">“{item.text}”</div>
+
+                                    <div className="mt-2 text-xs text-muted-foreground break-words">
+                                      {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
+                                      {item.category ? (
+                                        <span className="ml-2">• {item.category}</span>
+                                      ) : null}
                                     </div>
                                   </div>
-                                ) : (
-                                  <div className="flex items-start gap-3">
-                                    <div className="mt-0.5 rounded-xl border bg-white p-2">
-                                      <Quote className="h-5 w-5" />
-                                    </div>
-
-                                    <div className="min-w-0">
-                                      <div className="text-sm break-words">“{item.text}”</div>
-
-                                      <div className="mt-2 text-xs text-muted-foreground break-words">
-                                        {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
-                                        {item.category ? <span className="ml-2">• {item.category}</span> : null}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
+                                </div>
                               </div>
                             ))}
                           </div>
                         );
                       })()
+
           )}
 
                   {/* Little progress indicator */}
