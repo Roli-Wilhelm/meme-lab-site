@@ -1338,7 +1338,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Meet the current and past members of the MEME Lab.
+                    Meet the current members and alumni of the MEME Lab.
                   </div>
                   <div className="flex w-full gap-2 md:w-auto">
                     <Input
@@ -1764,25 +1764,25 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* CURRENT MEMBER PORTAL (restricted) */}
           <TabsContent value={NAV.current} className="mt-6 space-y-6">
-            {/* ... unchanged CURRENT content ... */}
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Member portal</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 rounded-2xl border bg-white/60 p-4">
+
+              <CardContent>
+                <div className="rounded-2xl border bg-white/60 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Lock className="h-4 w-4" />
                     Restricted hub
                   </div>
+
                   <p className="mt-2 text-sm text-muted-foreground">
-                    This tab links to password-protected (account-restricted)
-                    resources hosted in Google Drive / Google Sites. Because this
-                    website is hosted on GitHub Pages (static), authentication
-                    must be handled by Google.
+                    This tab links to account-restricted resources hosted in Google Drive.
+                    Because this website is static (GitHub Pages), authentication is handled
+                    entirely by Google.
                   </p>
 
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4">
                     <Button
                       className="rounded-2xl"
                       onClick={() =>
@@ -1791,54 +1791,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     >
                       Open current members hub
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.labHandbook, "_blank")
-                      }
-                    >
-                      Handbook (restricted copy)
-                    </Button>
                   </div>
-                </div>
-
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Suggested contents</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Onboarding checklists</li>
-                    <li>Internal SOPs and inventories</li>
-                    <li>Meeting notes and calendars</li>
-                    <li>Shared datasets (restricted)</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Access control model</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Recommended</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Create a Google Group (e.g., meme-current@purdue.edu).</li>
-                    <li>Share the hub folder/site with that group only.</li>
-                    <li>Use a single entry link from this tab.</li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Avoid</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Attempting “password protection” on GitHub Pages.</li>
-                    <li>Publishing private sheets/feeds and hiding links.</li>
-                    <li>Embedding restricted Docs that prompt for login repeatedly.</li>
-                  </ul>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
+
         </Tabs>
 
         {/* Footer */}
