@@ -70,16 +70,15 @@ const PLACEHOLDER = {
     "https://docs.google.com/forms/d/e/1FAIpQLSdpsunIvIL1liqZONB_jKRUQlnYLL43oqPkOLOhyt1ExHIlNg/viewform?usp=sharing&ouid=103113252249213016667",
 
   // CONTENT APIS
-  rosterJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=roster",
-  quotesJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quotes",
-  quizJsonUrl: "https://script.google.com/macros/s/REPLACE_ME/exec?view=quiz",
+  rosterJsonUrl: "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec?view=roster",
+  quotesJsonUrl: "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec?view=quotes",
+  quizJsonUrl: "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec?view=quiz",
+  quizLogUrl: "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec",
   projectsJsonUrl:
-    "https://script.google.com/macros/s/REPLACE_ME/exec?view=projects",
+    "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec?view=projects",
   announcementsJsonUrl:
-    "https://script.google.com/macros/s/REPLACE_ME/exec?view=announcements",
+    "https://script.google.com/macros/s/AKfycbxNlMtVp0DIPvh0IihjpAlQ79Ge4RNgpn7B3dNFp4h3mY6UfeukbpzfP5TKwDokmt7DHA/exec?view=announcements",
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
-
-  newsRss: "https://REPLACE_ME_RSS.xml",
 
   // Private / current members
   currentMembersHub: "https://drive.google.com/drive/folders/REPLACE_ME",
@@ -378,6 +377,28 @@ const TAB_LABELS = {
   quotes: "Quotes & Quiz",
   current: "Member portal",
 };
+
+async function postQuizAttempt({ endpoint, questionId, correct }) {
+  if (!endpoint) return;
+
+  const payload = {
+    question_id: questionId || "unknown",
+    correct: !!correct,
+  };
+
+  try {
+    await fetch(endpoint, {
+      method: "POST",
+      // Apps Script is often pickier with JSON + CORS; text/plain is the most reliable
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      mode: "cors",
+      keepalive: true,
+    });
+  } catch {
+    // Never break UX if logging fails
+  }
+}
 
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [activeTab, setActiveTab] = useState(NAV.home);
@@ -683,7 +704,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
     const t = window.setInterval(() => {
       setQuoteIndex((i) => (i + 1) % displayItems.length);
-    }, 3000); // faster; adjust to taste
+    }, 5000); // seconds adjust to needs
 
     return () => window.clearInterval(t);
   }, [displayItems.length, quotePaused]);
@@ -1676,7 +1697,20 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${
                                   picked ? "bg-white" : "bg-white/70"
                                 }`}
-                                onClick={() => setQuizPick(i)}
+                                onClick={() => {
+                                  // prevent double-logging if they click again after answering
+                                  if (quizPick !== null) return;
+
+                                  setQuizPick(i);
+
+                                  const correct = i === currentQuiz.answerIndex;
+
+                                  postQuizAttempt({
+                                    endpoint: PLACEHOLDER.quizLogUrl,
+                                    questionId: currentQuiz.id,
+                                    correct,
+                                  });
+                                }}
                               >
                                 <div className="flex items-center justify-between gap-3">
                                   <span>{c}</span>
