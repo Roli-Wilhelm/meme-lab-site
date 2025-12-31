@@ -1184,138 +1184,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               ))}
             </div>
 
-            {/* UPDATED: Projects table fed from fetchView("projects") */}
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Current and Past Research Projects</CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-3">
-                {normalizedProjects.length === 0 ? (
-                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
-                    No projects found yet. Populate the Projects Google Sheet (via
-                    <code>fetchView("projects")</code>) or update{" "}
-                    <code>FALLBACK_PROJECTS</code>.
-                  </div>
-                ) : (
-                  <>
-                      {/* MOBILE: cards (no table) */}
-                      <div className="md:hidden space-y-2">
-                        {normalizedProjects.map((p, idx) => (
-                          <div
-                            key={`${p.url || p.title}-${idx}`}
-                            className="rounded-xl border bg-white/70 px-3 py-2"
-                          >
-                            <div className="min-w-0">
-                              {p.url ? (
-                                <a
-                                  href={p.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="font-semibold underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
-                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                >
-                                  {p.title}
-                                </a>
-                              ) : (
-                                <div
-                                  className="font-semibold break-words"
-                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                >
-                                  {p.title}
-                                </div>
-                              )}
-
-                              {(p.funder || p.date) ? (
-                                <div className="mt-1 text-xs text-muted-foreground break-words">
-                                  {p.funder ? <>Funding: {p.funder}</> : null}
-                                  {p.funder && p.date ? <span> • </span> : null}
-                                  {p.date ? <>Date: {p.date}</> : null}
-                                </div>
-                              ) : null}
-
-                              {p.summary ? (
-                                <div
-                                  className="mt-2 text-sm text-muted-foreground break-words whitespace-normal"
-                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                >
-                                  {p.summary}
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* DESKTOP/TABLET: table */}
-                      <div className="hidden md:block">
-                        <div className="max-h-[520px] overflow-y-auto pr-1">
-                          <div className="overflow-x-auto max-w-full">
-                            <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
-                              <thead className="sticky top-0 z-10">
-                                <tr className="text-left">
-                                  <th className="w-[26%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Title
-                                  </th>
-                                  <th className="w-[44%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Summary
-                                  </th>
-                                  <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Funding agency
-                                  </th>
-                                  <th className="w-[12%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Date
-                                  </th>
-                                </tr>
-                              </thead>
-
-                              <tbody>
-                                {normalizedProjects.map((p, idx) => (
-                                  <tr key={`${p.url || p.title}-${idx}`} className="align-top">
-                                    <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
-                                      {p.url ? (
-                                        <a
-                                          href={p.url}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
-                                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                        >
-                                          {p.title}
-                                        </a>
-                                      ) : (
-                                        <span
-                                          className="font-medium break-words whitespace-normal"
-                                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                        >
-                                          {p.title}
-                                        </span>
-                                      )}
-                                    </td>
-
-                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                      {p.summary || "—"}
-                                    </td>
-
-                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                      {p.funder || "—"}
-                                    </td>
-
-                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                      {p.date || "—"}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Four symmetric research resource badges */}
             <div className="grid gap-6 md:grid-cols-4" id="protocols">
               {/* Lab Protocols */}
@@ -1420,6 +1288,137 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </Card>
             </div>
 
+            {/* UPDATED: Projects table fed from fetchView("projects") */}
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-xl">Current and Past Research Projects</CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-3">
+                {normalizedProjects.length === 0 ? (
+                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                    No projects found yet. Populate the Projects Google Sheet (via
+                    <code>fetchView("projects")</code>) or update{" "}
+                    <code>FALLBACK_PROJECTS</code>.
+                  </div>
+                ) : (
+                  <>
+                    {/* MOBILE: cards (no table) */}
+                    <div className="md:hidden space-y-2">
+                      {normalizedProjects.map((p, idx) => (
+                        <div
+                          key={`${p.url || p.title}-${idx}`}
+                          className="rounded-xl border bg-white/70 px-3 py-2"
+                        >
+                          <div className="min-w-0">
+                            {p.url ? (
+                              <a
+                                href={p.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                              >
+                                {p.title}
+                              </a>
+                            ) : (
+                              <div
+                                className="font-semibold break-words"
+                                style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                              >
+                                {p.title}
+                              </div>
+                            )}
+
+                            {(p.funder || p.date) ? (
+                              <div className="mt-1 text-xs text-muted-foreground break-words">
+                                {p.funder ? <>Funding: {p.funder}</> : null}
+                                {p.funder && p.date ? <span> • </span> : null}
+                                {p.date ? <>Date: {p.date}</> : null}
+                              </div>
+                            ) : null}
+
+                            {p.summary ? (
+                              <div
+                                className="mt-2 text-sm text-muted-foreground break-words whitespace-normal"
+                                style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                              >
+                                {p.summary}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* DESKTOP/TABLET: table */}
+                    <div className="hidden md:block">
+                      <div className="max-h-[520px] overflow-y-auto pr-1">
+                        <div className="overflow-x-auto max-w-full">
+                          <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                            <thead className="sticky top-0 z-10">
+                              <tr className="text-left">
+                                <th className="w-[26%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Title
+                                </th>
+                                <th className="w-[44%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Summary
+                                </th>
+                                <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Funding agency
+                                </th>
+                                <th className="w-[12%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Date
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {normalizedProjects.map((p, idx) => (
+                                <tr key={`${p.url || p.title}-${idx}`} className="align-top">
+                                  <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
+                                    {p.url ? (
+                                      <a
+                                        href={p.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
+                                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                      >
+                                        {p.title}
+                                      </a>
+                                    ) : (
+                                      <span
+                                        className="font-medium break-words whitespace-normal"
+                                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                      >
+                                        {p.title}
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                    {p.summary || "—"}
+                                  </td>
+
+                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                    {p.funder || "—"}
+                                  </td>
+
+                                  <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                    {p.date || "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
 
           </TabsContent>
 
@@ -1766,7 +1765,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <CardTitle className="text-xl">Micro-quiz</CardTitle>
+                  <CardTitle className="text-xl">Micro-quiz: Test Your Knowledge with 10 Questions</CardTitle>
+                  <CardDescription className="text-sm">How well do you understand concepts in microbial ecology?</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="rounded-2xl border bg-white/60 p-4">
