@@ -569,14 +569,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     return shuffleArray(list).slice(0, 12);
   }, [galleryPhotos]);
 
-  function prevQuote() {
+  const QUOTES_PER_SET = 3;
+
+  function prevQuoteSet() {
     if (!normalizedQuotes.length) return;
-    setQuoteIndex((i) => (i - 1 + normalizedQuotes.length) % normalizedQuotes.length);
+    setQuoteIndex((i) => (i - QUOTES_PER_SET + normalizedQuotes.length) % normalizedQuotes.length);
   }
 
-  function nextQuote() {
+  function nextQuoteSet() {
     if (!normalizedQuotes.length) return;
-    setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
+    setQuoteIndex((i) => (i + QUOTES_PER_SET) % normalizedQuotes.length);
   }
 
   const normalizedProjects = useMemo(() => {
@@ -649,7 +651,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
     const t = window.setInterval(() => {
       setQuoteIndex((i) => (i + 1) % normalizedQuotes.length);
-    }, 8000); // 8 seconds per item (adjust as desired)
+    }, 5000); // 5 seconds per item (adjust as desired)
 
     return () => window.clearInterval(t);
   }, [normalizedQuotes.length, quotePaused]);
@@ -1513,7 +1515,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   onBlur={() => setQuotePaused(false)}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold">Quotes</div>
+                    <div className="text-xl font-semibold">Quotes</div>
 
                     {/* Controls */}
                     <div className="flex items-center gap-1">
@@ -1541,60 +1543,61 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       No quotes or MEMEs published yet.
                     </div>
                   ) : (
-                    (() => {
-                      const item = normalizedQuotes[Math.min(quoteIndex, normalizedQuotes.length - 1)];
+                      (() => {
+                        const list = normalizedQuotes;
+                        const n = list.length;
 
-                      // Outer frame keeps a stable footprint.
-                      // Inside is either: a quote block or a 1:1 image box.
-                      return (
-                        <div className="mt-3">
-                          {item.type === "image" ? (
-                            <div className="grid gap-2">
-                              <div className="w-full max-w-[360px] mx-auto">
-                                <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
-                                  <img
-                                    src={item.url}
-                                    alt={item.category ? `MEME: ${item.category}` : "MEME"}
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                  />
-                                </div>
-                              </div>
+                        const visible = Array.from({ length: Math.min(QUOTES_PER_SET, n) }, (_, k) => {
+                          return list[(quoteIndex + k) % n];
+                        });
 
-                              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                  <ImageIcon className="h-3.5 w-3.5" />
-                                  <span>{item.category || "MEME"}</span>
-                                </div>
-                                <div>
-                                  {item.attribution ? `— ${item.attribution}` : null}
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="rounded-2xl border bg-white/70 p-4">
-                              <div className="flex items-start gap-3">
-                                <div className="mt-0.5 rounded-xl border bg-white p-2">
-                                  <Quote className="h-5 w-5" />
-                                </div>
+                        return (
+                          <div className="mt-3 space-y-3">
+                            {visible.map((item) => (
+                              <div key={item.id} className="rounded-2xl border bg-white/70 p-4">
+                                {item.type === "image" ? (
+                                  <div className="grid gap-2">
+                                    <div className="w-full max-w-[360px] mx-auto">
+                                      <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
+                                        <img
+                                          src={item.url}
+                                          alt={item.category ? `MEME: ${item.category}` : "MEME"}
+                                          className="h-full w-full object-cover"
+                                          loading="lazy"
+                                        />
+                                      </div>
+                                    </div>
 
-                                <div className="min-w-0">
-                                  <div className="text-sm break-words">
-                                    “{item.text}”
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                      <div className="flex items-center gap-2">
+                                        <ImageIcon className="h-3.5 w-3.5" />
+                                        <span>{item.category || "MEME"}</span>
+                                      </div>
+                                      <div>{item.attribution ? `— ${item.attribution}` : null}</div>
+                                    </div>
                                   </div>
+                                ) : (
+                                  <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 rounded-xl border bg-white p-2">
+                                      <Quote className="h-5 w-5" />
+                                    </div>
 
-                                  <div className="mt-2 text-xs text-muted-foreground break-words">
-                                    {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
-                                    {item.category ? <span className="ml-2">• {item.category}</span> : null}
+                                    <div className="min-w-0">
+                                      <div className="text-sm break-words">“{item.text}”</div>
+
+                                      <div className="mt-2 text-xs text-muted-foreground break-words">
+                                        {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
+                                        {item.category ? <span className="ml-2">• {item.category}</span> : null}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()
-                  )}
+                            ))}
+                          </div>
+                        );
+                      })()
+          )}
 
                   {/* Little progress indicator */}
                   {normalizedQuotes.length > 0 && (
