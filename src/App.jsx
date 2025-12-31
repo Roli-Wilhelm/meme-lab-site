@@ -90,11 +90,11 @@ const PLACEHOLDER = {
   safety: "https://www.purdue.edu/ehps/",
 
     // Research resources
-  sipNavigator: "https://REPLACE_ME", // Stable Isotope Probing Navigator
-  sipdb: "https://REPLACE_ME", // SIPdb landing page / app
-  stanAgDataAdvisor: "https://REPLACE_ME", // Stan the AgData Advisor
-  streamsGuideline: "https://REPLACE_ME", // STREAMS guideline
-  misipStandard: "https://REPLACE_ME", // MISIP standard
+  sipNavigator: "https://chatgpt.com/g/g-EO0rQOq7r-sip-navigator-beta", // Stable Isotope Probing Navigator
+  sipdb: "http://sip-db.com/", // SIPdb landing page / app
+  stanAgDataAdvisor: "https://chatgpt.com/g/g-wK0NsSO0A-stan-the-agdata-advisor", // Stan the AgData Advisor
+  streamsGuideline: "https://www.nature.com/articles/s41564-025-02186-2", // STREAMS guideline
+  misipStandard: "https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giae071/7817747", // MISIP standard
 
 };
 
@@ -827,7 +827,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
-                      className="rounded-2xl"
+                      className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
                       onClick={() => setActiveTab(NAV.research)}
                     >
                       Explore research
@@ -869,241 +869,217 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </Card>
             </div>
 
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Lab News</CardTitle>
-              </CardHeader>
-
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                {/* Scholarly panel (mobile-safe) */}
-                <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
-                  <div className="flex min-w-0 items-start gap-2">
-                    <Rss className="mt-0.5 h-4 w-4 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold leading-5 break-words">
-                        MEME Lab Member Scholarly Activities
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Source: Zotero group library
-                      </div>
+            {/* Scholarly + Announcements (no Lab News wrapper) */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Scholarly panel (mobile-safe) */}
+              <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+                <div className="flex min-w-0 items-start gap-2">
+                  <Rss className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold leading-5 break-words">
+                      MEME Lab Scholarly Activities
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Source: Zotero group library
                     </div>
                   </div>
+                </div>
 
-                  {!scholarlyLoaded ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Loading…
-                    </p>
-                  ) : sortedScholarly.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      No recent items found yet.
-                    </p>
-                  ) : (
-                    <>
-                      {/* MOBILE: cards (no table) */}
-                      <div className="mt-3 md:hidden max-h-80 overflow-y-auto pr-1">
-                        <div className="space-y-2">
-                          {sortedScholarly.map((it, idx) => {
-                            const firstAuthor = pickFirstAuthor_(it) || "—";
-                            const journal = pickJournal_(it) || "—";
-                            const pubDate =
-                              toDateString_(it?.publicationDate) || "—";
-                            const title = it?.title
-                              ? String(it.title)
-                              : "Untitled";
-                            const url = it?.articleUrl
-                              ? String(it.articleUrl)
-                              : it?.zoteroUrl
+                {!scholarlyLoaded ? (
+                  <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+                ) : sortedScholarly.length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No recent items found yet.
+                  </p>
+                ) : (
+                  <>
+                    {/* MOBILE: cards (no table) */}
+                    <div className="mt-3 md:hidden max-h-80 overflow-y-auto pr-1">
+                      <div className="space-y-2">
+                        {sortedScholarly.map((it, idx) => {
+                          const firstAuthor = pickFirstAuthor_(it) || "—";
+                          const journal = pickJournal_(it) || "—";
+                          const pubDate = toDateString_(it?.publicationDate) || "—";
+                          const title = it?.title ? String(it.title) : "Untitled";
+                          const url = it?.articleUrl
+                            ? String(it.articleUrl)
+                            : it?.zoteroUrl
                               ? String(it.zoteroUrl)
                               : "";
 
-                            return (
-                              <div
-                                key={`${url || title}-${idx}`}
-                                className="rounded-xl border bg-white/70 px-3 py-2"
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0">
-                                    <div className="text-xs text-muted-foreground break-words">
-                                      {firstAuthor} • {journal}
-                                    </div>
-                                    <div className="mt-1 min-w-0">
+                          return (
+                            <div
+                              key={`${url || title}-${idx}`}
+                              className="rounded-xl border bg-white/70 px-3 py-2"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="text-xs text-muted-foreground break-words">
+                                    {firstAuthor} • {journal}
+                                  </div>
+                                  <div className="mt-1 min-w-0">
+                                    {url ? (
+                                      <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                      >
+                                        {title}
+                                      </a>
+                                    ) : (
+                                      <span className="font-medium break-words">{title}</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="shrink-0 text-[11px] text-muted-foreground">
+                                  {pubDate}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* DESKTOP/TABLET: table (kept), but wrapped + fixed layout */}
+                    <div className="mt-3 hidden md:block">
+                      <div className="max-h-[420px] overflow-y-auto pr-1">
+                        <div className="overflow-x-auto max-w-full">
+                          <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+                            <thead className="sticky top-0 z-10">
+                              <tr className="text-left">
+                                <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  First author
+                                </th>
+                                <th className="w-[22%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Journal
+                                </th>
+                                <th className="w-[14%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Pub date
+                                </th>
+                                <th className="w-[46%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                  Title
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sortedScholarly.map((it, idx) => {
+                                const firstAuthor = pickFirstAuthor_(it) || "—";
+                                const journal = pickJournal_(it) || "—";
+                                const pubDate = toDateString_(it?.publicationDate) || "—";
+                                const title = it?.title ? String(it.title) : "Untitled";
+                                const url = it?.articleUrl
+                                  ? String(it.articleUrl)
+                                  : it?.zoteroUrl
+                                    ? String(it.zoteroUrl)
+                                    : "";
+
+                                return (
+                                  <tr key={`${url || title}-${idx}`} className="align-top">
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {firstAuthor}
+                                    </td>
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {journal}
+                                    </td>
+                                    <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
+                                      {pubDate}
+                                    </td>
+                                    <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
                                       {url ? (
                                         <a
                                           href={url}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                          className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
                                         >
                                           {title}
                                         </a>
                                       ) : (
-                                        <span className="font-medium break-words">
+                                        <span className="font-medium break-words whitespace-normal">
                                           {title}
                                         </span>
                                       )}
-                                    </div>
-                                  </div>
-                                  <div className="shrink-0 text-[11px] text-muted-foreground">
-                                    {pubDate}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         </div>
-                      </div>
-
-                      {/* DESKTOP/TABLET: table (kept), but wrapped + fixed layout */}
-                      <div className="mt-3 hidden md:block">
-                        <div className="max-h-[420px] overflow-y-auto pr-1">
-                          <div className="overflow-x-auto max-w-full">
-                            <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
-                              <thead className="sticky top-0 z-10">
-                                <tr className="text-left">
-                                  <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    First author
-                                  </th>
-                                  <th className="w-[22%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Journal
-                                  </th>
-                                  <th className="w-[14%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Pub date
-                                  </th>
-                                  <th className="w-[46%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
-                                    Title
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {sortedScholarly.map((it, idx) => {
-                                  const firstAuthor =
-                                    pickFirstAuthor_(it) || "—";
-                                  const journal = pickJournal_(it) || "—";
-                                  const pubDate =
-                                    toDateString_(it?.publicationDate) || "—";
-                                  const title = it?.title
-                                    ? String(it.title)
-                                    : "Untitled";
-                                  const url = it?.articleUrl
-                                    ? String(it.articleUrl)
-                                    : it?.zoteroUrl
-                                    ? String(it.zoteroUrl)
-                                    : "";
-
-                                  return (
-                                    <tr
-                                      key={`${url || title}-${idx}`}
-                                      className="align-top"
-                                    >
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {firstAuthor}
-                                      </td>
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {journal}
-                                      </td>
-                                      <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
-                                        {pubDate}
-                                      </td>
-                                      <td className="border-b px-3 py-2 min-w-0 break-words whitespace-normal">
-                                        {url ? (
-                                          <a
-                                            href={url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
-                                          >
-                                            {title}
-                                          </a>
-                                        ) : (
-                                          <span className="font-medium break-words whitespace-normal">
-                                            {title}
-                                          </span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Announcements panel (mobile-safe) */}
-                <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
-                  <div className="flex min-w-0 items-start gap-2">
-                    <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold leading-5 break-words">
-                        Announcements
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Lab updates and notices
                       </div>
                     </div>
-                  </div>
+                  </>
+                )}
+              </div>
 
-                  <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      {(announcements || []).map((a, idx) => {
-                        const when = formatAnnouncementTime_(a.time);
-
-                        return (
-                          <li
-                            key={`${a.title || "a"}-${idx}`}
-                            className="rounded-xl border bg-white/70 px-3 py-2 max-w-full overflow-hidden"
-                          >
-                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                              <div className="min-w-0 max-w-full">
-                                <div className="font-medium text-slate-700 break-words whitespace-normal">
-                                  {a.title}
-                                </div>
-
-                                <div className="mt-1 break-words whitespace-normal max-w-full">
-                                  {a.url ? (
-                                    <a
-                                      href={a.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
-                                      style={{
-                                        overflowWrap: "anywhere",
-                                        wordBreak: "break-word",
-                                      }}
-                                    >
-                                      {a.text}
-                                    </a>
-                                  ) : (
-                                    <span
-                                      className="break-words whitespace-normal"
-                                      style={{
-                                        overflowWrap: "anywhere",
-                                        wordBreak: "break-word",
-                                      }}
-                                    >
-                                      {a.text}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {when && (
-                                <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
-                                  {when}
-                                </div>
-                              )}
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
+              {/* Announcements panel (mobile-safe) */}
+              <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+                <div className="flex min-w-0 items-start gap-2">
+                  <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold leading-5 break-words">
+                      Announcements
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Lab updates and notices
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {(announcements || []).map((a, idx) => {
+                      const when = formatAnnouncementTime_(a.time);
+
+                      return (
+                        <li
+                          key={`${a.title || "a"}-${idx}`}
+                          className="rounded-xl border bg-white/70 px-3 py-2 max-w-full overflow-hidden"
+                        >
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                            <div className="min-w-0 max-w-full">
+                              <div className="font-medium text-slate-700 break-words whitespace-normal">
+                                {a.title}
+                              </div>
+
+                              <div className="mt-1 break-words whitespace-normal max-w-full">
+                                {a.url ? (
+                                  <a
+                                    href={a.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
+                                    style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                  >
+                                    {a.text}
+                                  </a>
+                                ) : (
+                                  <span
+                                    className="break-words whitespace-normal"
+                                    style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                  >
+                                    {a.text}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {when && (
+                              <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
+                                {when}
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
           </TabsContent>
 
           {/* RESEARCH */}
@@ -1372,16 +1348,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <CardTitle className="text-xl">Member Directory</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Meet the current members and alumni of the MEME Lab.
-                  </div>
-                  <div className="flex w-full gap-2 md:w-auto">
+                <div className="flex w-full justify-end">
+                  <div className="w-full md:w-auto">
                     <Input
                       value={memberSearch}
                       onChange={(e) => setMemberSearch(e.target.value)}
                       placeholder="Search by name / role"
-                      className="h-10 rounded-2xl"
+                      className="h-10 rounded-2xl md:w-[280px]"
                     />
                   </div>
                 </div>
