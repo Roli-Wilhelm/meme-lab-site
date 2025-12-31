@@ -1587,7 +1587,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                               <div className="rounded-2xl border bg-white/70 p-4">
                                 <div className="grid gap-2">
                                   <div className="w-full max-w-[360px] mx-auto">
-                                    <div className="aspect-square overflow-hidden rounded-2xl border bg-white">
+                                    <div className="aspect-square overflow-hidden rounded-2xl bg-white">
                                       <img
                                         src={item.url}
                                         alt={item.category ? `MEME: ${item.category}` : "MEME"}
