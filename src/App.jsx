@@ -30,6 +30,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
+  ShieldCheck,
+  Network,
+  FolderKanban,
 } from "lucide-react";
 
 // Header logo assets from /public (Vite serves them from the site root)
@@ -85,6 +88,14 @@ const PLACEHOLDER = {
 
   // Safety
   safety: "https://www.purdue.edu/ehps/",
+
+    // Research resources
+  sipNavigator: "https://REPLACE_ME", // Stable Isotope Probing Navigator
+  sipdb: "https://REPLACE_ME", // SIPdb landing page / app
+  stanAgDataAdvisor: "https://REPLACE_ME", // Stan the AgData Advisor
+  streamsGuideline: "https://REPLACE_ME", // STREAMS guideline
+  misipStandard: "https://REPLACE_ME", // MISIP standard
+
 };
 
 const NAV = {
@@ -1246,86 +1257,111 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl" id="protocols">
-              <CardHeader>
-                <CardTitle className="text-xl">Protocols & SOPs</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 space-y-3">
-                  <LinkRow
-                    icon={FlaskConical}
-                    title="protocols.io workspace"
-                    desc="Versioned methods (optionally citable)"
-                    href={PLACEHOLDER.protocolsIoWorkspace}
-                  />
-                  <LinkRow
-                    icon={FileText}
-                    title="Lab SOP binder (Google Drive folder)"
-                    desc="Day-to-day SOPs: media prep, DNA extraction, safety"
-                    href={PLACEHOLDER.labSopDriveFolder}
-                  />
-                  <LinkRow
-                    icon={Github}
-                    title="Analysis SOPs (GitHub)"
-                    desc="Pipelines, env files, templates, reproducible analyses"
-                    href={PLACEHOLDER.githubOrg}
-                  />
-                </div>
-                <div className="rounded-2xl border bg-white/60 p-4">
-                  <div className="text-sm font-semibold">Safety</div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Link to Purdue EHPS plus any lab-specific training checklists.
+            {/* Four symmetric research resource badges */}
+            <div className="grid gap-6 md:grid-cols-4" id="protocols">
+              {/* Lab Protocols */}
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Lab Protocols</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Curated lab methods and SOPs, organized for reproducibility and reuse.
                   </p>
+
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={FlaskConical}
+                      title="Protocols.io"
+                      desc="Versioned methods (optionally citable)"
+                      href={PLACEHOLDER.protocolsIoWorkspace}
+                    />
+                    <LinkRow
+                      icon={Microscope}
+                      title="Stable Isotope Probing Navigator"
+                      desc="Tools and guidance for designing and interpreting SIP studies"
+                      href={PLACEHOLDER.sipNavigator}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Databases and Code */}
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Databases and Code</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Databases, code, and analysis infrastructure maintained by the lab.
+                  </p>
+
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={Database}
+                      title="SIPdb"
+                      desc="Stable isotope probing database and associated tools"
+                      href={PLACEHOLDER.sipdb}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Data Handling */}
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Data Handling</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Standards and guidance for FAIR data, metadata, and lab-to-archive workflows.
+                  </p>
+
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={FolderKanban}
+                      title="Stan the AgData Advisor"
+                      desc="Practical guidance for organizing, documenting, and shipping datasets"
+                      href={PLACEHOLDER.stanAgDataAdvisor}
+                    />
+                    <LinkRow
+                      icon={Network}
+                      title="STREAMS guideline"
+                      desc="Recommended practices for consistent metadata and sharing"
+                      href={PLACEHOLDER.streamsGuideline}
+                    />
+                    <LinkRow
+                      icon={FileText}
+                      title="MISIP standard"
+                      desc="Controlled vocabulary and archiving standard for SIP experiments"
+                      href={PLACEHOLDER.misipStandard}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Safety (standalone) */}
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Safety</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Purdue EHPS plus lab-specific training checklists and expectations.
+                  </p>
+
                   <Button
-                    className="mt-3 rounded-2xl"
+                    className="w-full rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     variant="outline"
                     onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
                   >
                     Open safety resources
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
 
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  Keep the site current with third-party sources
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-2">
-                <LinkRow
-                  icon={BookOpen}
-                  title="Publications (Zotero group library)"
-                  desc="Add papers once; website stays up to date"
-                  href={PLACEHOLDER.publications}
-                />
-                <LinkRow
-                  icon={Github}
-                  title="Code & pipelines (GitHub org)"
-                  desc="Repos for analyses, tools, lab utilities"
-                  href={PLACEHOLDER.githubOrg}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Open data & materials (OSF / Figshare)"
-                  desc="Datasets, metadata, figures, and archives"
-                  href={PLACEHOLDER.dataRepo}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Lab handbook (Google Doc)"
-                  desc="Policies, expectations, onboarding"
-                  href={PLACEHOLDER.labHandbook}
-                />
-                <LinkRow
-                  icon={ExternalLink}
-                  title="Member profile intake (Google Form)"
-                  desc="Students update their own bio + headshot"
-                  href={PLACEHOLDER.memberIntakeForm}
-                />
-              </CardContent>
-            </Card>
+
           </TabsContent>
 
           {/* LAB MEMBERS (public) */}
