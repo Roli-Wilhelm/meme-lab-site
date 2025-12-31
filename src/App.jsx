@@ -142,6 +142,62 @@ function pickJournal_(it) {
   return "";
 }
 
+const QUIZ_DRAW_COUNT = 10;
+const QUIZ_SEEN_KEY = "meme_quiz_seen_ids_v1";
+
+function safeJsonParse(str, fallback) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+}
+
+function loadSeenIds() {
+  if (typeof window === "undefined") return new Set();
+  const raw = window.sessionStorage.getItem(QUIZ_SEEN_KEY);
+  const arr = safeJsonParse(raw, []);
+  return new Set(Array.isArray(arr) ? arr : []);
+}
+
+function saveSeenIds(seenSet) {
+  if (typeof window === "undefined") return;
+  const arr = Array.from(seenSet);
+  window.sessionStorage.setItem(QUIZ_SEEN_KEY, JSON.stringify(arr));
+}
+
+// Build a quiz "deck" of indices into quizBank, excluding previously seen ids.
+// If not enough unseen questions remain to draw N, reset the seen pool and draw from full bank.
+function buildQuizDeck(quizBank, drawCount, seenSet) {
+  const bank = Array.isArray(quizBank) ? quizBank : [];
+  const n = Math.min(drawCount, bank.length);
+
+  // Prefer stable ids; fall back to index-derived ids if missing (not ideal, but safe)
+  const idForIndex = (i) => String(bank[i]?.id ?? `idx-${i}`);
+
+  const unseenIndices = [];
+  for (let i = 0; i < bank.length; i++) {
+    const qid = idForIndex(i);
+    if (!seenSet.has(qid)) unseenIndices.push(i);
+  }
+
+  // If we can't draw enough unseen questions, reset seen for this session
+  let candidateIndices = unseenIndices;
+  let resetSeen = false;
+  if (candidateIndices.length < n) {
+    candidateIndices = Array.from({ length: bank.length }, (_, i) => i);
+    resetSeen = true;
+  }
+
+  const shuffled = shuffleArray(candidateIndices);
+  const deck = shuffled.slice(0, n);
+
+  const updatedSeen = resetSeen ? new Set() : new Set(seenSet);
+  for (const idx of deck) updatedSeen.add(idForIndex(idx));
+
+  return { deck, updatedSeen, resetSeen };
+}
+
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -435,9 +491,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
   const [memberSearch, setMemberSearch] = useState("");
 
-  const [quizOrder, setQuizOrder] = useState([]);
-  const [quizPos, setQuizPos] = useState(0);
-  const [quizPick, setQuizPick] = useState(null);
+  const [quizDeck, setQuizDeck] = useState([]);      // array of indices into quizBank
+  const [quizPos, setQuizPos] = useState(0);         // current position within deck
+  const [quizPick, setQuizPick] = useState(null);    // current selection for current question
+  const [quizAnswers, setQuizAnswers] = useState([]); // per-question results in this attempt
+  const [quizFinished, setQuizFinished] = useState(false);
+  const [quizSeenIds, setQuizSeenIds] = useState(() => loadSeenIds());
 
   useEffect(() => {
     (async () => {
@@ -544,12 +603,32 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     };
   }, []);
 
-  useEffect(() => {
+  function startNewQuizAttempt() {
     if (!quizBank?.length) return;
-    const indices = quizBank.map((_, i) => i);
-    setQuizOrder(shuffleArray(indices));
+
+    const { deck, updatedSeen } = buildQuizDeck(
+      quizBank,
+      QUIZ_DRAW_COUNT,
+      quizSeenIds
+    );
+
+    setQuizDeck(deck);
     setQuizPos(0);
     setQuizPick(null);
+    setQuizAnswers([]);
+    setQuizFinished(false);
+
+    setQuizSeenIds(updatedSeen);
+    saveSeenIds(updatedSeen);
+  }
+
+  useEffect(() => {
+    if (!quizBank?.length) return;
+
+    // Create the first attempt as soon as the bank is loaded
+    // (or whenever the quiz bank changes)
+    startNewQuizAttempt();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizBank]);
 
   const filteredMembers = useMemo(() => {
@@ -591,9 +670,11 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   }, [scholarly]);
 
   const currentQuiz = useMemo(() => {
-    if (!quizOrder.length) return null;
-    return quizBank[quizOrder[quizPos]];
-  }, [quizBank, quizOrder, quizPos]);
+    if (!Array.isArray(quizBank) || quizBank.length === 0) return null;
+    if (!quizDeck.length) return null;
+    const idx = quizDeck[quizPos];
+    return quizBank[idx] || null;
+  }, [quizBank, quizDeck, quizPos]);
 
   const randomGallery = useMemo(() => {
     const list = Array.isArray(galleryPhotos) ? galleryPhotos : [];
@@ -640,16 +721,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   }, [projects]);
 
   function nextQuizQuestion() {
-    if (!quizOrder.length) return;
+    if (!quizDeck.length) return;
+
     const nextPos = quizPos + 1;
-    if (nextPos < quizOrder.length) {
+
+    if (nextPos < quizDeck.length) {
       setQuizPos(nextPos);
       setQuizPick(null);
       return;
     }
-    const indices = quizBank.map((_, i) => i);
-    setQuizOrder(shuffleArray(indices));
-    setQuizPos(0);
+
+    // End of the deck
+    setQuizFinished(true);
     setQuizPick(null);
   }
 
@@ -876,7 +959,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <div className="flex min-w-0 items-start gap-2">
                   <Rss className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold leading-5 break-words">
+                    <div className="text-xl font-semibold leading-5 break-words">
                       MEME Lab Scholarly Activities
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -1019,7 +1102,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <div className="flex min-w-0 items-start gap-2">
                   <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold leading-5 break-words">
+                    <div className="text-xl font-semibold leading-5 break-words">
                       Announcements
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -1688,14 +1771,98 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 <CardContent className="space-y-4">
                   <div className="rounded-2xl border bg-white/60 p-4">
                     {!currentQuiz ? (
-                      <div className="text-sm text-muted-foreground">
-                        Loading quiz…
-                      </div>
+                      <div className="text-sm text-muted-foreground">Loading quiz…</div>
+                    ) : quizFinished ? (
+                      (() => {
+                        const total = quizAnswers.length;
+                        const correctCount = quizAnswers.filter((x) => x.correct).length;
+                        const pct = total ? Math.round((correctCount / total) * 100) : 0;
+
+                        return (
+                          <div className="space-y-4">
+                            <div className="text-sm font-semibold">Quiz complete</div>
+
+                            <div className="rounded-2xl border bg-white/70 p-4">
+                              <div className="text-lg font-semibold">
+                                Score: {correctCount} / {total} ({pct}%)
+                              </div>
+                              <div className="mt-1 text-sm text-muted-foreground">
+                                Retake draws a new set of questions (no repeats this session).
+                              </div>
+                            </div>
+
+                            {/* Optional: per-question review */}
+                            <div className="space-y-2">
+                              {quizAnswers.map((a, idx) => (
+                                <div key={`${a.questionId}-${idx}`} className="rounded-xl border bg-white/70 p-3">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="text-sm font-medium break-words">
+                                        {idx + 1}. {a.question}
+                                      </div>
+                                      <div className="mt-1 text-sm text-muted-foreground break-words">
+                                        Your answer: {currentQuiz?.choices?.[a.pickedIndex] ?? `Choice ${a.pickedIndex + 1}`}
+                                      </div>
+                                      <div className="text-sm text-muted-foreground break-words">
+                                        Correct answer: {currentQuiz?.choices?.[a.correctIndex] ?? `Choice ${a.correctIndex + 1}`}
+                                      </div>
+                                      {a.explanation ? (
+                                        <div className="mt-2 text-sm text-muted-foreground break-words">
+                                          {a.explanation}
+                                        </div>
+                                      ) : null}
+                                    </div>
+
+                                    <div className="shrink-0">
+                                      {a.correct ? (
+                                        <Badge className="rounded-full">Correct</Badge>
+                                      ) : (
+                                        <Badge variant="destructive" className="rounded-full">
+                                          Incorrect
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                className="rounded-2xl"
+                                onClick={startNewQuizAttempt}
+                              >
+                                Retake quiz
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-2xl"
+                                onClick={() => {
+                                  // “Leave and return later” behavior: clear session seen pool now
+                                  const empty = new Set();
+                                  setQuizSeenIds(empty);
+                                  saveSeenIds(empty);
+                                  startNewQuizAttempt();
+                                }}
+                              >
+                                Reset session pool
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })()
                     ) : (
                       <>
-                        <div className="text-sm font-semibold">
-                          {currentQuiz.question}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-sm font-semibold">{currentQuiz.question}</div>
+                          <div className="text-xs text-muted-foreground shrink-0">
+                            {Math.min(quizPos + 1, quizDeck.length)} / {quizDeck.length}
+                          </div>
                         </div>
+
                         <div className="mt-3 grid gap-2">
                           {currentQuiz.choices.map((c, i) => {
                             const picked = quizPick === i;
@@ -1703,16 +1870,27 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             return (
                               <button
                                 key={`${currentQuiz.id || "q"}-${i}`}
-                                className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${
-                                  picked ? "bg-white" : "bg-white/70"
-                                }`}
+                                className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${picked ? "bg-white" : "bg-white/70"
+                                  }`}
                                 onClick={() => {
-                                  // prevent double-logging if they click again after answering
                                   if (quizPick !== null) return;
+                                  if (!currentQuiz) return;
 
                                   setQuizPick(i);
 
                                   const correct = i === currentQuiz.answerIndex;
+
+                                  setQuizAnswers((prev) => [
+                                    ...prev,
+                                    {
+                                      questionId: String(currentQuiz.id ?? `pos-${quizPos}`),
+                                      question: currentQuiz.question,
+                                      pickedIndex: i,
+                                      correctIndex: currentQuiz.answerIndex,
+                                      correct,
+                                      explanation: currentQuiz.explanation || "",
+                                    },
+                                  ]);
 
                                   postQuizAttempt({
                                     endpoint: PLACEHOLDER.quizLogUrl,
@@ -1726,47 +1904,49 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   {show && i === currentQuiz.answerIndex && (
                                     <Badge className="rounded-full">Correct</Badge>
                                   )}
-                                  {show &&
-                                    picked &&
-                                    i !== currentQuiz.answerIndex && (
-                                      <Badge
-                                        variant="destructive"
-                                        className="rounded-full"
-                                      >
-                                        Not quite
-                                      </Badge>
-                                    )}
+                                  {show && picked && i !== currentQuiz.answerIndex && (
+                                    <Badge variant="destructive" className="rounded-full">
+                                      Not quite
+                                    </Badge>
+                                  )}
                                 </div>
                               </button>
                             );
                           })}
                         </div>
+
                         {quizPick !== null && currentQuiz.explanation && (
                           <div className="mt-3 text-sm text-muted-foreground">
                             {currentQuiz.explanation}
                           </div>
                         )}
+
                         <div className="mt-4 flex flex-wrap gap-2">
                           <Button
                             size="sm"
                             className="rounded-2xl"
                             onClick={nextQuizQuestion}
+                            disabled={quizPick === null}
+                            title={quizPick === null ? "Answer to continue" : "Next"}
                           >
-                            Next question
+                            {quizPos + 1 >= quizDeck.length ? "Finish" : "Next question"}
                           </Button>
+
                           <Button
                             size="sm"
                             variant="outline"
                             className="rounded-2xl"
                             onClick={() => setQuizPick(null)}
+                            disabled={quizPick === null}
                           >
-                            Reset
+                            Change answer
                           </Button>
                         </div>
                       </>
                     )}
                   </div>
                 </CardContent>
+
               </Card>
             </div>
           </TabsContent>
