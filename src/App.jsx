@@ -1767,6 +1767,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-xl">Member portal</CardTitle>
+                <Badge variant="secondary" className="mt-2 w-fit rounded-full">
+                  Google account required
+                </Badge>
               </CardHeader>
 
               <CardContent>
@@ -1778,16 +1781,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                   <p className="mt-2 text-sm text-muted-foreground">
                     This tab links to account-restricted resources hosted in Google Drive.
-                    Because this website is static (GitHub Pages), authentication is handled
-                    entirely by Google.
                   </p>
 
                   <div className="mt-4">
                     <Button
-                      className="rounded-2xl"
-                      onClick={() =>
-                        window.open(PLACEHOLDER.currentMembersHub, "_blank")
-                      }
+                      className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                      onClick={() => window.open(PLACEHOLDER.currentMembersHub, "_blank")}
                     >
                       Open current members hub
                     </Button>
