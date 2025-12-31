@@ -1642,7 +1642,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   {/* Little progress indicator */}
                   {normalizedQuotes.length > 0 && (
                     <div className="mt-3 text-xs text-muted-foreground">
-                      {quoteIndex + 1} / {normalizedQuotes.length}
+                      {displayItems.length ? `${quoteIndex + 1} / ${displayItems.length}` : null}
                       <span className="ml-2">
                         {quotePaused ? "(paused)" : "(auto)"}
                       </span>
