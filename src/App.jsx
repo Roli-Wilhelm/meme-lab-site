@@ -1766,10 +1766,10 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <Card className="rounded-2xl">
                 <CardHeader>
                   <CardTitle className="text-xl">
-                    Micro-quiz: Test Your Knowledge with 10 Questions
+                    Micro-quiz: Test Your Knowledge of Microbial Ecology
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Answer each question, then click Next. Your score will be summarized at the end.
+                    Answer all ten questions and see your score at the end.
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
