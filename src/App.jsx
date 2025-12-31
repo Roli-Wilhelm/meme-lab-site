@@ -5,7 +5,7 @@
 // If `url` is present, the Title becomes a link.
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -1765,8 +1765,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <CardTitle className="text-xl">Micro-quiz: Test Your Knowledge with 10 Questions</CardTitle>
-                  <CardDescription className="text-sm">How well do you understand concepts in microbial ecology?</CardDescription>
+                  <CardTitle className="text-xl">
+                    Micro-quiz: Test Your Knowledge with 10 Questions
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Answer each question, then click Next. Your score will be summarized at the end.
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="rounded-2xl border bg-white/60 p-4">
