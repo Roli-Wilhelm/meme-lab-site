@@ -1805,10 +1805,10 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                         {idx + 1}. {a.question}
                                       </div>
                                       <div className="mt-1 text-sm text-muted-foreground break-words">
-                                        Your answer: {currentQuiz?.choices?.[a.pickedIndex] ?? `Choice ${a.pickedIndex + 1}`}
+                                        Your answer: {a.choices?.[a.pickedIndex] ?? `Choice ${a.pickedIndex + 1}`}
                                       </div>
                                       <div className="text-sm text-muted-foreground break-words">
-                                        Correct answer: {currentQuiz?.choices?.[a.correctIndex] ?? `Choice ${a.correctIndex + 1}`}
+                                        Correct answer: {a.choices?.[a.correctIndex] ?? `Choice ${a.correctIndex + 1}`}
                                       </div>
                                       {a.explanation ? (
                                         <div className="mt-2 text-sm text-muted-foreground break-words">
@@ -1816,7 +1816,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                         </div>
                                       ) : null}
                                     </div>
-
                                     <div className="shrink-0">
                                       {a.correct ? (
                                         <Badge className="rounded-full">Correct</Badge>
@@ -1889,6 +1888,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                     {
                                       questionId: String(currentQuiz.id ?? `pos-${quizPos}`),
                                       question: currentQuiz.question,
+                                      choices: Array.isArray(currentQuiz.choices) ? [...currentQuiz.choices] : [],
                                       pickedIndex: i,
                                       correctIndex: currentQuiz.answerIndex,
                                       correct,
