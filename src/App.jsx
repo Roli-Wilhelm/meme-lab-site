@@ -951,7 +951,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl">
+              <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-xl">Quick links</CardTitle>
                 </CardHeader>
@@ -1201,7 +1201,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.research} className="mt-6 space-y-6">
             <div className="grid gap-6 md:grid-cols-3">
               {FALLBACK_RESEARCH_AREAS.map((a) => (
-                <Card key={a.title} className="rounded-2xl">
+                <Card key={a.title} className="rounded-2xl bg-white/95">
                   <CardHeader>
                     <CardTitle className="text-lg">{a.title}</CardTitle>
                   </CardHeader>
@@ -1219,7 +1219,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             {/* UPDATED: Three resource badges (Safety merged into Lab Protocols) */}
             <div className="grid gap-6 md:grid-cols-3" id="protocols">
               {/* Lab Protocols (now includes safety button) */}
-              <Card className="rounded-2xl">
+              <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-lg">Lab Protocols</CardTitle>
                 </CardHeader>
@@ -1255,7 +1255,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </Card>
 
               {/* Databases and Code */}
-              <Card className="rounded-2xl">
+              <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-lg">Databases and Code</CardTitle>
                 </CardHeader>
@@ -1276,7 +1276,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </Card>
 
               {/* Data Handling */}
-              <Card className="rounded-2xl">
+              <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-lg">Data Handling</CardTitle>
                 </CardHeader>
@@ -1310,7 +1310,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </div>
 
             {/* UPDATED: Projects table fed from fetchView("projects") */}
-            <Card className="rounded-2xl">
+            <Card className="rounded-2xl bg-white/95">
               <CardHeader>
                 <CardTitle className="text-xl">Current and Past Research Projects</CardTitle>
               </CardHeader>
@@ -1446,7 +1446,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           {/* LAB MEMBERS (public) */}
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
             {/* ... unchanged MEMBERS content ... */}
-            <Card className="rounded-2xl">
+            <Card className="rounded-2xl bg-white/95">
               <CardHeader>
                 <CardTitle className="text-xl">Member Directory</CardTitle>
               </CardHeader>
@@ -1588,7 +1588,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           {/* GALLERY */}
           <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
             {/* ... unchanged GALLERY content ... */}
-            <Card className="rounded-2xl">
+            <Card className="rounded-2xl bg-white/95">
               <CardHeader>
                 <CardTitle className="text-xl">Picture gallery</CardTitle>
               </CardHeader>
@@ -1784,7 +1784,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </div>
               </CardContent>
 
-              <Card className="rounded-2xl">
+              <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-xl">
                     Micro-quiz: Test Your Knowledge of Microbial Ecology
@@ -1978,7 +1978,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* CURRENT MEMBER PORTAL (restricted) */}
           <TabsContent value={NAV.current} className="mt-6 space-y-6">
-            <Card className="rounded-2xl">
+            <Card className="rounded-2xl bg-white/95">
               <CardHeader>
                 <CardTitle className="text-xl">Member portal</CardTitle>
                 <Badge variant="secondary" className="mt-2 w-fit rounded-full">
