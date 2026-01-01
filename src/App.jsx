@@ -484,9 +484,53 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [overlayTiles, setOverlayTiles] = useState(() => shuffleArray(OVERLAY_TILES));
 
   useEffect(() => {
-    // shuffle once per page load (or add deps if you want it to reshuffle on tab change, etc.)
-    setOverlayTiles(shuffleArray(OVERLAY_TILES));
+    setOverlayTiles(shuffleArray(OVERLAY_TILES)); // once per page load
   }, []);
+
+  const overlayStyle = useMemo(() => {
+    const tileUrls = overlayTiles.map((src) => `url("${src}")`);
+
+    const backgroundImage = [
+      'radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%)',
+      'radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%)',
+      ...tileUrls,
+    ].join(", ");
+
+    const backgroundRepeat = [
+      "no-repeat",
+      "no-repeat",
+      ...overlayTiles.map(() => "repeat"),
+    ].join(", ");
+
+    const backgroundSize = [
+      "auto",
+      "auto",
+      ...overlayTiles.map((_, i) => {
+        const base = 240; // your prior tile size
+        const step = 0;   // set to 10–20 if you want slight variation
+        const s = base + (i % 4) * step;
+        return `${s}px ${s}px`;
+      }),
+    ].join(", ");
+
+    const backgroundPosition = [
+      "center",
+      "center",
+      ...overlayTiles.map((_, i) => `${(i * 37) % 240}px ${(i * 61) % 240}px`),
+    ].join(", ");
+
+    return {
+      backgroundImage,
+      backgroundRepeat,
+      backgroundSize,
+      backgroundPosition,
+      opacity: 0.22,
+      maskImage:
+        "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+      WebkitMaskImage:
+        "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+    };
+  }, [overlayTiles]);
 
   const [activeTab, setActiveTab] = useState(NAV.home);
   
@@ -853,56 +897,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
-        style={() => {
-          // one tiled layer per SVG
-          const tileUrls = overlayTiles.map((src) => `url("${src}")`);
-
-          // two glows + N tiles
-          const backgroundImage = [
-            'radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%)',
-            'radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%)',
-            ...tileUrls,
-          ].join(", ");
-
-          // match repeats per layer: 2 non-repeating glows + N repeating tiles
-          const backgroundRepeat = [
-            "no-repeat",
-            "no-repeat",
-            ...overlayTiles.map(() => "repeat"),
-          ].join(", ");
-
-          // give each tile a slightly different scale to keep the mix feeling organic
-          // (optional: set all to "240px 240px" if you want uniformity)
-          const sizes = [
-            "auto",
-            "auto",
-            ...overlayTiles.map((_, i) => {
-              const base = 230;           // adjust to taste
-              const step = 10;            // small variation
-              const s = base + (i % 4) * step;
-              return `${s}px ${s}px`;
-            }),
-          ].join(", ");
-
-          // offset each layer so they don't align perfectly
-          const positions = [
-            "center",
-            "center",
-            ...overlayTiles.map((_, i) => `${(i * 37) % 240}px ${(i * 61) % 240}px`),
-          ].join(", ");
-
-          return {
-            backgroundImage,
-            backgroundRepeat,
-            backgroundSize: sizes,
-            backgroundPosition: positions,
-            opacity: 0.22,
-            maskImage:
-              "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
-            WebkitMaskImage:
-              "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
-          };
-        }}
+        style={overlayStyle}
       />
 
       {/* Header */}
