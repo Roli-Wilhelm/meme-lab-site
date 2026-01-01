@@ -210,7 +210,7 @@ function shuffleArray(arr) {
 function LinkRow({ icon: Icon, title, desc, href, onClick }) {
   const isButton = typeof onClick === "function";
   const className =
-    "group block rounded-2xl border bg-white/60 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
+    "group block rounded-2xl border bg-white/90 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
 
   if (isButton) {
     return (
@@ -850,7 +850,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-2xl"> 
@@ -888,7 +888,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* Main */}
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-white/60 backdrop-blur p-2 md:grid-cols-6 border">
+          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-white/90 backdrop-blur p-2 md:grid-cols-6 shadow-sm">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
               Home
             </TabsTrigger>
@@ -913,7 +913,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.home} className="mt-6 space-y-6">
             {/* ... unchanged HOME content ... */}
             <div className="grid gap-6 md:grid-cols-3">
-              <Card className="rounded-2xl md:col-span-2 border-[color:color-mix(in_srgb,var(--accent)_25%,transparent)]">
+              <Card className="rounded-2xl md:col-span-2">
                 <CardHeader>
                   <CardTitle className="text-xl">What we do</CardTitle>
                 </CardHeader>
@@ -987,7 +987,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             {/* Scholarly + Announcements (no Lab News wrapper) */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* Scholarly panel (mobile-safe) */}
-              <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+              <div className="rounded-2xl border bg-white/90 p-4 max-w-full overflow-hidden">
                 <div className="flex min-w-0 items-start gap-2">
                   <Rss className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
@@ -1130,7 +1130,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </div>
 
               {/* Announcements panel (mobile-safe) */}
-              <div className="rounded-2xl border bg-white/60 p-4 max-w-full overflow-hidden">
+              <div className="rounded-2xl border bg-white/90 p-4 max-w-full overflow-hidden">
                 <div className="flex min-w-0 items-start gap-2">
                   <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
@@ -1317,7 +1317,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
               <CardContent className="space-y-3">
                 {normalizedProjects.length === 0 ? (
-                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                  <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground">
                     No projects found yet. Populate the Projects Google Sheet (via
                     <code>fetchView("projects")</code>) or update{" "}
                     <code>FALLBACK_PROJECTS</code>.
@@ -1463,7 +1463,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 </div>
 
                 {members === null ? (
-                  <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                  <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground">
                     Profiles loading…
                   </div>
                 ) : null}
@@ -1477,7 +1477,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     return (
                       <div
                         key={m.id || m.name}
-                        className="rounded-2xl border bg-white/60 p-4 shadow-sm"
+                        className="rounded-2xl border bg-white/90 p-4 shadow-sm"
                       >
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-start">
                           <div className="w-full sm:col-span-1">
@@ -1577,7 +1577,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   })}
                 </div>
 
-                <div className="rounded-2xl border bg-white/60 p-4 text-center text-sm text-muted-foreground">
+                <div className="rounded-2xl border bg-white/90 p-4 text-center text-sm text-muted-foreground">
                   All opportunities to join the team will be posted in the
                   Announcements section on the Home page.
                 </div>
@@ -1594,7 +1594,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 rounded-2xl border bg-white/60 p-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-3 rounded-2xl border bg-white/90 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-sm text-muted-foreground">
                     <span className="font-medium text-slate-800">
                       Visit our lab photo album
@@ -1616,7 +1616,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                   {randomGallery.length === 0 ? (
-                    <div className="rounded-2xl border bg-white/60 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground">
                       No photos configured yet. Provide a{" "}
                       <code>fetchView("gallery")</code> feed (recommended) or
                       populate <code>FALLBACK_GALLERY_PHOTOS</code>.
@@ -1654,7 +1654,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border bg-white/60 p-4">
+                <div className="rounded-2xl border bg-white/90 p-4">
                   <div className="text-sm font-semibold">Photo policy</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                     <li>Default: only post photos with consent.</li>
@@ -1673,7 +1673,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardContent className="space-y-3">
                 {/* Fixed viewer sized to match the Micro-quiz card footprint */}
                 <div
-                  className="rounded-2xl border bg-white/60 p-4"
+                  className="rounded-2xl border bg-white/90 p-4"
                   onMouseEnter={() => setQuotePaused(true)}
                   onMouseLeave={() => setQuotePaused(false)}
                   onFocus={() => setQuotePaused(true)}
@@ -1794,7 +1794,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="rounded-2xl border bg-white/60 p-4">
+                  <div className="rounded-2xl border bg-white/90 p-4">
                     {!currentQuiz ? (
                       <div className="text-sm text-muted-foreground">Loading quiz…</div>
                     ) : quizFinished ? (
@@ -1987,7 +1987,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </CardHeader>
 
               <CardContent>
-                <div className="rounded-2xl border bg-white/60 p-4">
+                <div className="rounded-2xl border bg-white/90 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Lock className="h-4 w-4" />
                     Restricted hub
