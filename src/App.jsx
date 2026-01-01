@@ -821,7 +821,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
     <div
       className="
     relative min-h-screen
-    bg-gradient-to-b from-[color:var(--bg-top)] to-[color:var(--bg-bottom)]
+    bg-[linear-gradient(to_bottom,var(--bg-top),#D69C40_35%,#B5581D_62%,var(--bg-bottom))]
     text-slate-900
   "
       style={{
@@ -837,8 +837,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage: `
-        radial-gradient(900px 500px at 15% 10%, rgba(184,138,42,0.10), transparent 55%),
-        radial-gradient(800px 450px at 85% 20%, rgba(15,118,110,0.07), transparent 60%),
+        radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%),   /* gold glow */
+        radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%),   /* rust warmth */
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%2394A3B8' stroke-opacity='0.18'%3E%3Cpath d='M20 40c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M-20 90c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M20 140c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M-20 190c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3C/g%3E%3C/svg%3E")
       `,
           backgroundRepeat: "no-repeat, no-repeat, repeat",
