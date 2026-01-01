@@ -852,7 +852,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-2xl"> 
@@ -1027,7 +1027,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           return (
                             <div
                               key={`${url || title}-${idx}`}
-                              className="rounded-xl border bg-white/70 px-3 py-2"
+                              className="rounded-xl border bg-white/90 px-3 py-2"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">
@@ -1153,7 +1153,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       return (
                         <li
                           key={`${a.title || "a"}-${idx}`}
-                          className="rounded-xl border bg-white/70 px-3 py-2 max-w-full overflow-hidden"
+                          className="rounded-xl border bg-white/90 px-3 py-2 max-w-full overflow-hidden"
                         >
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                             <div className="min-w-0 max-w-full">
@@ -1331,7 +1331,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       {normalizedProjects.map((p, idx) => (
                         <div
                           key={`${p.url || p.title}-${idx}`}
-                          className="rounded-xl border bg-white/70 px-3 py-2"
+                          className="rounded-xl border bg-white/90 px-3 py-2"
                         >
                           <div className="min-w-0">
                             {p.url ? (
@@ -1531,7 +1531,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                               {m.email && (
                                 <a
                                   href={`mailto:${m.email}`}
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/90 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Email
@@ -1543,7 +1543,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.website}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/90 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Website
@@ -1554,7 +1554,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.scholar}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/90 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   Scholar
@@ -1565,7 +1565,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   href={m.links.github}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center rounded-full border bg-white/70 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
+                                  className="inline-flex items-center rounded-full border bg-white/90 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   GitHub
@@ -1719,7 +1719,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           const item = current.item;
                           return (
                             <div className="mt-3">
-                              <div className="rounded-2xl border bg-white/70 p-4">
+                              <div className="rounded-2xl border bg-white/90 p-4">
                                 <div className="grid gap-2">
                                   <div className="w-full max-w-[360px] mx-auto">
                                     <div className="aspect-square overflow-hidden rounded-2xl bg-white">
@@ -1749,7 +1749,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         return (
                           <div className="mt-3 space-y-3">
                             {current.items.map((item) => (
-                              <div key={item.id} className="rounded-2xl border bg-white/70 p-4">
+                              <div key={item.id} className="rounded-2xl border bg-white/90 p-4">
                                 <div className="flex items-start gap-3">
                                   <div className="mt-0.5 rounded-xl border bg-white p-2">
                                     <Quote className="h-5 w-5" />
