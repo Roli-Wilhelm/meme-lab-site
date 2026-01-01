@@ -481,10 +481,11 @@ async function postQuizAttempt({ endpoint, questionId, correct }) {
 
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
  
-  const [overlayTile, setOverlayTile] = useState(OVERLAY_TILES[0]);
+  const [overlayTiles, setOverlayTiles] = useState(() => shuffleArray(OVERLAY_TILES));
 
   useEffect(() => {
-    setOverlayTile(OVERLAY_TILES[Math.floor(Math.random() * OVERLAY_TILES.length)]);
+    // shuffle once per page load (or add deps if you want it to reshuffle on tab change, etc.)
+    setOverlayTiles(shuffleArray(OVERLAY_TILES));
   }, []);
 
   const [activeTab, setActiveTab] = useState(NAV.home);
@@ -852,20 +853,55 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-        radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%),   /* gold glow */
-        radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%),   /* rust warmth */
-        url("${overlayTile}")
-      `,
-          backgroundRepeat: "no-repeat, no-repeat, repeat",
-          backgroundSize: "auto, auto, 240px 240px",
-          backgroundPosition: "center, center, 0 0",
-          opacity: 0.22, // controls how visible the pattern is
-          maskImage:
-            "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
-          WebkitMaskImage:
-            "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+        style={() => {
+          // one tiled layer per SVG
+          const tileUrls = overlayTiles.map((src) => `url("${src}")`);
+
+          // two glows + N tiles
+          const backgroundImage = [
+            'radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%)',
+            'radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%)',
+            ...tileUrls,
+          ].join(", ");
+
+          // match repeats per layer: 2 non-repeating glows + N repeating tiles
+          const backgroundRepeat = [
+            "no-repeat",
+            "no-repeat",
+            ...overlayTiles.map(() => "repeat"),
+          ].join(", ");
+
+          // give each tile a slightly different scale to keep the mix feeling organic
+          // (optional: set all to "240px 240px" if you want uniformity)
+          const sizes = [
+            "auto",
+            "auto",
+            ...overlayTiles.map((_, i) => {
+              const base = 230;           // adjust to taste
+              const step = 10;            // small variation
+              const s = base + (i % 4) * step;
+              return `${s}px ${s}px`;
+            }),
+          ].join(", ");
+
+          // offset each layer so they don't align perfectly
+          const positions = [
+            "center",
+            "center",
+            ...overlayTiles.map((_, i) => `${(i * 37) % 240}px ${(i * 61) % 240}px`),
+          ].join(", ");
+
+          return {
+            backgroundImage,
+            backgroundRepeat,
+            backgroundSize: sizes,
+            backgroundPosition: positions,
+            opacity: 0.22,
+            maskImage:
+              "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+          };
         }}
       />
 
@@ -1887,7 +1923,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 className="rounded-2xl"
                                 onClick={startNewQuizAttempt}
                               >
-                                Retake quiz
+                                Take another quiz
                               </Button>
 
                               <Button
@@ -1902,7 +1938,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   startNewQuizAttempt();
                                 }}
                               >
-                                Reset session pool
+                                Reset session
                               </Button>
                             </div>
                           </div>
