@@ -2015,7 +2015,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
         </Tabs>
 
         {/* Footer */}
-        <footer className="mt-10 border-t pt-6 text-sm text-muted-foreground">
+        <footer className="mt-10 rounded-2xl border bg-white/95 p-6 text-sm text-slate-700 shadow-sm">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <div className="truncate font-medium text-slate-700">
