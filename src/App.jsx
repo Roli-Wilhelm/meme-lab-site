@@ -39,8 +39,12 @@ import {
 const HEADER_LOGO_DEFAULT = "/meme.logo.png";
 const HEADER_LOGO_EASTER_EGG = "/meme.logo.joyful.discovery.png";
 
-const SURFACE = "bg-white/95 backdrop-blur border shadow-sm";
-const SURFACE_SOFT = "bg-white/92 backdrop-blur border shadow-sm";
+// Background tiles
+const OVERLAY_TILES = [
+  "/patterns/soil-tile-1.png",
+  "/patterns/soil-tile-2.png",
+  "/patterns/soil-tile-3.png",
+];
 
 const PLACEHOLDER = {
   // Lab identity
@@ -108,6 +112,12 @@ const NAV = {
   quotes: "quotes",
   current: "current",
 };
+
+const [overlayTile, setOverlayTile] = useState(OVERLAY_TILES[0]);
+
+useEffect(() => {
+  setOverlayTile(OVERLAY_TILES[Math.floor(Math.random() * OVERLAY_TILES.length)]);
+}, []);
 
 function toDateString_(v) {
   if (!v) return "";
@@ -839,11 +849,12 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           backgroundImage: `
         radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%),   /* gold glow */
         radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%),   /* rust warmth */
-        url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='240'%20viewBox='0%200%20240%20240'%3E%3Cg%20fill='none'%20stroke='%2394A3B8'%20stroke-opacity='0.18'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%0A%20%20%3C!--%20bacteria%20(rods%20%2B%20cocci)%20--%3E%0A%20%20%3Cg%20transform='translate(20%2022)'%3E%0A%20%20%20%20%3Cellipse%20cx='20'%20cy='14'%20rx='18'%20ry='10'/%3E%0A%20%20%20%20%3Cpath%20d='M4%2014%20h32'/%3E%0A%20%20%20%20%3Cpath%20d='M6%207%20l-10%20-8'%20/%3E%0A%20%20%20%20%3Cpath%20d='M34%2021%20l10%208'%20/%3E%0A%20%20%20%20%3Ccircle%20cx='8'%20cy='38'%20r='6'/%3E%0A%20%20%20%20%3Ccircle%20cx='26'%20cy='40'%20r='5'/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3Cg%20transform='translate(150%2018)%20rotate(12)'%3E%0A%20%20%20%20%3Cellipse%20cx='22'%20cy='14'%20rx='20'%20ry='11'/%3E%0A%20%20%20%20%3Cpath%20d='M6%2014%20h32'/%3E%0A%20%20%20%20%3Cpath%20d='M10%205%20l-12%20-6'%20/%3E%0A%20%20%20%20%3Cpath%20d='M36%2023%20l12%206'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3Cg%20transform='translate(70%20110)%20rotate(-10)'%3E%0A%20%20%20%20%3Ccircle%20cx='10'%20cy='10'%20r='6'/%3E%0A%20%20%20%20%3Ccircle%20cx='28'%20cy='16'%20r='7'/%3E%0A%20%20%20%20%3Ccircle%20cx='18'%20cy='32'%20r='6'/%3E%0A%20%20%20%20%3Cpath%20d='M10%2010%20L28%2016%20L18%2032%20Z'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C!--%20fungal%20hyphae%20(branching)%20--%3E%0A%20%20%3Cg%20transform='translate(18%20160)'%3E%0A%20%20%20%20%3Cpath%20d='M10%2060%20C30%2048%2038%2038%2048%2024%20C56%2014%2068%208%2086%2010%20C104%2012%20118%2024%20126%2038'%20/%3E%0A%20%20%20%20%3Cpath%20d='M48%2024%20C44%2012%2034%206%2022%204'%20/%3E%0A%20%20%20%20%3Cpath%20d='M64%2014%20C72%204%2086%200%2098%204'%20/%3E%0A%20%20%20%20%3Cpath%20d='M96%2016%20C108%2010%20120%2010%20132%2016'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C!--%20roots%20(simple%20tap%20%2B%20laterals)%20--%3E%0A%20%20%3Cg%20transform='translate(140%20120)'%3E%0A%20%20%20%20%3Cpath%20d='M20%200%20C18%2018%2018%2036%2020%2056%20C22%2076%2018%2096%2010%20118'%20/%3E%0A%20%20%20%20%3Cpath%20d='M20%2022%20C10%2028%206%2034%204%2044'%20/%3E%0A%20%20%20%20%3Cpath%20d='M20%2036%20C32%2044%2038%2052%2042%2064'%20/%3E%0A%20%20%20%20%3Cpath%20d='M18%2070%20C10%2076%206%2084%204%2096'%20/%3E%0A%20%20%20%20%3Cpath%20d='M20%2084%20C30%2090%2038%2098%2042%20110'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C!--%20worm%20--%3E%0A%20%20%3Cg%20transform='translate(40%2080)%20rotate(8)'%3E%0A%20%20%20%20%3Cpath%20d='M0%2030%20C18%2018%2036%2042%2054%2030%20C72%2018%2090%2042%20108%2030'%20/%3E%0A%20%20%20%20%3Cpath%20d='M14%2026%20l-6%20-8'%20/%3E%0A%20%20%20%20%3Cpath%20d='M30%2034%20l-6%208'%20/%3E%0A%20%20%20%20%3Cpath%20d='M74%2026%20l6%20-8'%20/%3E%0A%20%20%20%20%3Cpath%20d='M92%2036%20l6%208'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C!--%20mite%20/%20small%20arthropod%20--%3E%0A%20%20%3Cg%20transform='translate(170%20170)%20rotate(-10)'%3E%0A%20%20%20%20%3Cellipse%20cx='18'%20cy='18'%20rx='12'%20ry='9'/%3E%0A%20%20%20%20%3Ccircle%20cx='34'%20cy='16'%20r='5'/%3E%0A%20%20%20%20%3Cpath%20d='M10%2012%20l-10%20-6'%20/%3E%0A%20%20%20%20%3Cpath%20d='M10%2018%20l-12%200'%20/%3E%0A%20%20%20%20%3Cpath%20d='M10%2024%20l-10%206'%20/%3E%0A%20%20%20%20%3Cpath%20d='M24%2012%20l8%20-8'%20/%3E%0A%20%20%20%20%3Cpath%20d='M26%2020%20l10%200'%20/%3E%0A%20%20%20%20%3Cpath%20d='M24%2026%20l8%208'%20/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C!--%20extra%20crowding%20lines%20to%20evoke%20density%20--%3E%0A%20%20%3Cpath%20d='M8%20210%20C40%20190%2070%20220%20102%20200%20C134%20180%20162%20212%20234%20192'%20/%3E%0A%20%20%3Cpath%20d='M6%206%20C40%2030%2070%200%20102%2020%20C134%2040%20170%2010%20236%2034'%20/%3E%0A%3C/g%3E%3C/svg%3E")
+        url("${overlayTile}")
       `,
           backgroundRepeat: "no-repeat, no-repeat, repeat",
           backgroundSize: "auto, auto, 240px 240px",
           backgroundPosition: "center, center, 0 0",
+          opacity: 0.22, // controls how visible the pattern is
           maskImage:
             "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
           WebkitMaskImage:
@@ -1606,7 +1617,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
 
                   <Button
-                    className="rounded-2xl"
+                    className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
                     onClick={() =>
                       window.open(PLACEHOLDER.photoGallery, "_blank")
                     }
@@ -1670,46 +1681,49 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* QUOTES & QUIZ */}
           <TabsContent value={NAV.quotes} className="mt-6 space-y-6">
-            {/* ... unchanged QUOTES & QUIZ content ... */}
+            {/*QUOTES & QUIZ content*/}
             <div className="grid gap-6 md:grid-cols-2">
-              <CardContent className="space-y-3">
-                {/* Fixed viewer sized to match the Micro-quiz card footprint */}
-                <div
-                  className="rounded-2xl border bg-white/95 p-4"
-                  onMouseEnter={() => setQuotePaused(true)}
-                  onMouseLeave={() => setQuotePaused(false)}
-                  onFocus={() => setQuotePaused(true)}
-                  onBlur={() => setQuotePaused(false)}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-xl font-semibold">Quotes</div>
+              <Card className="rounded-2xl bg-white/95 h-full">
+                <CardHeader>
+                  <CardTitle className="text-xl">Quotes</CardTitle>
+                </CardHeader>
 
-                    {/* Controls */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={prevQuoteSet}
-                        className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
-                        aria-label="Previous"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={nextQuoteSet}
-                        className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
-                        aria-label="Next"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
+                <CardContent className="space-y-3">
+                  {/* Fixed viewer sized to match the Micro-quiz card footprint */}
+                  <div
+                    className="rounded-2xl border bg-white/95 p-4"
+                    onMouseEnter={() => setQuotePaused(true)}
+                    onMouseLeave={() => setQuotePaused(false)}
+                    onFocus={() => setQuotePaused(true)}
+                    onBlur={() => setQuotePaused(false)}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Controls */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={prevQuoteSet}
+                          className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                          aria-label="Previous"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={nextQuoteSet}
+                          className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                          aria-label="Next"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  {normalizedQuotes.length === 0 ? (
-                    <div className="mt-3 text-sm text-muted-foreground">
-                      No quotes or MEMEs published yet.
-                    </div>
-                  ) : (
+                    {normalizedQuotes.length === 0 ? (
+                      <div className="mt-3 text-sm text-muted-foreground">
+                        No quotes or MEMEs published yet.
+                      </div>
+                    ) : (
                       (() => {
                         if (!displayItems.length) return null;
 
@@ -1772,20 +1786,21 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                         );
                       })()
 
-          )}
+                    )}
 
-                  {/* Little progress indicator */}
-                  {normalizedQuotes.length > 0 && (
-                    <div className="mt-3 text-xs text-muted-foreground">
-                      {displayItems.length ? `${quoteIndex + 1} / ${displayItems.length}` : null}
-                      <span className="ml-2">
-                        {quotePaused ? "(paused)" : "(auto)"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-
+                    {/* Little progress indicator */}
+                    {normalizedQuotes.length > 0 && (
+                      <div className="mt-3 text-xs text-muted-foreground">
+                        {displayItems.length ? `${quoteIndex + 1} / ${displayItems.length}` : null}
+                        <span className="ml-2">
+                          {quotePaused ? "(paused)" : "(auto)"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              
               <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-xl">
@@ -2004,7 +2019,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
                       onClick={() => window.open(PLACEHOLDER.currentMembersHub, "_blank")}
                     >
-                      Open current members hub
+                      Open members hub
                     </Button>
                   </div>
                 </div>
