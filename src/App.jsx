@@ -1066,16 +1066,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
                             <thead className="sticky top-0 z-10">
                               <tr className="text-left">
-                                <th className="w-[18%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[18%] border-b bg-white/80 px-3 py-2 font-semibold">
                                   First author
                                 </th>
-                                <th className="w-[22%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[22%] border-b bg-white/80 px-3 py-2 font-semibold">
                                   Journal
                                 </th>
-                                <th className="w-[14%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[14%] border-b bg-white/80 px-3 py-2 font-semibold">
                                   Pub date
                                 </th>
-                                <th className="w-[46%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[46%] border-b bg-white/80 px-3 py-2 font-semibold">
                                   Title
                                 </th>
                               </tr>
@@ -1093,7 +1093,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                     : "";
 
                                 return (
-                                  <tr key={`${url || title}-${idx}`} className="align-top">
+                                  <tr key={`${url || title}-${idx}`} className="align-top bg-white/90">
                                     <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
                                       {firstAuthor}
                                     </td>
