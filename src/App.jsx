@@ -41,7 +41,7 @@ const HEADER_LOGO_EASTER_EGG = "/meme.logo.joyful.discovery.png";
 
 // Background tiles
 const OVERLAY_TILES = [
-  "/patterns/soil-tile-1.png",
+  "/patterns/tile1.caulobacter.svg",
   "/patterns/soil-tile-2.png",
   "/patterns/soil-tile-3.png",
 ];
