@@ -834,7 +834,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* background overlay: subtle pattern + soft vignette */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 -z-10"
         style={{
           backgroundImage: `
         radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%),   /* gold glow */
@@ -888,7 +888,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       </header>
 
       {/* Main */}
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-white/95 backdrop-blur p-2 md:grid-cols-6 shadow-sm">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
@@ -989,7 +989,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             {/* Scholarly + Announcements (no Lab News wrapper) */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* Scholarly panel (mobile-safe) */}
-              <div className="rounded-2xl border bg-white/95 p-4 max-w-full overflow-hidden">
+              <div className="rounded-2xl border bg-white/90 p-4 max-w-full overflow-hidden">
                 <div className="flex min-w-0 items-start gap-2">
                   <Rss className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="min-w-0">
@@ -1066,16 +1066,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
                             <thead className="sticky top-0 z-10">
                               <tr className="text-left">
-                                <th className="w-[18%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[18%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
                                   First author
                                 </th>
-                                <th className="w-[22%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[22%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
                                   Journal
                                 </th>
-                                <th className="w-[14%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[14%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
                                   Pub date
                                 </th>
-                                <th className="w-[46%] border-b bg-white/90 backdrop-blur px-3 py-2 font-semibold">
+                                <th className="w-[46%] border-b bg-white/80 backdrop-blur px-3 py-2 font-semibold">
                                   Title
                                 </th>
                               </tr>
