@@ -101,7 +101,7 @@ const PLACEHOLDER = {
   stanAgDataAdvisor: "https://chatgpt.com/g/g-wK0NsSO0A-stan-the-agdata-advisor", // Stan the AgData Advisor
   streamsGuideline: "https://www.nature.com/articles/s41564-025-02186-2", // STREAMS guideline
   misipStandard: "https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giae071/7817747", // MISIP standard
-
+  autosip: "", // AutoSIP GitHub Page
 };
 
 const NAV = {
@@ -910,7 +910,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               Research
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.members}>
-              Lab members
+              Lab Members
             </TabsTrigger>
             <TabsTrigger className="rounded-xl" value={NAV.gallery}>
               Gallery
@@ -1074,7 +1074,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     {/* DESKTOP/TABLET: table (kept), but wrapped + fixed layout */}
                     <div className="mt-3 hidden md:block">
                       <div className="max-h-[420px] overflow-y-auto pr-1">
-                        <div className="overflow-x-auto max-w-full">
+                        <div className="overflow-x-auto max-w-full bg-white">
                           <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
                             <thead className="sticky top-0 z-10">
                               <tr className="text-left">
@@ -1246,13 +1246,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <LinkRow
                       icon={FlaskConical}
                       title="Protocols.io"
-                      desc="Versioned methods (optionally citable)"
+                      desc="Versioned methods with DOIs"
                       href={PLACEHOLDER.protocolsIoWorkspace}
                     />
                     <LinkRow
                       icon={Microscope}
-                      title="Stable Isotope Probing Navigator"
-                      desc="Tools and guidance for designing and interpreting SIP studies"
+                      title="SIP Navigator"
+                      desc="Custom GPT trained to guide SIP experiments"
                       href={PLACEHOLDER.sipNavigator}
                     />
 
@@ -1262,7 +1262,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       variant="outline"
                       onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
                     >
-                      Open Purdue University Lab Safety Resources
+                      Purdue University Lab Safety Resources
                     </Button>
                   </div>
                 </CardContent>
@@ -1282,8 +1282,14 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <LinkRow
                       icon={Database}
                       title="SIPdb"
-                      desc="Stable isotope probing database and associated tools"
+                      desc="Reverse ecology tool for attributing putative function"
                       href={PLACEHOLDER.sipdb}
+                    />
+                    <LinkRow
+                      icon={Database}
+                      title="autoSIP"
+                      desc="Print and assembly instructions for gradient fractionating robot"
+                      href={PLACEHOLDER.autosip}
                     />
                   </div>
                 </CardContent>
@@ -1303,19 +1309,19 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <LinkRow
                       icon={FolderKanban}
                       title="Stan the AgData Advisor"
-                      desc="Practical guidance for organizing, documenting, and shipping datasets"
+                      desc="Custom GPT trained to guide formatting and archiving data"
                       href={PLACEHOLDER.stanAgDataAdvisor}
                     />
                     <LinkRow
                       icon={Network}
                       title="STREAMS guideline"
-                      desc="Recommended practices for consistent metadata and sharing"
+                      desc="Recommended practices for host and environmental microbiome data"
                       href={PLACEHOLDER.streamsGuideline}
                     />
                     <LinkRow
                       icon={FileText}
                       title="MISIP standard"
-                      desc="Controlled vocabulary and archiving standard for SIP experiments"
+                      desc="Standard for archival of SIP nucleic acid data"
                       href={PLACEHOLDER.misipStandard}
                     />
                   </div>
