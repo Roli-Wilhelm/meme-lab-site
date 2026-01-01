@@ -33,6 +33,7 @@ import {
   ShieldCheck,
   Network,
   FolderKanban,
+  Bot,
 } from "lucide-react";
 
 // Header logo assets from /public (Vite serves them from the site root)
@@ -42,8 +43,13 @@ const HEADER_LOGO_EASTER_EGG = "/meme.logo.joyful.discovery.png";
 // Background tiles
 const OVERLAY_TILES = [
   "/patterns/tile1.caulobacter.svg",
-  "/patterns/soil-tile-2.png",
-  "/patterns/soil-tile-3.png",
+  "/patterns/tile2.nematode.lasso.fungus.svg",
+  "/patterns/tile3.mycorrhizae.svg",
+  "/patterns/tile4.springtail.spider.svg",
+  "/patterns/tile5.firefly.svg",
+  "/patterns/tile6.root.nodulation.svg",
+  "/patterns/tile7.woodrot.fungus.svg",
+  "/patterns/tile8.earthworm.midden.svg",
 ];
 
 const PLACEHOLDER = {
@@ -1078,16 +1084,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
                             <thead className="sticky top-0 z-10">
                               <tr className="text-left">
-                                <th className="w-[18%] border-b bg-white/80 px-3 py-2 font-semibold">
+                                <th className="w-[18%] border-b bg-white px-3 py-2 font-semibold">
                                   First author
                                 </th>
-                                <th className="w-[22%] border-b bg-white/80 px-3 py-2 font-semibold">
+                                <th className="w-[22%] border-b bg-white px-3 py-2 font-semibold">
                                   Journal
                                 </th>
-                                <th className="w-[14%] border-b bg-white/80 px-3 py-2 font-semibold">
+                                <th className="w-[14%] border-b bg-white px-3 py-2 font-semibold">
                                   Pub date
                                 </th>
-                                <th className="w-[46%] border-b bg-white/80 px-3 py-2 font-semibold">
+                                <th className="w-[46%] border-b bg-white px-3 py-2 font-semibold">
                                   Title
                                 </th>
                               </tr>
@@ -1105,7 +1111,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                     : "";
 
                                 return (
-                                  <tr key={`${url || title}-${idx}`} className="align-top bg-white/90">
+                                  <tr key={`${url || title}-${idx}`} className="align-top bg-white">
                                     <td className="border-b px-3 py-2 text-muted-foreground break-words whitespace-normal">
                                       {firstAuthor}
                                     </td>
@@ -1286,7 +1292,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       href={PLACEHOLDER.sipdb}
                     />
                     <LinkRow
-                      icon={Database}
+                      icon={Bot}
                       title="autoSIP"
                       desc="Print and assembly instructions for gradient fractionating robot"
                       href={PLACEHOLDER.autosip}
