@@ -816,7 +816,39 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div
+      className="
+    relative min-h-screen
+    bg-gradient-to-b from-[color:var(--bg-top)] to-[color:var(--bg-bottom)]
+    text-slate-900
+  "
+      style={{
+        // Choose a palette by changing these 3 values only:
+        ["--bg-top"]: "#F6F4EF",      // Option A top tint
+        ["--bg-bottom"]: "#EEF2F7",   // Option A bottom tint
+        ["--accent"]: "#B88A2A",      // Option A accent
+      }}
+    >
+      {/* background overlay: subtle pattern + soft vignette */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: `
+        radial-gradient(900px 500px at 15% 10%, rgba(184,138,42,0.10), transparent 55%),
+        radial-gradient(800px 450px at 85% 20%, rgba(15,118,110,0.07), transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%2394A3B8' stroke-opacity='0.18'%3E%3Cpath d='M20 40c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M-20 90c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M20 140c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3Cpath d='M-20 190c40 0 40 20 80 20s40-20 80-20 40 20 80 20'/%3E%3C/g%3E%3C/svg%3E")
+      `,
+          backgroundRepeat: "no-repeat, no-repeat, repeat",
+          backgroundSize: "auto, auto, 240px 240px",
+          backgroundPosition: "center, center, 0 0",
+          maskImage:
+            "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+        }}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
@@ -856,7 +888,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* Main */}
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-2 md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-white/60 backdrop-blur p-2 md:grid-cols-6 border">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
               Home
             </TabsTrigger>
@@ -881,7 +913,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
           <TabsContent value={NAV.home} className="mt-6 space-y-6">
             {/* ... unchanged HOME content ... */}
             <div className="grid gap-6 md:grid-cols-3">
-              <Card className="rounded-2xl md:col-span-2">
+              <Card className="rounded-2xl md:col-span-2 border-[color:color-mix(in_srgb,var(--accent)_25%,transparent)]">
                 <CardHeader>
                   <CardTitle className="text-xl">What we do</CardTitle>
                 </CardHeader>
@@ -1216,7 +1248,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       variant="outline"
                       onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
                     >
-                      Open safety resources
+                      Open Purdue University Lab Safety Resources
                     </Button>
                   </div>
                 </CardContent>
