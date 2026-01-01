@@ -834,7 +834,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
       {/* background overlay: subtle pattern + soft vignette */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10"
+        className="pointer-events-none absolute inset-0 z-0"
         style={{
           backgroundImage: `
         radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%),   /* gold glow */
