@@ -1184,9 +1184,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               ))}
             </div>
 
-            {/* Four symmetric research resource badges */}
-            <div className="grid gap-6 md:grid-cols-4" id="protocols">
-              {/* Lab Protocols */}
+            {/* UPDATED: Three resource badges (Safety merged into Lab Protocols) */}
+            <div className="grid gap-6 md:grid-cols-3" id="protocols">
+              {/* Lab Protocols (now includes safety button) */}
               <Card className="rounded-2xl">
                 <CardHeader>
                   <CardTitle className="text-lg">Lab Protocols</CardTitle>
@@ -1209,6 +1209,15 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       desc="Tools and guidance for designing and interpreting SIP studies"
                       href={PLACEHOLDER.sipNavigator}
                     />
+
+                    {/* MOVED HERE from the Safety badge */}
+                    <Button
+                      className="w-full rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                      variant="outline"
+                      onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
+                    >
+                      Open safety resources
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -1264,26 +1273,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       href={PLACEHOLDER.misipStandard}
                     />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Safety (standalone) */}
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-lg">Safety</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Purdue EHPS plus lab-specific training checklists and expectations.
-                  </p>
-
-                  <Button
-                    className="w-full rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    variant="outline"
-                    onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
-                  >
-                    Open safety resources
-                  </Button>
                 </CardContent>
               </Card>
             </div>
