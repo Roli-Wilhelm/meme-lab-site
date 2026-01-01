@@ -113,12 +113,6 @@ const NAV = {
   current: "current",
 };
 
-const [overlayTile, setOverlayTile] = useState(OVERLAY_TILES[0]);
-
-useEffect(() => {
-  setOverlayTile(OVERLAY_TILES[Math.floor(Math.random() * OVERLAY_TILES.length)]);
-}, []);
-
 function toDateString_(v) {
   if (!v) return "";
   const s = String(v).trim();
@@ -480,6 +474,13 @@ async function postQuizAttempt({ endpoint, questionId, correct }) {
 }
 
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
+ 
+  const [overlayTile, setOverlayTile] = useState(OVERLAY_TILES[0]);
+
+  useEffect(() => {
+    setOverlayTile(OVERLAY_TILES[Math.floor(Math.random() * OVERLAY_TILES.length)]);
+  }, []);
+
   const [activeTab, setActiveTab] = useState(NAV.home);
   
   useEffect(() => {
@@ -1800,7 +1801,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-xl">
