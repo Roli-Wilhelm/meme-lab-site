@@ -1509,13 +1509,13 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-xl">Member Directory</CardTitle>
                     {/* Color legend */}
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-3 w-3 rounded border border-amber-200/50 bg-amber-50"></div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3.5 w-3.5 rounded border border-amber-200/50 bg-amber-50"></div>
                         <span>Current</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-3 w-3 rounded border border-gray-200 bg-gray-50"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-3.5 w-3.5 rounded border border-gray-200 bg-gray-50"></div>
                         <span>Alumni</span>
                       </div>
                     </div>
