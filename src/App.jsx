@@ -1506,7 +1506,20 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <CardHeader>
                 {/* UPDATED: Title and search on same line */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-xl">Member Directory</CardTitle>
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="text-xl">Member Directory</CardTitle>
+                    {/* Color legend */}
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-3 w-3 rounded border border-amber-200/50 bg-amber-50"></div>
+                        <span>Current</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-3 w-3 rounded border border-gray-200 bg-gray-50"></div>
+                        <span>Alumni</span>
+                      </div>
+                    </div>
+                  </div>
                   <div className="w-full sm:w-auto sm:min-w-[280px]">
                     <Input
                       value={memberSearch}
