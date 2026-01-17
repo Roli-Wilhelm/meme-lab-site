@@ -1500,25 +1500,25 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           </TabsContent>
 
-          {/* LAB MEMBERS (public) */}
+/* LAB MEMBERS (public) - UPDATED SECTION */
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
-            {/* ... unchanged MEMBERS content ... */}
             <Card className="rounded-2xl bg-white/95">
               <CardHeader>
-                <CardTitle className="text-xl">Member Directory</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex w-full justify-end">
-                  <div className="w-full md:w-auto">
+                {/* UPDATED: Title and search on same line */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="text-xl">Member Directory</CardTitle>
+                  <div className="w-full sm:w-auto sm:min-w-[280px]">
                     <Input
                       value={memberSearch}
                       onChange={(e) => setMemberSearch(e.target.value)}
                       placeholder="Search by name / role"
-                      className="h-10 rounded-2xl md:w-[280px]"
+                      className="h-10 rounded-2xl"
                     />
                   </div>
                 </div>
+              </CardHeader>
 
+              <CardContent className="space-y-4">
                 {members === null ? (
                   <div className="rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
                     Profiles loading…
@@ -1582,6 +1582,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                 </div>
                               )}
 
+                            {/* UPDATED: Added CV button */}
                             <div className="mt-4 flex flex-wrap gap-2 text-xs">
                               {m.email && (
                                 <a
@@ -1604,6 +1605,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   Website
                                 </a>
                               )}
+
                               {m?.links?.scholar && (
                                 <a
                                   href={m.links.scholar}
@@ -1615,6 +1617,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   Scholar
                                 </a>
                               )}
+
                               {m?.links?.github && (
                                 <a
                                   href={m.links.github}
@@ -1624,6 +1627,19 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   GitHub
+                                </a>
+                              )}
+
+                              {/* NEW: CV button */}
+                              {m?.links?.cv && (
+                                <a
+                                  href={m.links.cv}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center rounded-full border bg-white/90 px-3 py-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:bg-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  CV
                                 </a>
                               )}
                             </div>
