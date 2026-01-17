@@ -1500,7 +1500,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           </TabsContent>
 
-/* LAB MEMBERS (public) - UPDATED SECTION */
+          {/* LAB MEMBERS (public) - UPDATED SECTION */}
           <TabsContent value={NAV.members} className="mt-6 space-y-6">
             <Card className="rounded-2xl bg-white/95">
               <CardHeader>
@@ -1531,10 +1531,19 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       .filter(Boolean)
                       .join(" • ");
 
+                    // Determine status and corresponding styles
+                    const isAlumni = m?.status === "alumni";
+                    const cardBgClass = isAlumni
+                      ? "bg-gray-50/95"
+                      : "bg-amber-50/95"; // warm tone matching the screenshot palette
+                    const borderClass = isAlumni
+                      ? "border-gray-200"
+                      : "border-amber-200/50";
+
                     return (
                       <div
                         key={m.id || m.name}
-                        className="rounded-2xl border bg-white/95 p-4 shadow-sm"
+                        className={`rounded-2xl border p-4 shadow-sm ${cardBgClass} ${borderClass}`}
                       >
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 items-start">
                           <div className="w-full sm:col-span-1">
