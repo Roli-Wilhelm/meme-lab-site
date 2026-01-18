@@ -191,7 +191,7 @@ function announcementStyle_(typeRaw) {
       // Rust + white text (per your latest preference)
       return {
         type,
-        container: "bg-orange-800 text-white border-orange-900/40",
+        container: "bg-orange-600 text-white border-orange-700/40",
         title: "text-white",
         body: "text-white/90",
         link: "underline decoration-white/40 hover:decoration-white",
@@ -875,10 +875,6 @@ function ProspectiveStudentsPage({ announcements }) {
                 <div className="flex items-center gap-2">
                   <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
                   <span>Milestone</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3.5 w-3.5 rounded border border-slate-200 bg-white"></div>
-                  <span>General</span>
                 </div>
               </div>
             </div>
