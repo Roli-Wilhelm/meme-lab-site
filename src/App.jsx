@@ -967,16 +967,18 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               <div className="md:col-span-2 space-y-6">
                 {/* What we do card */}
                 <Card className="rounded-2xl bg-white/95">
-                  <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <CardTitle className="text-xl">What we do</CardTitle>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <CardTitle className="text-xl">What we do</CardTitle>
+                      <Button
+                        size="sm"
+                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 shrink-0"
+                        onClick={() => setActiveTab(NAV.research)}
+                      >
+                        Explore research
+                      </Button>
+                    </div>
                   </CardHeader>
-                    <Button
-                      size="sm"
-                      className="rounded-xl px-3 py-1.5 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 sm:shrink-0"
-                      onClick={() => setActiveTab(NAV.research)}
-                    >
-                      Explore research
-                    </Button>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
                       The MEME Team studies how land management
