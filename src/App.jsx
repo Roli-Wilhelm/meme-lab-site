@@ -230,7 +230,7 @@ function shuffleArray(arr) {
 function LinkRow({ icon: Icon, title, desc, href, onClick }) {
   const isButton = typeof onClick === "function";
   const className =
-    "group block rounded-2xl border bg-white/95 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
+    "group block w-full rounded-2xl border bg-white/95 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
 
   if (isButton) {
     return (
