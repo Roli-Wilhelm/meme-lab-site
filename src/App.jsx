@@ -638,7 +638,7 @@ function ProspectiveStudentsPage({ announcements }) {
               />
               <LinkRow
                 icon={Network}
-                title="ESE / IESE (PhD)"
+                title="ESE (PhD)"
                 desc="Interdisciplinary Ecological Sciences & Engineering"
                 href={PLACEHOLDER.eseGradProgram}
               />
@@ -1366,8 +1366,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       shapes microbial communities and how those communities, in
                       turn, regulate nutrient cycling, plant health, and ecosystem
                       services. We develop reproducible workflows and open data
-                      assets to make microbiome science more predictive and
-                      actionable.
+                      to make microbiome science more predictive and
+                      actionable. Take a look at our <a href="#research" className="text-primary hover:underline">Research</a>.
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       <Badge variant="secondary" className="rounded-full">
