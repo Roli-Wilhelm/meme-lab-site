@@ -152,18 +152,12 @@ function normalizeAnnouncementType_(t) {
   const s = String(t || "").trim().toLowerCase();
   if (!s) return "general";
 
-  // Allow a few friendly aliases / typos
-  if (s === "recruit" || s === "hiring" || s === "position" || s === "positions") {
-    return "recruitment";
-  }
-  if (s === "achievement" || s === "award" || s === "publication" || s === "paper") {
-    return "achievements";
-  }
-  if (s === "milestones" || s === "milestone" || s === "life" || s === "personal") {
-    return "milestone";
-  }
+  // Friendly aliases
+  if (s === "recruit" || s === "hiring" || s === "position" || s === "positions") return "recruitment";
+  if (s === "achievement" || s === "award" || s === "publication" || s === "paper") return "achievements";
+  if (s === "milestones") return "milestone";
 
-  // Canonical options
+  // Canonical
   if (s === "recruitment") return "recruitment";
   if (s === "achievements") return "achievements";
   if (s === "milestone") return "milestone";
@@ -174,11 +168,6 @@ function normalizeAnnouncementType_(t) {
 function announcementStyle_(typeRaw) {
   const type = normalizeAnnouncementType_(typeRaw);
 
-  // Requirements:
-  // (1) recruitment: white text on black background
-  // (2) achievements: black text on gold background
-  // (3) milestone: black text on light maroon background
-  // (4) general: black text on white background
   switch (type) {
     case "recruitment":
       return {
@@ -199,13 +188,14 @@ function announcementStyle_(typeRaw) {
         date: "text-black/70",
       };
     case "milestone":
+      // Rust + white text (per your latest preference)
       return {
         type,
-        container: "bg-orange-800 text-white border-orange-700",
-        title: "text-black",
-        body: "text-black/80",
-        link: "underline decoration-black/30 hover:decoration-black",
-        date: "text-black/70",
+        container: "bg-orange-800 text-white border-orange-900/40",
+        title: "text-white",
+        body: "text-white/90",
+        link: "underline decoration-white/40 hover:decoration-white",
+        date: "text-white/70",
       };
     default:
       return {
@@ -869,7 +859,29 @@ function ProspectiveStudentsPage({ announcements }) {
         {/* Reposted announcements */}
         <Card id="announcements" className="rounded-2xl bg-white/95 scroll-mt-28">
           <CardHeader>
-            <CardTitle className="text-xl">Announcements (reposted)</CardTitle>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <CardTitle className="text-xl">Announcements (reposted)</CardTitle>
+
+              {/* Color legend (matches Lab Members legend sizing/style) */}
+              <div className="mt-0.5 flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black"></div>
+                  <span>Recruitment</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300"></div>
+                  <span>Achievements</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                  <span>Milestone</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-3.5 w-3.5 rounded border border-slate-200 bg-white"></div>
+                  <span>General</span>
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-sm text-muted-foreground mb-3">
@@ -879,22 +891,23 @@ function ProspectiveStudentsPage({ announcements }) {
             <div className="max-h-96 overflow-y-auto pr-1">
               <ul className="space-y-2 text-sm text-muted-foreground">
                 {(announcements || []).map((a, idx) => {
-                  const st = announcementStyle_(a.type);
+                  const style = announcementStyle_(a.type);
+
                   return (
                     <li
                       key={`${a.title || "a"}-${idx}`}
-                      className={`rounded-xl border px-3 py-2 ${st.container}`}
+                      className={`rounded-xl border px-3 py-2 ${style.container}`}
                     >
-                      <div className={`font-medium break-words whitespace-normal ${st.title}`} title={st.type}>
+                      <div className={`font-medium break-words whitespace-normal ${style.title}`}>
                         {a.title}
                       </div>
-                      <div className={`mt-1 break-words whitespace-normal ${st.body}`}>
+                      <div className={`mt-1 break-words whitespace-normal ${style.body}`}>
                         {a.url ? (
                           <a
                             href={a.url}
                             target="_blank"
                             rel="noreferrer"
-                            className={`${st.link} underline-offset-2`}
+                            className={style.link}
                             style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
                           >
                             {a.text}
@@ -1675,14 +1688,36 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
               {/* Announcements panel (mobile-safe) */}
               <div className="rounded-2xl border bg-white/95 p-4 max-w-full overflow-hidden">
-                <div className="flex min-w-0 items-start gap-2">
-                  <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="text-xl font-semibold leading-5 break-words">
-                      Announcements
+                <div className="flex min-w-0 items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-2">
+                    <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-xl font-semibold leading-5 break-words">
+                        Announcements
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Lab updates and notices
+                      </div>
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      Lab updates and notices
+                  </div>
+
+                  {/* Color legend (matches Lab Members legend sizing/style) */}
+                  <div className="mt-0.5 flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black"></div>
+                      <span>Recruitment</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300"></div>
+                      <span>Achievements</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                      <span>Milestone</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-slate-200 bg-white"></div>
+                      <span>General</span>
                     </div>
                   </div>
                 </div>
@@ -1691,30 +1726,26 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => {
                       const when = formatAnnouncementTime_(a.time);
-                      const st = announcementStyle_(a.type);
+                      const style = announcementStyle_(a.type);
 
                       return (
                         <li
                           key={`${a.title || "a"}-${idx}`}
-                          className={`rounded-xl border px-3 py-2 max-w-full overflow-hidden ${st.container}`}
+                          className={`rounded-xl border px-3 py-2 max-w-full overflow-hidden ${style.container}`}
                         >
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                             <div className="min-w-0 max-w-full">
-                              <div className={`font-medium break-words whitespace-normal ${st.title}`}
-                                title={st.type}
-                              >
+                              <div className={`font-medium break-words whitespace-normal ${style.title}`}>
                                 {a.title}
                               </div>
 
-                              <div className={`mt-1 break-words whitespace-normal max-w-full ${st.body}`}
-                                style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                              >
+                              <div className={`mt-1 break-words whitespace-normal max-w-full ${style.body}`}>
                                 {a.url ? (
                                   <a
                                     href={a.url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className={`${st.link} break-words whitespace-normal underline-offset-2`}
+                                    className={`${style.link} break-words whitespace-normal`}
                                     style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
                                   >
                                     {a.text}
@@ -1731,9 +1762,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             </div>
 
                             {when && (
-                              <div className={`text-xs sm:shrink-0 sm:text-right ${st.date}`}
-                                style={{ overflowWrap: "anywhere" }}
-                              >
+                              <div className={`text-xs sm:shrink-0 sm:text-right ${style.date}`}>
                                 {when}
                               </div>
                             )}
