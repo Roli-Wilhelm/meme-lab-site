@@ -989,9 +989,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       <Badge variant="secondary" className="rounded-full">
                         Data standards & FAIR workflows
                       </Badge>
-                      <Badge variant="secondary" className="rounded-full">
-                        Managed ecosystems
-                      </Badge>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
@@ -1011,7 +1008,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome, is a trained environmental microbiologist and microbial ecologists, who leads the MEME Lab and serves as the current Director of the Purdue Applied Microbiome Sciences Research Hub. He is an award-winning, data-driven scientist, former would-be science journalist, and one-time market gardener. He is shaped by an enthusiasm for team-sports, immigrant roots, and passion for nature. Learn more about me on the Prospective Students page.
+Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome, is a trained environmental microbiologist and microbial ecologists, who leads the MEME Lab and serves as the current Director of the Purdue Applied Microbiome Sciences Research Hub. He is an award-winning, data-driven scientist, former would-be science journalist, and one-time market gardener. He is shaped by an enthusiasm for teamwork, his immigrant roots, and passion for nature. Learn more about me on the Prospective Students page.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
