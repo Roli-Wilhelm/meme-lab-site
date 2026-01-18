@@ -1008,7 +1008,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature. Interested in joining the team? Consult the 'Propsective Students' quick link.
+                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature. Interested in the lab? Check the Propsective Students link.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                     </div>
