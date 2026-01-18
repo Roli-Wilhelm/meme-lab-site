@@ -989,9 +989,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       <Badge variant="secondary" className="rounded-full">
                         Data standards & FAIR workflows
                       </Badge>
-                      <Badge variant="secondary" className="rounded-full">
-                        Managed ecosystems
-                      </Badge>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
@@ -1011,10 +1008,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      [Placeholder text - approximately 280-350 characters recommended for balanced layout.
-                      This is about 2-3 sentences describing the PI's background, research philosophy,
-                      or leadership approach. You can include information about their academic journey,
-                      research interests, or what drives their work in microbial ecology.]
+                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
