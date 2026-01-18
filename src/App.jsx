@@ -148,6 +148,77 @@ function formatAnnouncementTime_(iso) {
   });
 }
 
+function normalizeAnnouncementType_(t) {
+  const s = String(t || "").trim().toLowerCase();
+  if (!s) return "general";
+
+  // Allow a few friendly aliases / typos
+  if (s === "recruit" || s === "hiring" || s === "position" || s === "positions") {
+    return "recruitment";
+  }
+  if (s === "achievement" || s === "award" || s === "publication" || s === "paper") {
+    return "achievements";
+  }
+  if (s === "milestones" || s === "milestone" || s === "life" || s === "personal") {
+    return "milestone";
+  }
+
+  // Canonical options
+  if (s === "recruitment") return "recruitment";
+  if (s === "achievements") return "achievements";
+  if (s === "milestone") return "milestone";
+
+  return "general";
+}
+
+function announcementStyle_(typeRaw) {
+  const type = normalizeAnnouncementType_(typeRaw);
+
+  // Requirements:
+  // (1) recruitment: white text on black background
+  // (2) achievements: black text on gold background
+  // (3) milestone: black text on light maroon background
+  // (4) general: black text on white background
+  switch (type) {
+    case "recruitment":
+      return {
+        type,
+        container: "bg-black text-white border-black/20",
+        title: "text-white",
+        body: "text-white/90",
+        link: "underline decoration-white/40 hover:decoration-white",
+        date: "text-white/70",
+      };
+    case "achievements":
+      return {
+        type,
+        container: "bg-amber-300 text-black border-amber-400/40",
+        title: "text-black",
+        body: "text-black/80",
+        link: "underline decoration-black/30 hover:decoration-black",
+        date: "text-black/70",
+      };
+    case "milestone":
+      return {
+        type,
+        container: "bg-rose-200 text-black border-rose-300/40",
+        title: "text-black",
+        body: "text-black/80",
+        link: "underline decoration-black/30 hover:decoration-black",
+        date: "text-black/70",
+      };
+    default:
+      return {
+        type: "general",
+        container: "bg-white/90 text-black border-slate-200",
+        title: "text-slate-700",
+        body: "text-slate-600",
+        link: "underline decoration-slate-300 hover:decoration-slate-500",
+        date: "text-muted-foreground",
+      };
+  }
+}
+
 function pickFirstAuthor_(it) {
   if (it?.firstAuthor) return String(it.firstAuthor).trim();
   if (Array.isArray(it?.authors) && it.authors.length > 0)
@@ -807,33 +878,36 @@ function ProspectiveStudentsPage({ announcements }) {
 
             <div className="max-h-96 overflow-y-auto pr-1">
               <ul className="space-y-2 text-sm text-muted-foreground">
-                {(announcements || []).map((a, idx) => (
-                  <li
-                    key={`${a.title || "a"}-${idx}`}
-                    className="rounded-xl border bg-white/90 px-3 py-2"
-                  >
-                    <div className="font-medium text-slate-700 break-words whitespace-normal">
-                      {a.title}
-                    </div>
-                    <div className="mt-1 break-words whitespace-normal">
-                      {a.url ? (
-                        <a
-                          href={a.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
-                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                        >
-                          {a.text}
-                        </a>
-                      ) : (
-                        <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                          {a.text}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                {(announcements || []).map((a, idx) => {
+                  const st = announcementStyle_(a.type);
+                  return (
+                    <li
+                      key={`${a.title || "a"}-${idx}`}
+                      className={`rounded-xl border px-3 py-2 ${st.container}`}
+                    >
+                      <div className={`font-medium break-words whitespace-normal ${st.title}`} title={st.type}>
+                        {a.title}
+                      </div>
+                      <div className={`mt-1 break-words whitespace-normal ${st.body}`}>
+                        {a.url ? (
+                          <a
+                            href={a.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`${st.link} underline-offset-2`}
+                            style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                          >
+                            {a.text}
+                          </a>
+                        ) : (
+                          <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                            {a.text}
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </CardContent>
@@ -1617,25 +1691,30 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => {
                       const when = formatAnnouncementTime_(a.time);
+                      const st = announcementStyle_(a.type);
 
                       return (
                         <li
                           key={`${a.title || "a"}-${idx}`}
-                          className="rounded-xl border bg-white/90 px-3 py-2 max-w-full overflow-hidden"
+                          className={`rounded-xl border px-3 py-2 max-w-full overflow-hidden ${st.container}`}
                         >
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                             <div className="min-w-0 max-w-full">
-                              <div className="font-medium text-slate-700 break-words whitespace-normal">
+                              <div className={`font-medium break-words whitespace-normal ${st.title}`}
+                                title={st.type}
+                              >
                                 {a.title}
                               </div>
 
-                              <div className="mt-1 break-words whitespace-normal max-w-full">
+                              <div className={`mt-1 break-words whitespace-normal max-w-full ${st.body}`}
+                                style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                              >
                                 {a.url ? (
                                   <a
                                     href={a.url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
+                                    className={`${st.link} break-words whitespace-normal underline-offset-2`}
                                     style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
                                   >
                                     {a.text}
@@ -1652,7 +1731,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             </div>
 
                             {when && (
-                              <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
+                              <div className={`text-xs sm:shrink-0 sm:text-right ${st.date}`}
+                                style={{ overflowWrap: "anywhere" }}
+                              >
                                 {when}
                               </div>
                             )}
