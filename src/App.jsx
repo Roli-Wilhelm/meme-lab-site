@@ -575,7 +575,7 @@ function ProspectiveStudentsPage({ announcements }) {
                 <button
                   type="button"
                   onClick={() => setHashRoute("home")}
-                  className="w-full rounded-2xl border bg-white/70 px-3 py-2 text-sm transition hover:bg-white hover:shadow-sm"
+                  className="w-full rounded-2xl bg-black text-white px-3 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md hover:bg-black/90 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-black/40"
                 >
                   Back to homepage
                 </button>
@@ -1370,7 +1370,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <button
                             type="button"
                             onClick={() => setActiveTab(NAV.research)}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 transition align-middle ml-1"
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 align-middle ml-1 transition hover:bg-primary/20 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
                           >
                             Explore Research
                           </button>
@@ -1407,7 +1407,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           <button
                             type="button"
                             onClick={() => setHashRoute("prospective")}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 transition align-middle ml-1"
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 align-middle ml-1 transition hover:bg-primary/20 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
+
                           >
                             Prospective Students
                           </button>{" "}
