@@ -968,7 +968,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                 {/* What we do card */}
                 <Card className="rounded-2xl bg-white/95">
                   <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-xl">What we do</CardTitle>
                       <Button
                         size="sm"
@@ -979,6 +979,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       </Button>
                     </div>
                   </CardHeader>
+
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
                       The MEME Team studies how land management
