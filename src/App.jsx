@@ -1361,14 +1361,21 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      The MEME Team studies how land management
-                      shapes microbial communities and how those communities, in
-                      turn, regulate nutrient cycling, plant health, and ecosystem
-                      services. We develop reproducible workflows and open data
-                      to make microbiome science more predictive and
-                      actionable. Take a look at our <a href="#research" className="text-primary hover:underline">Research</a>.
-                    </p>
+                        <p className="text-sm leading-6 text-muted-foreground">
+                          The MEME Team studies how land management shapes microbial
+                          communities and how those communities, in turn, regulate
+                          nutrient cycling, plant health, and ecosystem services. We
+                          develop reproducible workflows and open data to make
+                          microbiome science more predictive and actionable.{" "}
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab(NAV.research)}
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 transition align-middle ml-1"
+                          >
+                            Explore Research
+                          </button>
+                        </p>
+
                     <div className="flex flex-wrap gap-2 justify-center">
                       <Badge variant="secondary" className="rounded-full">
                         Soil and rhizosphere biogeochemistry
@@ -1389,9 +1396,24 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <CardTitle className="text-xl">About the PI</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome, is a trained environmental microbiologist and microbial ecologists, who leads the MEME Lab and serves as the current Director of the Purdue Applied Microbiome Sciences Research Hub. He is an award-winning, data-driven scientist, former would-be science journalist, and one-time market gardener. He is shaped by an enthusiasm for teamwork, his immigrant roots, and passion for nature. Learn more about me on the Prospective Students page.
-                    </p>
+                        <p className="text-sm leading-6 text-muted-foreground">
+                          Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome,
+                          is a trained environmental microbiologist and microbial ecologists,
+                          who leads the MEME Lab and serves as the current Director of the Purdue
+                          Applied Microbiome Sciences Research Hub. He is an award-winning,
+                          data-driven scientist, former would-be science journalist, and one-time
+                          market gardener. He is shaped by an enthusiasm for teamwork, his
+                          immigrant roots, and passion for nature. Learn more about me on the{" "}
+                          <button
+                            type="button"
+                            onClick={() => setHashRoute("prospective")}
+                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 transition align-middle ml-1"
+                          >
+                            Prospective Students
+                          </button>{" "}
+                          page.
+                        </p>
+
                     <div className="flex flex-col gap-2 sm:flex-row">
                     </div>
                   </CardContent>
