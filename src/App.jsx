@@ -962,46 +962,74 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
           {/* HOME */}
           <TabsContent value={NAV.home} className="mt-6 space-y-6">
-            {/* ... unchanged HOME content ... */}
             <div className="grid gap-6 md:grid-cols-3">
-              <Card className="rounded-2xl md:col-span-2 bg-white/95">
-                <CardHeader>
-                  <CardTitle className="text-xl">What we do</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    The {PLACEHOLDER.shortName} studies how land management
-                    shapes microbial communities and how those communities, in
-                    turn, regulate nutrient cycling, plant health, and ecosystem
-                    services. We develop reproducible workflows and open data
-                    assets to make microbiome science more predictive and
-                    actionable.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="rounded-full">
-                      Rhizosphere biogeochemistry
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Stable isotope probing
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Data standards & FAIR workflows
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full">
-                      Managed ecosystems
-                    </Badge>
-                  </div>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
-                      onClick={() => setActiveTab(NAV.research)}
-                    >
-                      Explore research
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Left column - split into two cards */}
+              <div className="md:col-span-2 space-y-6">
+                {/* What we do card */}
+                <Card className="rounded-2xl bg-white/95">
+                  <CardHeader>
+                    <CardTitle className="text-xl">What we do</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      The {PLACEHOLDER.shortName} studies how land management
+                      shapes microbial communities and how those communities, in
+                      turn, regulate nutrient cycling, plant health, and ecosystem
+                      services. We develop reproducible workflows and open data
+                      assets to make microbiome science more predictive and
+                      actionable.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary" className="rounded-full">
+                        Soil and rhizosphere biogeochemistry
+                      </Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        Stable isotope probing
+                      </Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        Data standards & FAIR workflows
+                      </Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        Managed ecosystems
+                      </Badge>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button
+                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                        onClick={() => setActiveTab(NAV.research)}
+                      >
+                        Explore research
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
+                {/* About the PI card */}
+                <Card className="rounded-2xl bg-white/95">
+                  <CardHeader>
+                    <CardTitle className="text-xl">About the PI</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      [Placeholder text - approximately 280-350 characters recommended for balanced layout.
+                      This is about 2-3 sentences describing the PI's background, research philosophy,
+                      or leadership approach. You can include information about their academic journey,
+                      research interests, or what drives their work in microbial ecology.]
+                    </p>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button
+                        variant="outline"
+                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                        onClick={() => setActiveTab(NAV.members)}
+                      >
+                        View full profile
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right column - Quick links (unchanged) */}
               <Card className="rounded-2xl bg-white/95">
                 <CardHeader>
                   <CardTitle className="text-xl">Quick links</CardTitle>
