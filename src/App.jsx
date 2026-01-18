@@ -162,35 +162,6 @@ function pickJournal_(it) {
   return "";
 }
 
-// NEW: Helper function to get announcement badge styles based on type
-function getAnnouncementBadgeStyles_(type) {
-  const normalizedType = type ? String(type).trim().toLowerCase() : "general";
-  
-  switch (normalizedType) {
-    case "recruitment":
-      return {
-        className: "bg-black text-white border-black",
-        label: "Recruitment"
-      };
-    case "achievements":
-      return {
-        className: "bg-yellow-500 text-black border-yellow-600",
-        label: "Achievement"
-      };
-    case "milestone":
-      return {
-        className: "bg-rose-200 text-black border-rose-300",
-        label: "Milestone"
-      };
-    case "general":
-    default:
-      return {
-        className: "bg-white text-black border-gray-300",
-        label: "General"
-      };
-  }
-}
-
 const QUIZ_DRAW_COUNT = 10;
 const QUIZ_SEEN_KEY = "meme_quiz_seen_ids_v1";
 
@@ -226,420 +197,755 @@ function buildQuizDeck(quizBank, drawCount, seenSet) {
 
   const unseenIndices = [];
   for (let i = 0; i < bank.length; i++) {
-    const qId = idForIndex(i);
-    if (!seenSet.has(qId)) unseenIndices.push(i);
+    const qid = idForIndex(i);
+    if (!seenSet.has(qid)) unseenIndices.push(i);
   }
 
-  let chosenIndices;
-  let updatedSeen = new Set(seenSet);
-
-  if (unseenIndices.length >= n) {
-    // Enough unseen questions → draw from unseen pool
-    const shuffled = shuffleArray([...unseenIndices]);
-    chosenIndices = shuffled.slice(0, n);
-  } else {
-    // Not enough unseen → reset seen pool and redraw
-    updatedSeen = new Set();
-    const shuffled = shuffleArray([...Array(bank.length).keys()]);
-    chosenIndices = shuffled.slice(0, n);
+  // If we can't draw enough unseen questions, reset seen for this session
+  let candidateIndices = unseenIndices;
+  let resetSeen = false;
+  if (candidateIndices.length < n) {
+    candidateIndices = Array.from({ length: bank.length }, (_, i) => i);
+    resetSeen = true;
   }
 
-  // Mark chosen questions as seen
-  chosenIndices.forEach((idx) => updatedSeen.add(idForIndex(idx)));
+  const shuffled = shuffleArray(candidateIndices);
+  const deck = shuffled.slice(0, n);
 
-  return { deck: chosenIndices, updatedSeen };
-}
+  const updatedSeen = resetSeen ? new Set() : new Set(seenSet);
+  for (const idx of deck) updatedSeen.add(idForIndex(idx));
 
-async function postQuizAttempt({ endpoint, questionId, correct }) {
-  if (!endpoint || !questionId) return;
-
-  try {
-    const body = JSON.stringify({
-      question_id: String(questionId),
-      correct: Boolean(correct),
-    });
-
-    await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    });
-  } catch (err) {
-    console.error("Quiz attempt logging failed:", err);
-  }
+  return { deck, updatedSeen, resetSeen };
 }
 
 function shuffleArray(arr) {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return out;
+  return a;
 }
 
-function Avatar({ name, photoUrl, className = "" }) {
-  const initials = name
-    .split(/\s+/)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+function LinkRow({ icon: Icon, title, desc, href, onClick }) {
+  const isButton = typeof onClick === "function";
+  const className =
+    "group block w-full rounded-2xl border bg-white/95 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md";
 
-  const imgSrc = photoUrl || "";
-
-  return (
-    <div
-      className={`relative aspect-square overflow-hidden rounded-2xl border bg-slate-100 ${className}`}
-    >
-      {imgSrc ? (
-        <img
-          src={imgSrc}
-          alt={name}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-slate-500">
-          {initials}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Pill({ href, children, onClick }) {
-  const classes = `
-    inline-flex items-center gap-1 rounded-full border bg-white/95 px-3 py-1.5 text-xs
-    shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0
-  `;
-
-  if (onClick) {
+  if (isButton) {
     return (
-      <button type="button" onClick={onClick} className={classes}>
-        {children}
+      <button type="button" onClick={onClick} className={className}>
+        <div className="flex items-start gap-3 text-left">
+          <div className="mt-0.5 rounded-xl border bg-white p-2">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-semibold leading-5">{title}</div>
+              <ExternalLink className="h-4 w-4 opacity-60 transition group-hover:opacity-100" />
+            </div>
+            <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
+          </div>
+        </div>
       </button>
     );
   }
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={classes}>
-      {children}
+    <a href={href} target="_blank" rel="noreferrer" className={className}>
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 rounded-xl border bg-white p-2">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-semibold leading-5">{title}</div>
+            <ExternalLink className="h-4 w-4 opacity-60 transition group-hover:opacity-100" />
+          </div>
+          <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
+        </div>
+      </div>
     </a>
   );
 }
 
-function LinkRow({ icon: Icon, title, desc, href, onClick }) {
-  const content = (
-    <div className="group flex cursor-pointer items-center gap-3 rounded-2xl border bg-white/95 px-4 py-3 transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0">
-      <div className="rounded-full border bg-white p-2 shadow-sm">
-        <Icon className="h-4 w-4" />
-      </div>
-      <div>
-        <div className="text-sm font-semibold">{title}</div>
-        <div className="text-xs text-muted-foreground">{desc}</div>
-      </div>
-    </div>
-  );
+function Pill({ children, href }) {
+  const cls =
+    "inline-flex items-center rounded-full border bg-white/70 px-3 py-1 text-xs font-medium transition hover:bg-white hover:shadow-sm";
 
-  if (onClick) {
-    return <div onClick={onClick}>{content}</div>;
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={cls}>
+        {children}
+      </a>
+    );
   }
 
-  return (
-    <a href={href} target="_blank" rel="noreferrer">
-      {content}
-    </a>
-  );
+  return <span className={cls}>{children}</span>;
 }
 
 const FALLBACK_RESEARCH_AREAS = [
   {
-    title: "Soil Biogeochemistry",
-    bullet_summary: [
-      "Microbial nutrient cycling (C, N, P, S)",
-      "Rhizosphere processes",
-      "Soil organic matter",
-      "Soil health",
-      "Agroecosystem sustainability",
+    title: "Rhizosphere nutrient acquisition",
+    bullets: [
+      "Microbial mediation of P and N cycling under managed ecosystems",
+      "Trait-based links from genomes to field outcomes",
+      "SIP-enabled assignment of function to taxa",
     ],
   },
   {
-    title: "Stable Isotope Probing (SIP)",
-    bullet_summary: [
-      "Functional microbiomes",
-      "Active populations in situ",
-      "Metabolic pathways",
-      "Tool development (SIPdb, sip-navigator, STREAMS, MISIP)",
+    title: "Microbiome engineering & experimentation",
+    bullets: [
+      "Design–build–test workflows for microbial communities",
+      "Automation and reproducible protocols",
+      "Greenhouse-to-field translation",
     ],
   },
   {
-    title: "Open Science & FAIR Data",
-    bullet_summary: [
-      "Reproducible workflows",
-      "Public data repositories",
-      "Community standards",
-      "Educational resources",
-      "Microbial metadata (sampleDB, MISIP)",
+    title: "FAIR data + community standards",
+    bullets: [
+      "Controlled vocabularies and metadata for microbial ecology",
+      "Open repositories, reusable workflows",
+      "Education and training in data practices",
     ],
   },
 ];
 
-const FALLBACK_MEMBERS = [];
-const FALLBACK_QUOTES = [];
-const FALLBACK_QUIZ = [];
-const FALLBACK_PROJECTS = [];
-const FALLBACK_ANNOUNCEMENTS = [];
+const FALLBACK_MEMBERS = [
+  {
+    id: "roland-wilhelm",
+    name: "Roland Wilhelm",
+    role: "PI / Lab Lead",
+    focus: "Microbiome ecology, data standards, stable isotope probing",
+    photoUrl: "",
+    links: { website: "https://ag.purdue.edu/directory/rcwilhel" },
+    publish: true,
+  },
+];
+
+const FALLBACK_QUOTES = [
+  {
+    text: "We study microbes as infrastructure: invisible, essential, and shaped by management.",
+    attribution: "MEME Lab",
+    publish: true,
+  },
+  {
+    text: "Data are not a byproduct; they are a deliverable.",
+    attribution: "Lab principle",
+    publish: true,
+  },
+];
+
+const FALLBACK_QUIZ = [
+  {
+    id: "base-cation-k",
+    question: "Which is typically considered a base cation in soils?",
+    choices: ["K⁺", "NO₃⁻", "Cl⁻", "H₂O"],
+    answerIndex: 0,
+    explanation:
+      "K⁺ is a base cation along with Ca²⁺, Mg²⁺, Na⁺ (context-dependent).",
+    tags: ["soil-chemistry"],
+    publish: true,
+  },
+  {
+    id: "sip-goal",
+    question: "In stable isotope probing (SIP), the primary goal is to:",
+    choices: [
+      "Separate active from inactive taxa by isotope incorporation",
+      "Measure soil texture",
+      "Quantify pH without electrodes",
+      "Remove PCR inhibitors",
+    ],
+    answerIndex: 0,
+    explanation:
+      "SIP links activity to identity by tracking isotope incorporation into nucleic acids.",
+    tags: ["methods"],
+    publish: true,
+  },
+];
+
+const FALLBACK_ANNOUNCEMENTS = [
+  {
+    title: "Recruiting",
+    text: "Short call-to-action with link to the intake form.",
+    url: "https://REPLACE_ME",
+    publish: true,
+    time: "",
+  },
+  {
+    title: "Latest paper / preprint",
+    text: "Link to DOI or preprint server.",
+    url: "https://REPLACE_ME",
+    publish: true,
+    time: "",
+  },
+  {
+    title: "Recent field campaign",
+    text: "Link to the gallery album.",
+    url: "https://REPLACE_ME",
+    publish: true,
+    time: "",
+  },
+];
+
+// UPDATED: Projects are now table-driven (title, summary, funder, url)
+const FALLBACK_PROJECTS = [
+  {
+    title: "Project title 1",
+    summary:
+      "One-paragraph description: question, system, and what success looks like.",
+    funder: "Funding agency / program",
+    url: "https://REPLACE_ME",
+    publish: true,
+  },
+  {
+    title: "Project title 2",
+    summary:
+      "One-paragraph description: question, system, and what success looks like.",
+    funder: "Funding agency / program",
+    url: "",
+    publish: true,
+  },
+];
 
 const FALLBACK_GALLERY_PHOTOS = [
-  "/gallery/placeholder1.jpg",
-  "/gallery/placeholder2.jpg",
-  "/gallery/placeholder3.jpg",
+  "https://photos.app.goo.gl/a34KLz7R6E1Hm1Hh7",
+  "https://photos.app.goo.gl/ZrPXvHfVgmKRi14fA",
+  "https://photos.app.goo.gl/iLu9ewFdFjVUaCyF9",
+  "https://photos.app.goo.gl/D4MJDXNcSSgtXbXq6",
+  "https://photos.app.goo.gl/FBhuLVfCpy5mQFSq6",
+  "https://photos.app.goo.gl/qGbQeyKc7X9a6GRY8",
 ];
 
-const PAGES = { main: "main", prospective: "prospective" };
+function Avatar({ name, photoUrl, className = "" }) {
+  const initial = (name || "?").trim().slice(0, 1).toUpperCase();
+  const base =
+    `w-full aspect-square rounded-2xl border bg-white object-cover ${className}`.trim();
 
-function ProspectiveStudentsPage({ announcements }) {
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={`${name} headshot`}
+        className={base}
+        loading="lazy"
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <Card className="rounded-2xl bg-white/95">
-        <CardHeader>
-          <CardTitle className="text-2xl">Prospective Students & Postdocs</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
-          <p>
-            I recruit new team members every year. If you're interested, check the
-            announcements below for open positions or reach out to me with a brief
-            introduction and your CV.
-          </p>
-          <p>
-            <strong>Graduate students:</strong> I supervise students in the{" "}
-            <a
-              href={PLACEHOLDER.agronomyGradProgram}
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              Agronomy
-            </a>
-            , <a
-              href={PLACEHOLDER.eseGradProgram}
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              Ecological Sciences & Engineering (ESE)
-            </a>
-            , and <a
-              href={PLACEHOLDER.pulseProgram}
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              Purdue University Life Sciences (PULSe)
-            </a>{" "}
-            graduate programs. If you're interested, please contact me directly
-            with an updated CV, unofficial transcript, and brief (1-page max)
-            statement of interest.
-          </p>
-          <p>
-            <strong>Undergraduate students & visiting scholars:</strong> I welcome
-            short-term student researchers and visiting scholars. Please email me
-            with your CV and a brief overview of your interests. (Note: due to
-            limited supervision capacity, I am often unable to accommodate all
-            requests).
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-2xl bg-white/95">
-        <CardHeader>
-          <CardTitle className="text-xl">About me</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
-          <p>
-            I&apos;m an environmental microbiologist and biogeochemist fascinated by how
-            microbes shape nutrient cycling and ecosystem function. My work focuses
-            on identifying who&apos;s doing what, when, and where in soil environments—
-            especially rhizosphere and agroecosystems—using stable isotope probing
-            (SIP), genomics, and geochemical analyses.
-          </p>
-          <p>
-            I&apos;m shaped by varied life experiences. I&apos;m first-generation on my
-            father&apos;s side (he immigrated from Germany as a young adult), second-
-            generation on my mother&apos;s side (grandparents were part of the postwar
-            wave from the Netherlands). I spent some time in my early 20s as a small
-            commercial farmer before entering academia. I also worked as a trainee
-            science journalist, and those communication skills now shape how I teach,
-            supervise, and collaborate.
-          </p>
-          <p>
-            I am passionate about making science more inclusive, transparent, and
-            reproducible. If you share these values and are excited about pushing
-            the frontiers of soil and microbial ecology, I&apos;d love to hear from you.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <a
-              href={PLACEHOLDER.googleScholar}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-xs shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <GraduationCap className="h-3.5 w-3.5" />
-              Google Scholar
-            </a>
-            <a
-              href={`mailto:${PLACEHOLDER.labEmail}`}
-              className="inline-flex items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-xs shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              Email
-            </a>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-2xl bg-white/95">
-        <CardHeader>
-          <CardTitle className="text-xl">Current opportunities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="max-h-80 overflow-y-auto pr-1">
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {announcements
-                .filter((a) => {
-                  const typeNorm = a?.type ? String(a.type).trim().toLowerCase() : "";
-                  return typeNorm === "recruitment";
-                })
-                .map((a, idx) => {
-                  const when = formatAnnouncementTime_(a.time);
-                  const badgeStyles = getAnnouncementBadgeStyles_(a.type);
-
-                  return (
-                    <li
-                      key={`${a.title || "a"}-${idx}`}
-                      className="rounded-xl border bg-white/90 px-3 py-2"
-                    >
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="font-medium text-slate-700">
-                              {a.title}
-                            </div>
-                            <div className="mt-1">
-                              {a.url ? (
-                                <a
-                                  href={a.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
-                                >
-                                  {a.text}
-                                </a>
-                              ) : (
-                                <span>{a.text}</span>
-                              )}
-                            </div>
-                          </div>
-                          {when && (
-                            <div className="text-xs text-muted-foreground shrink-0">
-                              {when}
-                            </div>
-                          )}
-                        </div>
-                        <Badge 
-                          className={`w-fit rounded-full ${badgeStyles.className}`}
-                        >
-                          {badgeStyles.label}
-                        </Badge>
-                      </div>
-                    </li>
-                  );
-                })}
-              {announcements.filter((a) => {
-                const typeNorm = a?.type ? String(a.type).trim().toLowerCase() : "";
-                return typeNorm === "recruitment";
-              }).length === 0 && (
-                <li className="rounded-xl border bg-white/90 px-3 py-2 text-center">
-                  No recruitment announcements at this time. Check back soon!
-                </li>
-              )}
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+    <div
+      className={`flex items-center justify-center ${base} text-xl font-semibold`}
+    >
+      {initial}
     </div>
   );
 }
 
-export default function App() {
-  const [page, setPage] = useState(PAGES.main);
-  const [activeTab, setActiveTab] = useState(NAV.home);
-  const [headerLogoSrc, setHeaderLogoSrc] = useState(HEADER_LOGO_DEFAULT);
+function trackTabPageView(tabKey) {
+  if (typeof window === "undefined") return;
+  if (typeof window.gtag !== "function") return;
 
-  const [members, setMembers] = useState(null);
-  const [memberSearch, setMemberSearch] = useState("");
-  const [quotes, setQuotes] = useState(null);
-  const [quoteIndex, setQuoteIndex] = useState(0);
-  const [quizBank, setQuizBank] = useState(null);
-  const [projects, setProjects] = useState(null);
-  const [announcements, setAnnouncements] = useState(null);
-  const [scholarly, setScholarly] = useState([]);
-  const [scholarlyLoaded, setScholarlyLoaded] = useState(false);
-  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const key = String(tabKey || "unknown");
+  const label = (TAB_LABELS && TAB_LABELS[key]) ? TAB_LABELS[key] : key;
 
-  const [quizSeenIds, setQuizSeenIds] = useState(() => loadSeenIds());
-  const [quizDeck, setQuizDeck] = useState([]);
-  const [quizPos, setQuizPos] = useState(0);
-  const [quizPick, setQuizPick] = useState(null);
-  const [quizAnswers, setQuizAnswers] = useState([]);
-  const [quizFinished, setQuizFinished] = useState(false);
+  window.gtag("event", "page_view", {
+    page_path: `/${key}`,
+    page_title: `MEME Lab — ${label}`,
+    tab_name: label,
+  });
+}
 
-  const displayItems = useMemo(() => {
-    const list = Array.isArray(quotes) ? quotes : [];
-    return list;
-  }, [quotes]);
+const TAB_LABELS = {
+  home: "Home",
+  research: "Research",
+  members: "Lab members",
+  gallery: "Gallery",
+  quotes: "Quotes & Quiz",
+  current: "Member portal",
+};
 
-  function nextQuizQuestion() {
-    if (quizPick === null) return;
-    if (quizPos + 1 >= quizDeck.length) {
-      setQuizFinished(true);
-    } else {
-      setQuizPos(quizPos + 1);
-      setQuizPick(null);
-    }
+async function postQuizAttempt({ endpoint, questionId, correct }) {
+  if (!endpoint) return;
+
+  const payload = {
+    question_id: questionId || "unknown",
+    correct: !!correct,
+  };
+
+  try {
+    await fetch(endpoint, {
+      method: "POST",
+      // Apps Script is often pickier with JSON + CORS; text/plain is the most reliable
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      mode: "cors",
+      keepalive: true,
+    });
+  } catch {
+    // Never break UX if logging fails
+  }
+}
+
+const PAGES = {
+  home: "home",
+  prospective: "prospective",
+};
+
+function parseHashRoute() {
+  // Supported:
+  //   #/prospective
+  //   #/prospective/ethos
+  //   #/prospective/pathways
+  // Defaults to home
+  if (typeof window === "undefined") return { page: PAGES.home, section: "" };
+
+  const raw = window.location.hash || "";
+  const h = raw.startsWith("#") ? raw.slice(1) : raw; // remove leading #
+  const path = h.startsWith("/") ? h.slice(1) : h;    // remove leading /
+  const parts = path.split("/").filter(Boolean);
+
+  if (parts[0] === "prospective") {
+    return { page: PAGES.prospective, section: parts[1] || "" };
   }
 
-  function setHashRoute(route) {
-    if (route === "prospective") {
-      setPage(PAGES.prospective);
-    } else {
-      setPage(PAGES.main);
-    }
+  return { page: PAGES.home, section: "" };
+}
+
+function setHashRoute(page, section = "") {
+  const next = section ? `#/${page}/${section}` : `#/${page}`;
+  if (typeof window !== "undefined") window.location.hash = next;
+}
+
+function ProspectiveStudentsPage({ announcements }) {
+  const navItems = [
+    { id: "ethos", label: "Research ethos" },
+    { id: "pathways", label: "Pathways to grad school" },
+    { id: "life", label: "Life at Purdue" },
+    { id: "interview", label: "Interview process" },
+    { id: "fit", label: "Is this a good fit?" },
+    { id: "faq", label: "FAQ" },
+    { id: "announcements", label: "Announcements" },
+  ];
+
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  function onNavClick(id) {
+    // Update hash route so deep links are shareable
+    setHashRoute("prospective", id);
+    // Scroll after hash mutation paints
+    setTimeout(() => jumpTo(id), 25);
+  }
+
+  return (
+    <div className="grid gap-6 md:grid-cols-4">
+      {/* Sidebar */}
+      <div className="md:col-span-1">
+        <div className="sticky top-[96px]">
+          <Card className="rounded-2xl bg-white/55 backdrop-blur border">
+            <CardHeader>
+              <CardTitle className="text-lg">Prospective students</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Jump to a section
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {navItems.map((it) => (
+                <button
+                  key={it.id}
+                  type="button"
+                  onClick={() => onNavClick(it.id)}
+                  className="
+                    w-full text-left rounded-2xl border px-3 py-2 text-sm
+                    bg-white/25 backdrop-blur
+                    transition
+                    hover:bg-white/95 hover:shadow-sm hover:-translate-y-[1px]
+                    focus:outline-none focus:ring-2 focus:ring-white/60
+                  "
+                  title={`Jump to: ${it.label}`}
+                >
+                  {it.label}
+                </button>
+              ))}
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setHashRoute("home")}
+                  className="w-full rounded-2xl bg-black text-white px-3 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-md hover:bg-black/90 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-black/40"
+                >
+                  Back to homepage
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="md:col-span-3 space-y-6">
+        {/* Badge 1: Research ethos */}
+        <Card id="ethos" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Research ethos</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                We try to unweave the complexity of belowground ecology,
+                biogeochemical cycles, and plant–microbe interactions.
+              </li>
+              <li>
+                The sheer diversity of organisms, molecules, and interactions—paired
+                with a mix of field, lab, and in silico work—means AI will help power
+                us forward, not replace us.
+              </li>
+              <li>
+                We prioritize research spanning scales: cells → populations →
+                communities; mineral surfaces → landscapes; and in vitro → in silico →
+                in situ experimental approaches.
+              </li>
+            </ul>
+
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Badge variant="secondary" className="rounded-full">Field + lab + computation</Badge>
+              <Badge variant="secondary" className="rounded-full">Mechanism + translation</Badge>
+              <Badge variant="secondary" className="rounded-full">Reproducible workflows</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 2: Pathways */}
+        <Card id="pathways" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Pathways to grad school in the MEME Lab</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm text-muted-foreground leading-6">
+              Our trainees typically join through one of three programs (each with different
+              structures, expectations, and administrative homes):
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <LinkRow
+                icon={GraduationCap}
+                title="Agronomy (MS/PhD)"
+                desc="College of Agriculture graduate education"
+                href={PLACEHOLDER.agronomyGradProgram}
+              />
+              <LinkRow
+                icon={Network}
+                title="ESE (PhD)"
+                desc="Interdisciplinary Ecological Sciences & Engineering"
+                href={PLACEHOLDER.eseGradProgram}
+              />
+              <LinkRow
+                icon={Microscope}
+                title="PULSe (PhD)"
+                desc="Interdisciplinary Life Science Program"
+                href={PLACEHOLDER.pulseProgram}
+              />
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground leading-6">
+              <div className="font-semibold text-slate-800">Recruiting and open positions</div>
+              <div className="mt-2">
+                All recruitment opportunities are posted in the <span className="font-medium">Announcements</span>
+                badge on the homepage—and reposted at the bottom of this page.
+              </div>
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground leading-6">
+              <div className="font-semibold text-slate-800">When to contact me</div>
+              <ol className="mt-2 list-decimal pl-5 space-y-2">
+                <li>If a position is posted and you’re interested, first determine whether you’d be a good fit.</li>
+                <li>Review current and past grants/projects (see the Research tab on the homepage).</li>
+                <li>
+                  Browse recent publications (we aim for top-tier output; expect to learn and work hard):{" "}
+                  <a
+                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
+                    href={PLACEHOLDER.googleScholar}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Google Scholar
+                  </a>
+                </li>
+                <li>Then write to me with a focused message.</li>
+              </ol>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 3: Life at Purdue */}
+        <Card id="life" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Life at Purdue in the MEME Lab</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-xl border bg-white p-2">
+                  <Network className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold">Microbiome community</div>
+                  <div className="mt-1 text-sm text-muted-foreground leading-6">
+                    Purdue has a strong microbiome community anchored by PAMS (Purdue Applied
+                    Microbiome Sciences). This community provides seminars, collaborations,
+                    shared infrastructure, and a broader scientific network.
+                  </div>
+                  <div className="mt-2">
+                    <a
+                      href={PLACEHOLDER.pamsHub}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
+                    >
+                      Visit the PAMS Hub site
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border bg-white/90 p-4">
+                <div className="text-sm font-semibold">On campus</div>
+                <ul className="mt-2 list-disc pl-5 text-sm text-muted-foreground space-y-1 leading-6">
+                  <li>PAMS socials and seminars</li>
+                  <li>Fermentation Frenzy</li>
+                  <li>Hikes and informal lab outings</li>
+                  <li>Bug Bowl</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border bg-white/90 p-4">
+                <div className="text-sm font-semibold">Off campus</div>
+                <ul className="mt-2 list-disc pl-5 text-sm text-muted-foreground space-y-1 leading-6">
+                  <li>Lab get-togethers (each semester)</li>
+                  <li>Indiana Dunes (day trips)</li>
+                  <li>Regional parks and field sites</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 4: Interview */}
+        <Card id="interview" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Interview process</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Interviews typically last ~30 minutes.</li>
+              <li>I’ll start with introductions and share context on the project and what the lab is currently working on.</li>
+              <li>You’ll share your research interests and why the MEME Lab is a strong fit.</li>
+              <li>We’ll go through a few simple standard questions.</li>
+              <li>Afterwards, I recommend you visit the Lab Members page and email one or two members to hear about the lab culture and expectations.</li>
+              <li>Reach out to me with any questions—I'll answer honestly and try to resolve potential issues.</li>
+              <li>
+                Like any large bureaucracy, Purdue has its issues, but it has also presented our group with many impactful opportunities—and we’re grateful it continues to
+                provide a home for our work.
+              </li>
+            </ol>
+          </CardContent>
+        </Card>
+
+        {/* Extra (useful) badge: Fit */}
+        <Card id="fit" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Is this a good fit?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>You enjoy a blend of ecology, biogeochemistry, and microbiology—and you like moving between field, bench, and code.</li>
+              <li>You value careful data stewardship and reproducibility as part of “doing science well.”</li>
+              <li>You want mentoring, high expectations, and autonomy that increases over time.</li>
+              <li>You are comfortable learning new tools (statistics, pipelines, AI-enabled workflows) and asking for help early.</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Extra (useful) badge: FAQ */}
+        <Card id="faq" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">FAQ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="font-semibold text-slate-800">Should I email even if no position is posted?</div>
+              <div className="mt-1">
+                You can—but you’ll get the best response if you’ve already reviewed the Research tab and can articulate
+                a specific alignment (system, methods, and questions) plus your funding pathway.
+              </div>
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="font-semibold text-slate-800">What should an initial email include?</div>
+              <div className="mt-1">
+                A short paragraph on fit, 2–3 bullets of relevant experience, what program you’re applying through,
+                and your CV (plus an unofficial transcript if you think it helps).
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Reposted announcements */}
+        <Card id="announcements" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Announcements (reposted)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground mb-3">
+              This mirrors the Announcements feed on the homepage.
+            </div>
+
+            <div className="max-h-96 overflow-y-auto pr-1">
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {(announcements || []).map((a, idx) => (
+                  <li
+                    key={`${a.title || "a"}-${idx}`}
+                    className="rounded-xl border bg-white/90 px-3 py-2"
+                  >
+                    <div className="font-medium text-slate-700 break-words whitespace-normal">
+                      {a.title}
+                    </div>
+                    <div className="mt-1 break-words whitespace-normal">
+                      {a.url ? (
+                        <a
+                          href={a.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
+                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                        >
+                          {a.text}
+                        </a>
+                      ) : (
+                        <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                          {a.text}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default function ManagedEcosystemMicrobialEcologyLabSite() {
+ 
+  const [overlayTiles, setOverlayTiles] = useState(() => shuffleArray(OVERLAY_TILES));
 
   useEffect(() => {
-    function handleHashChange() {
-      const hash = window.location.hash.slice(1);
-      if (hash === "prospective") {
-        setPage(PAGES.prospective);
-      } else {
-        setPage(PAGES.main);
-      }
-    }
-    handleHashChange();
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    setOverlayTiles(shuffleArray(OVERLAY_TILES)); // once per page load
   }, []);
 
-  const overlayStyle = {
-    backgroundImage: `
-      radial-gradient(circle at 50% 50%, rgba(0,0,0,0.15) 0%, transparent 70%),
-      url("${OVERLAY_TILES[Math.floor(Math.random() * OVERLAY_TILES.length)]}")
-    `,
-    backgroundSize: "100% 100%, 400px 400px",
-    backgroundRepeat: "no-repeat, repeat",
-    backgroundPosition: "center, 0 0",
-    opacity: 0.2,
-  };
+  const overlayStyle = useMemo(() => {
+    const tileUrls = overlayTiles.map((src) => `url("${src}")`);
+
+    const backgroundImage = [
+      'radial-gradient(900px 520px at 20% 8%, rgba(214,156,64,0.18), transparent 58%)',
+      'radial-gradient(900px 520px at 80% 22%, rgba(181,88,29,0.12), transparent 62%)',
+      ...tileUrls,
+    ].join(", ");
+
+    const backgroundRepeat = [
+      "no-repeat",
+      "no-repeat",
+      ...overlayTiles.map(() => "repeat"),
+    ].join(", ");
+
+    const backgroundSize = [
+      "auto",
+      "auto",
+      ...overlayTiles.map((_, i) => {
+        const base = 240; // your prior tile size
+        const step = 0;   // set to 10–20 if you want slight variation
+        const s = base + (i % 4) * step;
+        return `${s}px ${s}px`;
+      }),
+    ].join(", ");
+
+    const backgroundPosition = [
+      "center",
+      "center",
+      ...overlayTiles.map((_, i) => `${(i * 37) % 240}px ${(i * 61) % 240}px`),
+    ].join(", ");
+
+    return {
+      backgroundImage,
+      backgroundRepeat,
+      backgroundSize,
+      backgroundPosition,
+      opacity: 0.22,
+      maskImage:
+        "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+      WebkitMaskImage:
+        "radial-gradient(1200px 700px at 50% 20%, black 55%, transparent 100%)",
+    };
+  }, [overlayTiles]);
+
+  const [activeTab, setActiveTab] = useState(NAV.home);
+  
+  useEffect(() => {
+    trackTabPageView(activeTab);
+  }, [activeTab]);
+
+  const [headerLogoSrc, setHeaderLogoSrc] = useState(HEADER_LOGO_DEFAULT);
+
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [quotePaused, setQuotePaused] = useState(false);
+
+  const [members, setMembers] = useState(null);
+  const [quotes, setQuotes] = useState(null);
+  const [quizBank, setQuizBank] = useState(null);
+  const [announcements, setAnnouncements] = useState(null);
+  const [projects, setProjects] = useState(null);
+  const [scholarly, setScholarly] = useState([]);
+  const [scholarlyLoaded, setScholarlyLoaded] = useState(false);
+
+  const [galleryPhotos, setGalleryPhotos] = useState(null);
+
+  const [memberSearch, setMemberSearch] = useState("");
+
+  const [quizDeck, setQuizDeck] = useState([]);      // array of indices into quizBank
+  const [quizPos, setQuizPos] = useState(0);         // current position within deck
+  const [quizPick, setQuizPick] = useState(null);    // current selection for current question
+  const [quizAnswers, setQuizAnswers] = useState([]); // per-question results in this attempt
+  const [quizFinished, setQuizFinished] = useState(false);
+  const [quizSeenIds, setQuizSeenIds] = useState(() => loadSeenIds());
+
+  const [{ page, section }, setRoute] = useState(() => parseHashRoute());
+
+  useEffect(() => {
+    function onHashChange() {
+      setRoute(parseHashRoute());
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (page !== PAGES.prospective) return;
+    if (!section) return;
+
+    // Scroll to section after route updates and render
+    setTimeout(() => {
+      const el = document.getElementById(section);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }, [page, section]);
 
   useEffect(() => {
     (async () => {
@@ -843,13 +1149,120 @@ export default function App() {
       .map((p, idx) => {
         const title = p?.title ? String(p.title) : `Project ${idx + 1}`;
         const summary = p?.summary ? String(p.summary) : "";
-        const funder = p?.funder ? String(p.funder) : "";
-        const date = p?.date ? String(p.date) : "";
-        const url = p?.url ? String(p.url) : "";
-        return { title, summary, funder, date, url };
+        const funder =
+          p?.funder ||
+          p?.fundingAgency ||
+          p?.funding_agency ||
+          p?.agency ||
+          "";
+        const date = p?.date || p?.dates || p?.period || "";
+        const url = p?.url || p?.readMoreUrl || p?.link || "";
+
+        return {
+          title,
+          summary,
+          funder: funder ? String(funder) : "",
+          date: date ? String(date) : "",
+          url: url ? String(url) : "",
+        };
       })
-      .filter((p) => p.title);
+      .filter((p) => p.title || p.summary || p.funder || p.date);
   }, [projects]);
+
+  function nextQuizQuestion() {
+    if (!quizDeck.length) return;
+
+    const nextPos = quizPos + 1;
+
+    if (nextPos < quizDeck.length) {
+      setQuizPos(nextPos);
+      setQuizPick(null);
+      return;
+    }
+
+    // End of the deck
+    setQuizFinished(true);
+    setQuizPick(null);
+  }
+
+  const normalizedQuotes = useMemo(() => {
+    const list = Array.isArray(quotes) ? quotes : [];
+    return list
+      .map((q, idx) => {
+        const text = q?.text ? String(q.text).trim() : "";
+        const attribution = q?.attribution ? String(q.attribution).trim() : "";
+        const category = q?.category ? String(q.category).trim() : "";
+        const url = q?.url ? String(q.url).trim() : "";
+
+        // Type: "image" if url exists and text is blank; otherwise "text"
+        const type = url && !text ? "image" : "text";
+
+        return {
+          id: q?.id || `${type}-${idx}`,
+          type,
+          text,
+          attribution,
+          category,
+          url,
+        };
+      })
+      .filter((x) => x.text || x.url); // keep non-empty items
+  }, [quotes]);
+
+  const displayItems = useMemo(() => {
+    const list = Array.isArray(normalizedQuotes) ? normalizedQuotes : [];
+    if (!list.length) return [];
+
+    const out = [];
+    let buffer = [];
+
+    for (const it of list) {
+      if (it.type === "image") {
+        // flush any pending text quotes before showing an image
+        if (buffer.length) {
+          out.push({ kind: "textset", items: buffer });
+          buffer = [];
+        }
+        out.push({ kind: "image", item: it });
+        continue;
+      }
+
+      // text quote
+      buffer.push(it);
+      if (buffer.length === QUOTES_PER_SET) {
+        out.push({ kind: "textset", items: buffer });
+        buffer = [];
+      }
+    }
+
+    // flush trailing text quotes (1–2)
+    if (buffer.length) out.push({ kind: "textset", items: buffer });
+
+    return out;
+  }, [normalizedQuotes]);
+
+  useEffect(() => {
+    if (!displayItems.length) return;
+    if (quotePaused) return;
+
+    const t = window.setInterval(() => {
+      setQuoteIndex((i) => (i + 1) % displayItems.length);
+    }, 5000); // seconds adjust to needs
+
+    return () => window.clearInterval(t);
+  }, [displayItems.length, quotePaused]);
+
+  useEffect(() => {
+    setQuoteIndex(0);
+  }, [displayItems.length]);
+
+  function goToResearchProtocols() {
+    setActiveTab(NAV.research);
+    setTimeout(() => {
+      const el = document.getElementById("protocols");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
 
   return (
     <div
@@ -957,7 +1370,7 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => setActiveTab(NAV.research)}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 align-middle ml-1 transition hover:bg-primary/20 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
+                            className="inline-flex items-center rounded-full border border-black px-2.5 py-0.5 text-xs font-medium text-white bg-black align-middle ml-1 transition hover:bg-black/90 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
                           >
                             Explore Research
                           </button>
@@ -989,13 +1402,12 @@ export default function App() {
                           who leads the MEME Lab and serves as the current Director of the Purdue
                           Applied Microbiome Sciences Research Hub. He is an award-winning,
                           data-driven scientist, former would-be science journalist, and one-time
-                          market gardener. He is shaped by an enthusiasm for teamwork, his
-                          immigrant roots, and passion for nature. Learn more about me on the{" "}
+                          market gardener. He is shaped by an enthusiasm for teamwork, 
+                          immigrant roots, and a passion for nature. Learn more about me on the{" "}
                           <button
                             type="button"
                             onClick={() => setHashRoute("prospective")}
-                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-primary bg-primary/10 align-middle ml-1 transition hover:bg-primary/20 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
-
+                            className="inline-flex items-center rounded-full border border-black px-2.5 py-0.5 text-xs font-medium text-white bg-black align-middle ml-1 transition hover:bg-black/90 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
                           >
                             Prospective Students
                           </button>{" "}
@@ -1059,66 +1471,67 @@ export default function App() {
                 </div>
 
                 {!scholarlyLoaded ? (
-                  <div className="mt-4 text-sm text-muted-foreground">
-                    Loading…
-                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
                 ) : sortedScholarly.length === 0 ? (
-                  <div className="mt-4 text-sm text-muted-foreground">
-                    No items available
-                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No recent items found yet.
+                  </p>
                 ) : (
                   <>
-                    {/* MOBILE (stacked) */}
-                    <div className="mt-2 md:hidden space-y-2">
-                      {sortedScholarly.map((it, idx) => {
-                        const firstAuthor = pickFirstAuthor_(it) || "—";
-                        const journal = pickJournal_(it) || "—";
-                        const pubDate = toDateString_(it?.publicationDate) || "—";
-                        const title = it?.title ? String(it.title) : "Untitled";
-                        const url = it?.articleUrl
-                          ? String(it.articleUrl)
-                          : it?.zoteroUrl
-                            ? String(it.zoteroUrl)
-                            : "";
+                    {/* MOBILE: cards (no table) */}
+                    <div className="mt-3 md:hidden max-h-80 overflow-y-auto pr-1">
+                      <div className="space-y-2">
+                        {sortedScholarly.map((it, idx) => {
+                          const firstAuthor = pickFirstAuthor_(it) || "—";
+                          const journal = pickJournal_(it) || "—";
+                          const pubDate = toDateString_(it?.publicationDate) || "—";
+                          const title = it?.title ? String(it.title) : "Untitled";
+                          const url = it?.articleUrl
+                            ? String(it.articleUrl)
+                            : it?.zoteroUrl
+                              ? String(it.zoteroUrl)
+                              : "";
 
-                        return (
-                          <div
-                            key={`${url || title}-${idx}`}
-                            className="rounded-xl border bg-white/90 px-3 py-2 max-w-full overflow-hidden"
-                          >
-                            <div className="flex flex-col gap-1">
-                              <div className="text-xs text-muted-foreground break-words whitespace-normal">
-                                {firstAuthor} • {journal} • {pubDate}
-                              </div>
-                              {url ? (
-                                <a
-                                  href={url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-sm font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words whitespace-normal"
-                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                >
-                                  {title}
-                                </a>
-                              ) : (
-                                <div
-                                  className="text-sm font-medium break-words whitespace-normal"
-                                  style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                >
-                                  {title}
+                          return (
+                            <div
+                              key={`${url || title}-${idx}`}
+                              className="rounded-xl border bg-white/90 px-3 py-2"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="text-xs text-muted-foreground break-words">
+                                    {firstAuthor} • {journal}
+                                  </div>
+                                  <div className="mt-1 min-w-0">
+                                    {url ? (
+                                      <a
+                                        href={url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-medium underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 break-words"
+                                      >
+                                        {title}
+                                      </a>
+                                    ) : (
+                                      <span className="font-medium break-words">{title}</span>
+                                    )}
+                                  </div>
                                 </div>
-                              )}
+                                <div className="shrink-0 text-[11px] text-muted-foreground">
+                                  {pubDate}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {/* DESKTOP/TABLET (table) */}
-                    <div className="hidden md:block mt-2">
+                    {/* DESKTOP/TABLET: table (kept), but wrapped + fixed layout */}
+                    <div className="mt-3 hidden md:block">
                       <div className="max-h-[420px] overflow-y-auto pr-1">
-                        <div className="overflow-x-auto max-w-full">
-                          <table className="w-full table-fixed border-separate border-spacing-0 text-xs">
+                        <div className="overflow-x-auto max-w-full bg-white">
+                          <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
                             <thead className="sticky top-0 z-10">
                               <tr className="text-left">
                                 <th className="w-[18%] border-b bg-white px-3 py-2 font-semibold">
@@ -1186,7 +1599,7 @@ export default function App() {
                 )}
               </div>
 
-              {/* Announcements panel (mobile-safe) - UPDATED WITH COLOR-CODED BADGES */}
+              {/* Announcements panel (mobile-safe) */}
               <div className="rounded-2xl border bg-white/95 p-4 max-w-full overflow-hidden">
                 <div className="flex min-w-0 items-start gap-2">
                   <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
@@ -1204,55 +1617,45 @@ export default function App() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     {(announcements || []).map((a, idx) => {
                       const when = formatAnnouncementTime_(a.time);
-                      const badgeStyles = getAnnouncementBadgeStyles_(a.type);
 
                       return (
                         <li
                           key={`${a.title || "a"}-${idx}`}
                           className="rounded-xl border bg-white/90 px-3 py-2 max-w-full overflow-hidden"
                         >
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                              <div className="min-w-0 max-w-full">
-                                <div className="font-medium text-slate-700 break-words whitespace-normal">
-                                  {a.title}
-                                </div>
-
-                                <div className="mt-1 break-words whitespace-normal max-w-full">
-                                  {a.url ? (
-                                    <a
-                                      href={a.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
-                                      style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                    >
-                                      {a.text}
-                                    </a>
-                                  ) : (
-                                    <span
-                                      className="break-words whitespace-normal"
-                                      style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
-                                    >
-                                      {a.text}
-                                    </span>
-                                  )}
-                                </div>
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                            <div className="min-w-0 max-w-full">
+                              <div className="font-medium text-slate-700 break-words whitespace-normal">
+                                {a.title}
                               </div>
 
-                              {when && (
-                                <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
-                                  {when}
-                                </div>
-                              )}
+                              <div className="mt-1 break-words whitespace-normal max-w-full">
+                                {a.url ? (
+                                  <a
+                                    href={a.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 break-words whitespace-normal"
+                                    style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                  >
+                                    {a.text}
+                                  </a>
+                                ) : (
+                                  <span
+                                    className="break-words whitespace-normal"
+                                    style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                  >
+                                    {a.text}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            
-                            {/* Color-coded badge based on announcement type */}
-                            <Badge 
-                              className={`w-fit rounded-full ${badgeStyles.className}`}
-                            >
-                              {badgeStyles.label}
-                            </Badge>
+
+                            {when && (
+                              <div className="text-xs text-muted-foreground sm:shrink-0 sm:text-right">
+                                {when}
+                              </div>
+                            )}
                           </div>
                         </li>
                       );
@@ -1274,8 +1677,8 @@ export default function App() {
                   </CardHeader>
                   <CardContent>
                     <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                      {a.bullet_summary.map((b, i) => (
-                        <li key={i}>{b}</li>
+                      {a.bullets.map((b) => (
+                        <li key={b}>{b}</li>
                       ))}
                     </ul>
                   </CardContent>
@@ -1283,54 +1686,116 @@ export default function App() {
               ))}
             </div>
 
-            {/* Research Resources */}
-            <Card className="rounded-2xl bg-white/95">
-              <CardHeader>
-                <CardTitle className="text-xl">Research resources</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <LinkRow
-                  icon={Bot}
-                  title="SIP Navigator"
-                  desc="AI assistant for designing SIP experiments"
-                  href={PLACEHOLDER.sipNavigator}
-                />
-                <LinkRow
-                  icon={Database}
-                  title="SIPdb"
-                  desc="Stable isotope probing database"
-                  href={PLACEHOLDER.sipdb}
-                />
-                <LinkRow
-                  icon={Bot}
-                  title="Stan the AgData Advisor"
-                  desc="AI assistant for agricultural data analysis"
-                  href={PLACEHOLDER.stanAgDataAdvisor}
-                />
-                <LinkRow
-                  icon={FileText}
-                  title="STREAMS guideline"
-                  desc="Reporting standards for SIP-metagenomics"
-                  href={PLACEHOLDER.streamsGuideline}
-                />
-                <LinkRow
-                  icon={FileText}
-                  title="MISIP standard"
-                  desc="Minimum information about a SIP experiment"
-                  href={PLACEHOLDER.misipStandard}
-                />
-              </CardContent>
-            </Card>
+            {/* UPDATED: Three resource badges (Safety merged into Lab Protocols) */}
+            <div className="grid gap-6 md:grid-cols-3" id="protocols">
+              {/* Lab Protocols (now includes safety button) */}
+              <Card className="rounded-2xl bg-white/95">
+                <CardHeader>
+                  <CardTitle className="text-lg">Lab Protocols</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Curated lab methods and SOPs, organized for reproducibility and reuse.
+                  </p>
 
-            {/* Projects Section */}
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={FlaskConical}
+                      title="Protocols.io"
+                      desc="Versioned methods with DOIs"
+                      href={PLACEHOLDER.protocolsIoWorkspace}
+                    />
+                    <LinkRow
+                      icon={Microscope}
+                      title="SIP Navigator"
+                      desc="Custom GPT trained to guide SIP experiments"
+                      href={PLACEHOLDER.sipNavigator}
+                    />
+
+                    {/* MOVED HERE from the Safety badge */}
+                    <Button
+                      className="w-full rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                      variant="outline"
+                      onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
+                    >
+                      Purdue University Lab Safety Resources
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Databases and Code */}
+              <Card className="rounded-2xl bg-white/95">
+                <CardHeader>
+                  <CardTitle className="text-lg">Databases and Code</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Databases, code, and analysis infrastructure maintained by the lab.
+                  </p>
+
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={Database}
+                      title="SIPdb"
+                      desc="Reverse ecology tool for attributing putative function"
+                      href={PLACEHOLDER.sipdb}
+                    />
+                    <LinkRow
+                      icon={Bot}
+                      title="autoSIP"
+                      desc="Print and assembly instructions for gradient fractionating robot"
+                      href={PLACEHOLDER.autosip}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Data Handling */}
+              <Card className="rounded-2xl bg-white/95">
+                <CardHeader>
+                  <CardTitle className="text-lg">Data Handling</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Standards and guidance for FAIR data, metadata, and lab-to-archive workflows.
+                  </p>
+
+                  <div className="space-y-2">
+                    <LinkRow
+                      icon={FolderKanban}
+                      title="Stan the AgData Advisor"
+                      desc="Custom GPT trained to guide formatting and archiving data"
+                      href={PLACEHOLDER.stanAgDataAdvisor}
+                    />
+                    <LinkRow
+                      icon={Network}
+                      title="STREAMS guideline"
+                      desc="Recommended practices for host and environmental microbiome data"
+                      href={PLACEHOLDER.streamsGuideline}
+                    />
+                    <LinkRow
+                      icon={FileText}
+                      title="MISIP standard"
+                      desc="Standard for archival of SIP nucleic acid data"
+                      href={PLACEHOLDER.misipStandard}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* UPDATED: Projects table fed from fetchView("projects") */}
             <Card className="rounded-2xl bg-white/95">
               <CardHeader>
-                <CardTitle className="text-xl">Current Projects</CardTitle>
+                <CardTitle className="text-xl">Current and Past Research Projects</CardTitle>
               </CardHeader>
-              <CardContent>
-                {!normalizedProjects || normalizedProjects.length === 0 ? (
+
+              <CardContent className="space-y-3">
+                {normalizedProjects.length === 0 ? (
                   <div className="rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
-                    Project listings from the sheet have not loaded. See{" "}
+                    No projects found yet. Populate the Projects Google Sheet (via
+                    <code>fetchView("projects")</code>) or update{" "}
                     <code>FALLBACK_PROJECTS</code>.
                   </div>
                 ) : (
@@ -1636,43 +2101,80 @@ export default function App() {
 
           {/* GALLERY */}
           <TabsContent value={NAV.gallery} className="mt-6 space-y-6">
+            {/* ... unchanged GALLERY content ... */}
             <Card className="rounded-2xl bg-white/95">
               <CardHeader>
-                <CardTitle className="text-xl">Lab Gallery</CardTitle>
+                <CardTitle className="text-xl">Picture gallery</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-                  {randomGallery.length > 0 ? (
-                    randomGallery.map((item, idx) => (
-                      <div
-                        key={item.id || `${item.url}-${idx}`}
-                        className="aspect-square overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                      >
-                        <img
-                          src={item.url}
-                          alt={`Gallery ${idx + 1}`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-full rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
-                      No gallery images available
+
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-3 rounded-2xl border bg-white/95 p-4 md:flex-row md:items-center md:justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-slate-800">
+                      Visit our lab photo album
+                    </span>{" "}
+                    for a full look at highlights from our field work, outreach,
+                    teaching, and research.
+                  </div>
+
+                  <Button
+                    className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                    onClick={() =>
+                      window.open(PLACEHOLDER.photoGallery, "_blank")
+                    }
+                  >
+                    <Images className="mr-2 h-4 w-4" />
+                    Open gallery album
+                  </Button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  {randomGallery.length === 0 ? (
+                    <div className="rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
+                      No photos configured yet. Provide a{" "}
+                      <code>fetchView("gallery")</code> feed (recommended) or
+                      populate <code>FALLBACK_GALLERY_PHOTOS</code>.
                     </div>
+                  ) : (
+                      randomGallery.map((it, i) => {
+                        const imgSrc = it.url;
+
+                        // Best UX: open a specific image page (not the whole album)
+                        // Option A (preferred): Drive direct viewer for the file id
+                        const openHref = it.id
+                          ? `https://drive.google.com/file/d/${it.id}/view`
+                          : it.url;
+
+                        return (
+                          <a
+                            key={`${it.id || it.url}-${i}`}
+                            href={openHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group block overflow-hidden rounded-2xl border bg-white shadow-sm"
+                            title="Open image"
+                          >
+                            <div className="aspect-[4/3] w-full overflow-hidden">
+                              <img
+                                src={imgSrc}
+                                alt={`Gallery photo ${i + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            </div>
+                          </a>
+                        );
+                      })
                   )}
                 </div>
 
-                <div className="mt-4 text-center text-sm text-muted-foreground">
-                  <a
-                    href={PLACEHOLDER.photoGallery}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-xs shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <Images className="h-3.5 w-3.5" />
-                    View full gallery
-                  </a>
+                <div className="rounded-2xl border bg-white/95 p-4">
+                  <div className="text-sm font-semibold">Photo policy</div>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    <li>Default: only post photos with consent.</li>
+                    <li>Avoid sharing sensitive locations.</li>
+                    <li>Blury photo? Use AI to convert it to a cartoon.</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
@@ -1680,294 +2182,316 @@ export default function App() {
 
           {/* QUOTES & QUIZ */}
           <TabsContent value={NAV.quotes} className="mt-6 space-y-6">
-            {/* QUOTES CARD - UPDATED (supports both text & image MEMEs) */}
-            <Card className="rounded-2xl bg-white/95">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">Quotes from the lab</CardTitle>
-                  {displayItems.length > 1 && (
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="rounded-full"
-                        onClick={prevQuoteSet}
-                        disabled={!displayItems.length}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {Math.min(quoteIndex + 1, displayItems.length)} /{" "}
-                        {displayItems.length}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="rounded-full"
-                        onClick={nextQuoteSet}
-                        disabled={!displayItems.length}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {displayItems.length === 0 ? (
-                  <div className="rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
-                    No quotes available.
-                  </div>
-                ) : (() => {
-                    const item = displayItems[quoteIndex];
+            {/*QUOTES & QUIZ content*/}
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card className="rounded-2xl bg-white/95 h-full">
+                <CardHeader>
+                  <CardTitle className="text-xl">Quotes</CardTitle>
+                </CardHeader>
 
-                    // Check if it's an image MEME
-                    if (item?.type === "image" && item?.url) {
-                      return (
-                        <div className="rounded-2xl border bg-white/95 p-4">
-                          <img
-                            src={item.url}
-                            alt={item.category || "Lab MEME"}
-                            className="w-full h-auto rounded-lg"
-                            loading="lazy"
-                          />
-                          {item.category && (
-                            <div className="mt-2 text-xs text-muted-foreground text-center">
-                              {item.category}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    // Otherwise, it's a text quote
-                    return (
-                      <div className="rounded-2xl border bg-white/95 p-4">
-                        <div className="flex items-start gap-2">
-                          <Quote className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
-                          <div>
-                            <div className="text-base leading-6">
-                              {item.text || "No text available"}
-                            </div>
-                            {item.attribution && (
-                              <div className="mt-2 text-sm text-muted-foreground">
-                                — {item.attribution}
-                              </div>
-                            )}
-                            {item.category && (
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                {item.category}
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                <CardContent className="space-y-3">
+                  {/* Fixed viewer sized to match the Micro-quiz card footprint */}
+                  <div
+                    className="rounded-2xl border bg-white/95 p-4"
+                    onMouseEnter={() => setQuotePaused(true)}
+                    onMouseLeave={() => setQuotePaused(false)}
+                    onFocus={() => setQuotePaused(true)}
+                    onBlur={() => setQuotePaused(false)}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Controls */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={prevQuoteSet}
+                          className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                          aria-label="Previous"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={nextQuoteSet}
+                          className="rounded-xl border bg-white/70 p-2 transition hover:bg-white hover:shadow-sm"
+                          aria-label="Next"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
                       </div>
-                    );
-                  })()}
-              </CardContent>
-            </Card>
-
-            {/* QUIZ CARD */}
-            <Card className="rounded-2xl bg-white/95">
-              <CardHeader>
-                <CardTitle className="text-xl">Quick quiz</CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <div className="space-y-3">
-                  {!currentQuiz ? (
-                    <div className="rounded-2xl border bg-white/95 p-4 text-sm text-muted-foreground">
-                      No quiz loaded
                     </div>
-                  ) : quizFinished ? (
-                    (() => {
-                      const correct = quizAnswers.filter((a) => a.correct).length;
-                      const total = quizAnswers.length;
 
-                      return (
-                        <div>
-                          <div className="rounded-2xl border bg-white/95 p-4">
-                            <div className="text-xl font-semibold">
-                              Quiz Complete!
-                            </div>
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              You scored {correct} out of {total}.
-                            </div>
-                          </div>
+                    {normalizedQuotes.length === 0 ? (
+                      <div className="mt-3 text-sm text-muted-foreground">
+                        No quotes or MEMEs published yet.
+                      </div>
+                    ) : (
+                      (() => {
+                        if (!displayItems.length) return null;
 
-                          <div className="mt-4 space-y-2">
-                            {quizAnswers.map((a, idx) => (
-                              <div
-                                key={`${a.questionId}-${idx}`}
-                                className="rounded-2xl border bg-white/95 p-4"
-                              >
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <div className="text-sm font-semibold">
-                                      {a.question}
+                        const current = displayItems[quoteIndex % displayItems.length];
+
+                        if (current.kind === "image") {
+                          const item = current.item;
+                          return (
+                            <div className="mt-3">
+                              <div className="rounded-2xl border bg-white/90 p-4">
+                                <div className="grid gap-2">
+                                  <div className="w-full max-w-[360px] mx-auto">
+                                    <div className="aspect-square overflow-hidden rounded-2xl bg-white">
+                                      <img
+                                        src={item.url}
+                                        alt={item.category ? `MEME: ${item.category}` : "MEME"}
+                                        className="h-full w-full object-cover"
+                                        loading="lazy"
+                                      />
                                     </div>
-                                    <div className="mt-1 text-sm text-muted-foreground">
-                                      Your answer:{" "}
-                                      <span
-                                        className={
-                                          a.correct
-                                            ? "text-green-700"
-                                            : "text-red-700"
-                                        }
-                                      >
-                                        {a.choices[a.pickedIndex]}
-                                      </span>
-                                    </div>
-                                    {!a.correct && (
-                                      <div className="mt-1 text-sm text-muted-foreground">
-                                        Correct answer:{" "}
-                                        <span className="text-green-700">
-                                          {a.choices[a.correctIndex]}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {a.explanation && (
-                                      <div className="mt-2 text-sm text-muted-foreground">
-                                        {a.explanation}
-                                      </div>
-                                    ) : null}
                                   </div>
-                                  <div className="shrink-0">
-                                    {a.correct ? (
-                                      <Badge className="rounded-full">Correct</Badge>
-                                    ) : (
-                                      <Badge variant="destructive" className="rounded-full">
-                                        Incorrect
-                                      </Badge>
-                                    )}
+
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                      <ImageIcon className="h-3.5 w-3.5" />
+                                      <span>{item.category || "MEME"}</span>
+                                    </div>
+                                    <div>{item.attribution ? `— ${item.attribution}` : null}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // textset
+                        return (
+                          <div className="mt-3 space-y-3">
+                            {current.items.map((item) => (
+                              <div key={item.id} className="rounded-2xl border bg-white/90 p-4">
+                                <div className="flex items-start gap-3">
+                                  <div className="mt-0.5 rounded-xl border bg-white p-2">
+                                    <Quote className="h-5 w-5" />
+                                  </div>
+
+                                  <div className="min-w-0">
+                                    <div className="text-sm break-words">“{item.text}”</div>
+
+                                    <div className="mt-2 text-xs text-muted-foreground break-words">
+                                      {item.attribution ? `— ${item.attribution}` : "— MEME Lab"}
+                                      {item.category ? (
+                                        <span className="ml-2">• {item.category}</span>
+                                      ) : null}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             ))}
                           </div>
+                        );
+                      })()
 
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              className="rounded-2xl"
-                              onClick={startNewQuizAttempt}
-                            >
-                              Take another quiz
-                            </Button>
+                    )}
 
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-2xl"
-                              onClick={() => {
-                                // "Leave and return later" behavior: clear session seen pool now
-                                const empty = new Set();
-                                setQuizSeenIds(empty);
-                                saveSeenIds(empty);
-                                startNewQuizAttempt();
-                              }}
-                            >
-                              Reset session
-                            </Button>
+                    {/* Little progress indicator */}
+                    {normalizedQuotes.length > 0 && (
+                      <div className="mt-3 text-xs text-muted-foreground">
+                        {displayItems.length ? `${quoteIndex + 1} / ${displayItems.length}` : null}
+                        <span className="ml-2">
+                          {quotePaused ? "(paused)" : "(auto)"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl bg-white/95">
+                <CardHeader>
+                  <CardTitle className="text-xl">
+                    Micro-quiz: Test Your Knowledge of Microbial Ecology
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Answer all ten questions and see your score at the end.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="rounded-2xl border bg-white/95 p-4">
+                    {!currentQuiz ? (
+                      <div className="text-sm text-muted-foreground">Loading quiz…</div>
+                    ) : quizFinished ? (
+                      (() => {
+                        const total = quizAnswers.length;
+                        const correctCount = quizAnswers.filter((x) => x.correct).length;
+                        const pct = total ? Math.round((correctCount / total) * 100) : 0;
+
+                        return (
+                          <div className="space-y-4">
+                            <div className="text-sm font-semibold">Quiz complete</div>
+
+                            <div className="rounded-2xl border bg-white/70 p-4">
+                              <div className="text-lg font-semibold">
+                                Score: {correctCount} / {total} ({pct}%)
+                              </div>
+                              <div className="mt-1 text-sm text-muted-foreground">
+                                Retake draws a new set of questions (no repeats this session).
+                              </div>
+                            </div>
+
+                            {/* Optional: per-question review */}
+                            <div className="space-y-2">
+                              {quizAnswers.map((a, idx) => (
+                                <div key={`${a.questionId}-${idx}`} className="rounded-xl border bg-white/70 p-3">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="text-sm font-medium break-words">
+                                        {idx + 1}. {a.question}
+                                      </div>
+                                      <div className="mt-1 text-sm text-muted-foreground break-words">
+                                        Your answer: {a.choices?.[a.pickedIndex] ?? `Choice ${a.pickedIndex + 1}`}
+                                      </div>
+                                      <div className="text-sm text-muted-foreground break-words">
+                                        Correct answer: {a.choices?.[a.correctIndex] ?? `Choice ${a.correctIndex + 1}`}
+                                      </div>
+                                      {a.explanation ? (
+                                        <div className="mt-2 text-sm text-muted-foreground break-words">
+                                          {a.explanation}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                    <div className="shrink-0">
+                                      {a.correct ? (
+                                        <Badge className="rounded-full">Correct</Badge>
+                                      ) : (
+                                        <Badge variant="destructive" className="rounded-full">
+                                          Incorrect
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                className="rounded-2xl"
+                                onClick={startNewQuizAttempt}
+                              >
+                                Take another quiz
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-2xl"
+                                onClick={() => {
+                                  // “Leave and return later” behavior: clear session seen pool now
+                                  const empty = new Set();
+                                  setQuizSeenIds(empty);
+                                  saveSeenIds(empty);
+                                  startNewQuizAttempt();
+                                }}
+                              >
+                                Reset session
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-sm font-semibold">{currentQuiz.question}</div>
+                          <div className="text-xs text-muted-foreground shrink-0">
+                            {Math.min(quizPos + 1, quizDeck.length)} / {quizDeck.length}
                           </div>
                         </div>
-                      );
-                    })()
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-sm font-semibold">{currentQuiz.question}</div>
-                        <div className="text-xs text-muted-foreground shrink-0">
-                          {Math.min(quizPos + 1, quizDeck.length)} / {quizDeck.length}
-                        </div>
-                      </div>
 
-                      <div className="mt-3 grid gap-2">
-                        {currentQuiz.choices.map((c, i) => {
-                          const picked = quizPick === i;
-                          const show = quizPick !== null;
-                          return (
-                            <button
-                              key={`${currentQuiz.id || "q"}-${i}`}
-                              className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${picked ? "bg-white" : "bg-white/70"
-                                }`}
-                              onClick={() => {
-                                if (quizPick !== null) return;
-                                if (!currentQuiz) return;
+                        <div className="mt-3 grid gap-2">
+                          {currentQuiz.choices.map((c, i) => {
+                            const picked = quizPick === i;
+                            const show = quizPick !== null;
+                            return (
+                              <button
+                                key={`${currentQuiz.id || "q"}-${i}`}
+                                className={`rounded-2xl border px-4 py-2 text-left text-sm transition hover:shadow-sm ${picked ? "bg-white" : "bg-white/70"
+                                  }`}
+                                onClick={() => {
+                                  if (quizPick !== null) return;
+                                  if (!currentQuiz) return;
 
-                                setQuizPick(i);
+                                  setQuizPick(i);
 
-                                const correct = i === currentQuiz.answerIndex;
+                                  const correct = i === currentQuiz.answerIndex;
 
-                                setQuizAnswers((prev) => [
-                                  ...prev,
-                                  {
-                                    questionId: String(currentQuiz.id ?? `pos-${quizPos}`),
-                                    question: currentQuiz.question,
-                                    choices: Array.isArray(currentQuiz.choices) ? [...currentQuiz.choices] : [],
-                                    pickedIndex: i,
-                                    correctIndex: currentQuiz.answerIndex,
+                                  setQuizAnswers((prev) => [
+                                    ...prev,
+                                    {
+                                      questionId: String(currentQuiz.id ?? `pos-${quizPos}`),
+                                      question: currentQuiz.question,
+                                      choices: Array.isArray(currentQuiz.choices) ? [...currentQuiz.choices] : [],
+                                      pickedIndex: i,
+                                      correctIndex: currentQuiz.answerIndex,
+                                      correct,
+                                      explanation: currentQuiz.explanation || "",
+                                    },
+                                  ]);
+
+                                  postQuizAttempt({
+                                    endpoint: PLACEHOLDER.quizLogUrl,
+                                    questionId: currentQuiz.id,
                                     correct,
-                                    explanation: currentQuiz.explanation || "",
-                                  },
-                                ]);
-
-                                postQuizAttempt({
-                                  endpoint: PLACEHOLDER.quizLogUrl,
-                                  questionId: currentQuiz.id,
-                                  correct,
-                                });
-                              }}
-                            >
-                              <div className="flex items-center justify-between gap-3">
-                                <span>{c}</span>
-                                {show && i === currentQuiz.answerIndex && (
-                                  <Badge className="rounded-full">Correct</Badge>
-                                )}
-                                {show && picked && i !== currentQuiz.answerIndex && (
-                                  <Badge variant="destructive" className="rounded-full">
-                                    Not quite
-                                  </Badge>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {quizPick !== null && currentQuiz.explanation && (
-                        <div className="mt-3 text-sm text-muted-foreground">
-                          {currentQuiz.explanation}
+                                  });
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <span>{c}</span>
+                                  {show && i === currentQuiz.answerIndex && (
+                                    <Badge className="rounded-full">Correct</Badge>
+                                  )}
+                                  {show && picked && i !== currentQuiz.answerIndex && (
+                                    <Badge variant="destructive" className="rounded-full">
+                                      Not quite
+                                    </Badge>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      )}
 
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <Button
-                          size="sm"
-                          className="rounded-2xl"
-                          onClick={nextQuizQuestion}
-                          disabled={quizPick === null}
-                          title={quizPick === null ? "Answer to continue" : "Next"}
-                        >
-                          {quizPos + 1 >= quizDeck.length ? "Finish" : "Next question"}
-                        </Button>
+                        {quizPick !== null && currentQuiz.explanation && (
+                          <div className="mt-3 text-sm text-muted-foreground">
+                            {currentQuiz.explanation}
+                          </div>
+                        )}
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-2xl"
-                          onClick={() => setQuizPick(null)}
-                          disabled={quizPick === null}
-                        >
-                          Change answer
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </CardContent>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            className="rounded-2xl"
+                            onClick={nextQuizQuestion}
+                            disabled={quizPick === null}
+                            title={quizPick === null ? "Answer to continue" : "Next"}
+                          >
+                            {quizPos + 1 >= quizDeck.length ? "Finish" : "Next question"}
+                          </Button>
 
-            </Card>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-2xl"
+                            onClick={() => setQuizPick(null)}
+                            disabled={quizPick === null}
+                          >
+                            Change answer
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+
+              </Card>
+            </div>
           </TabsContent>
 
           {/* CURRENT MEMBER PORTAL (restricted) */}
