@@ -101,13 +101,21 @@ const PLACEHOLDER = {
   // Safety
   safety: "https://www.purdue.edu/ehps/",
 
-    // Research resources
+  // Research resources
   sipNavigator: "https://chatgpt.com/g/g-EO0rQOq7r-sip-navigator-beta", // Stable Isotope Probing Navigator
   sipdb: "http://sip-db.com/", // SIPdb landing page / app
   stanAgDataAdvisor: "https://chatgpt.com/g/g-wK0NsSO0A-stan-the-agdata-advisor", // Stan the AgData Advisor
   streamsGuideline: "https://www.nature.com/articles/s41564-025-02186-2", // STREAMS guideline
   misipStandard: "https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giae071/7817747", // MISIP standard
   autosip: "", // AutoSIP GitHub Page
+
+  // Prospective student links
+  agronomyGradProgram: "https://ag.purdue.edu/department/agry/graduate-education.html",
+  eseGradProgram: "https://www.purdue.edu/academics/ogsps/oigp/program/ese/",
+  pulseProgram: "https://www.purdue.edu/academics/ogsps/oigp/program/pulse/",
+  pamsHub: "https://centers.purdue.edu/microbiome/",
+  googleScholar: "https://scholar.google.ca/citations?user=3DwlLDwAAAAJ&hl=en", // replace with your Scholar profile URL
+
 };
 
 const NAV = {
@@ -479,6 +487,362 @@ async function postQuizAttempt({ endpoint, questionId, correct }) {
   }
 }
 
+const PAGES = {
+  home: "home",
+  prospective: "prospective",
+};
+
+function parseHashRoute() {
+  // Supported:
+  //   #/prospective
+  //   #/prospective/ethos
+  //   #/prospective/pathways
+  // Defaults to home
+  if (typeof window === "undefined") return { page: PAGES.home, section: "" };
+
+  const raw = window.location.hash || "";
+  const h = raw.startsWith("#") ? raw.slice(1) : raw; // remove leading #
+  const path = h.startsWith("/") ? h.slice(1) : h;    // remove leading /
+  const parts = path.split("/").filter(Boolean);
+
+  if (parts[0] === "prospective") {
+    return { page: PAGES.prospective, section: parts[1] || "" };
+  }
+
+  return { page: PAGES.home, section: "" };
+}
+
+function setHashRoute(page, section = "") {
+  const next = section ? `#/${page}/${section}` : `#/${page}`;
+  if (typeof window !== "undefined") window.location.hash = next;
+}
+
+function ProspectiveStudentsPage({ announcements }) {
+  const navItems = [
+    { id: "ethos", label: "Research ethos" },
+    { id: "pathways", label: "Pathways to grad school" },
+    { id: "life", label: "Life at Purdue" },
+    { id: "interview", label: "Interview process" },
+    { id: "fit", label: "Is this a good fit?" },
+    { id: "faq", label: "FAQ" },
+    { id: "announcements", label: "Announcements" },
+  ];
+
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function onNavClick(id) {
+    // Update hash route so deep links are shareable
+    setHashRoute("prospective", id);
+    // Scroll after hash mutation paints
+    setTimeout(() => jumpTo(id), 25);
+  }
+
+  return (
+    <div className="grid gap-6 md:grid-cols-4">
+      {/* Sidebar */}
+      <div className="md:col-span-1">
+        <div className="sticky top-[96px]">
+          <Card className="rounded-2xl bg-white/55 backdrop-blur border">
+            <CardHeader>
+              <CardTitle className="text-lg">Prospective students</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Jump to a section
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {navItems.map((it) => (
+                <button
+                  key={it.id}
+                  type="button"
+                  onClick={() => onNavClick(it.id)}
+                  className="
+                    w-full text-left rounded-2xl border px-3 py-2 text-sm
+                    bg-white/25 backdrop-blur
+                    transition
+                    hover:bg-white/95 hover:shadow-sm hover:-translate-y-[1px]
+                    focus:outline-none focus:ring-2 focus:ring-white/60
+                  "
+                  title={`Jump to: ${it.label}`}
+                >
+                  {it.label}
+                </button>
+              ))}
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setHashRoute("home")}
+                  className="w-full rounded-2xl border bg-white/70 px-3 py-2 text-sm transition hover:bg-white hover:shadow-sm"
+                >
+                  Back to homepage
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="md:col-span-3 space-y-6">
+        {/* Badge 1: Research ethos */}
+        <Card id="ethos" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Research ethos</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                We try to unweave the complexity of belowground ecology,
+                biogeochemical cycles, and plant–microbe interactions.
+              </li>
+              <li>
+                The sheer diversity of organisms, molecules, and interactions—paired
+                with a mix of field, lab, and in silico work—means AI will help power
+                us forward, not replace us.
+              </li>
+              <li>
+                We prioritize research spanning scales: cells → populations →
+                communities; mineral surfaces → landscapes; and in vitro → in silico →
+                in situ experimental approaches.
+              </li>
+            </ul>
+
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Badge variant="secondary" className="rounded-full">Field + lab + computation</Badge>
+              <Badge variant="secondary" className="rounded-full">Mechanism + translation</Badge>
+              <Badge variant="secondary" className="rounded-full">Reproducible workflows</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 2: Pathways */}
+        <Card id="pathways" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Pathways to grad school in the MEME Lab</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm text-muted-foreground leading-6">
+              Our trainees typically join through one of three programs (each with different
+              structures, expectations, and administrative homes):
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <LinkRow
+                icon={GraduationCap}
+                title="Agronomy (MS/PhD)"
+                desc="College of Agriculture graduate education"
+                href={PLACEHOLDER.agronomyGradProgram}
+              />
+              <LinkRow
+                icon={Network}
+                title="ESE / IESE (PhD)"
+                desc="Interdisciplinary Ecological Sciences & Engineering"
+                href={PLACEHOLDER.eseGradProgram}
+              />
+              <LinkRow
+                icon={Microscope}
+                title="PULSe (PhD)"
+                desc="Interdisciplinary Life Science Program"
+                href={PLACEHOLDER.pulseProgram}
+              />
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground leading-6">
+              <div className="font-semibold text-slate-800">Recruiting and open positions</div>
+              <div className="mt-2">
+                All recruitment opportunities are posted in the <span className="font-medium">Announcements</span>
+                badge on the homepage—and reposted at the bottom of this page.
+              </div>
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4 text-sm text-muted-foreground leading-6">
+              <div className="font-semibold text-slate-800">When to contact me</div>
+              <ol className="mt-2 list-decimal pl-5 space-y-2">
+                <li>If a position is posted and you’re interested, first determine whether you’d be a good fit.</li>
+                <li>Review current and past grants/projects (see the Research tab on the homepage).</li>
+                <li>
+                  Browse recent publications (we aim for top-tier output; expect to learn and work hard):{" "}
+                  <a
+                    className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
+                    href={PLACEHOLDER.googleScholar}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Google Scholar
+                  </a>
+                </li>
+                <li>Then write to me with a focused message.</li>
+              </ol>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 3: Life at Purdue */}
+        <Card id="life" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Life at Purdue in the MEME Lab</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-xl border bg-white p-2">
+                  <Network className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold">Microbiome community</div>
+                  <div className="mt-1 text-sm text-muted-foreground leading-6">
+                    Purdue has a strong microbiome community anchored by PAMS (Purdue Applied
+                    Microbiome Sciences). This community provides seminars, collaborations,
+                    shared infrastructure, and a broader scientific network.
+                  </div>
+                  <div className="mt-2">
+                    <a
+                      href={PLACEHOLDER.pamsHub}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600"
+                    >
+                      Visit the PAMS Hub site
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border bg-white/90 p-4">
+                <div className="text-sm font-semibold">On campus</div>
+                <ul className="mt-2 list-disc pl-5 text-sm text-muted-foreground space-y-1 leading-6">
+                  <li>PAMS socials and seminars</li>
+                  <li>Fermentation Frenzy</li>
+                  <li>Hikes and informal lab outings</li>
+                  <li>Bug Bowl</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border bg-white/90 p-4">
+                <div className="text-sm font-semibold">Off campus</div>
+                <ul className="mt-2 list-disc pl-5 text-sm text-muted-foreground space-y-1 leading-6">
+                  <li>Lab get-togethers (each semester)</li>
+                  <li>Indiana Dunes (day trips)</li>
+                  <li>Regional parks and field sites</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Badge 4: Interview */}
+        <Card id="interview" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Interview process</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Interviews typically last ~30 minutes.</li>
+              <li>I’ll start with introductions and share context on the project and what the lab is currently working on.</li>
+              <li>You’ll share your research interests and why the MEME Lab is a strong fit.</li>
+              <li>We’ll go through a few simple standard questions.</li>
+              <li>Afterwards, I recommend you visit the Lab Members page and email one or two members to hear about the lab culture and expectations.</li>
+              <li>Reach out to me with any questions—I'll answer honestly and try to resolve potential issues.</li>
+              <li>
+                Like any large bureaucracy, Purdue has its issues, but it has also presented our group with many impactful opportunities—and we’re grateful it continues to
+                provide a home for our work.
+              </li>
+            </ol>
+          </CardContent>
+        </Card>
+
+        {/* Extra (useful) badge: Fit */}
+        <Card id="fit" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Is this a good fit?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>You enjoy a blend of ecology, biogeochemistry, and microbiology—and you like moving between field, bench, and code.</li>
+              <li>You value careful data stewardship and reproducibility as part of “doing science well.”</li>
+              <li>You want mentoring, high expectations, and autonomy that increases over time.</li>
+              <li>You are comfortable learning new tools (statistics, pipelines, AI-enabled workflows) and asking for help early.</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Extra (useful) badge: FAQ */}
+        <Card id="faq" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">FAQ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground leading-6">
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="font-semibold text-slate-800">Should I email even if no position is posted?</div>
+              <div className="mt-1">
+                You can—but you’ll get the best response if you’ve already reviewed the Research tab and can articulate
+                a specific alignment (system, methods, and questions) plus your funding pathway.
+              </div>
+            </div>
+
+            <div className="rounded-2xl border bg-white/90 p-4">
+              <div className="font-semibold text-slate-800">What should an initial email include?</div>
+              <div className="mt-1">
+                A short paragraph on fit, 2–3 bullets of relevant experience, what program you’re applying through,
+                and your CV (plus an unofficial transcript if you think it helps).
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Reposted announcements */}
+        <Card id="announcements" className="rounded-2xl bg-white/95 scroll-mt-28">
+          <CardHeader>
+            <CardTitle className="text-xl">Announcements (reposted)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground mb-3">
+              This mirrors the Announcements feed on the homepage.
+            </div>
+
+            <div className="max-h-96 overflow-y-auto pr-1">
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {(announcements || []).map((a, idx) => (
+                  <li
+                    key={`${a.title || "a"}-${idx}`}
+                    className="rounded-xl border bg-white/90 px-3 py-2"
+                  >
+                    <div className="font-medium text-slate-700 break-words whitespace-normal">
+                      {a.title}
+                    </div>
+                    <div className="mt-1 break-words whitespace-normal">
+                      {a.url ? (
+                        <a
+                          href={a.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500"
+                          style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                        >
+                          {a.text}
+                        </a>
+                      ) : (
+                        <span style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                          {a.text}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function ManagedEcosystemMicrobialEcologyLabSite() {
  
   const [overlayTiles, setOverlayTiles] = useState(() => shuffleArray(OVERLAY_TILES));
@@ -561,6 +925,27 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
   const [quizAnswers, setQuizAnswers] = useState([]); // per-question results in this attempt
   const [quizFinished, setQuizFinished] = useState(false);
   const [quizSeenIds, setQuizSeenIds] = useState(() => loadSeenIds());
+
+  const [{ page, section }, setRoute] = useState(() => parseHashRoute());
+
+  useEffect(() => {
+    function onHashChange() {
+      setRoute(parseHashRoute());
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (page !== PAGES.prospective) return;
+    if (!section) return;
+
+    // Scroll to section after route updates and render
+    setTimeout(() => {
+      const el = document.getElementById(section);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }, [page, section]);
 
   useEffect(() => {
     (async () => {
@@ -938,6 +1323,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
 
       {/* Main */}
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+        {page === PAGES.prospective ? (
+          <ProspectiveStudentsPage announcements={announcements || []} />
+        ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-white/95 backdrop-blur p-2 md:grid-cols-6 shadow-sm">
             <TabsTrigger className="rounded-xl" value={NAV.home}>
@@ -1020,7 +1408,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     icon={GraduationCap}
                     title="Prospective students"
                     desc="Recruitment information"
-                    href={PLACEHOLDER.onboardingDoc}
+                    onClick={() => setHashRoute("prospective")}
                   />
                   <LinkRow
                     icon={FlaskConical}
@@ -2118,8 +2506,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
             </Card>
           </TabsContent>
 
-        </Tabs>
-
+          </Tabs>
+        )}
         {/* Footer */}
         <footer className="mt-10 rounded-2xl border bg-white/95 p-6 text-sm text-slate-700 shadow-sm">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
