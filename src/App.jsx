@@ -981,13 +981,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="secondary" className="rounded-full">
-                        Soil and rhizosphere biogeochemistry
+                        Rhizosphere biogeochemistry
                       </Badge>
                       <Badge variant="secondary" className="rounded-full">
                         Stable isotope probing
                       </Badge>
                       <Badge variant="secondary" className="rounded-full">
                         Data standards & FAIR workflows
+                      </Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        Managed ecosystems
                       </Badge>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
@@ -1008,9 +1011,16 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature. Read more about me in the Propsective Students link.
+                      Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome, is a trained environmental microbiologist and microbial ecologists, who leads the MEME Lab and serves as the current Director of the Purdue Applied Microbiome Sciences Research Hub. He is an award-winning, data-driven scientist, former would-be science journalist, and one-time market gardener. He is shaped by an enthusiasm for team-sports, immigrant roots, and passion for nature. Learn more about me on the Prospective Students page.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button
+                        variant="outline"
+                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                        onClick={() => setActiveTab(NAV.members)}
+                      >
+                        View full profile
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
