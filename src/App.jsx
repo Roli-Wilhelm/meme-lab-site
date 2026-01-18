@@ -970,16 +970,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-xl">What we do</CardTitle>
-                      <Button
-                        size="sm"
-                        className="rounded-2xl text-xs px-2.5 py-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 shrink-0"
-                        onClick={() => setActiveTab(NAV.research)}
-                      >
-                        Explore research
-                      </Button>
                     </div>
                   </CardHeader>
-
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
                       The MEME Team studies how land management
@@ -989,7 +981,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       assets to make microbiome science more predictive and
                       actionable.
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 justify-center">
                       <Badge variant="secondary" className="rounded-full">
                         Soil and rhizosphere biogeochemistry
                       </Badge>
