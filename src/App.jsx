@@ -972,7 +972,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       <CardTitle className="text-xl">What we do</CardTitle>
                       <Button
                         size="sm"
-                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 shrink-0"
+                        className="rounded-2xl text-xs px-2.5 py-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 shrink-0"
                         onClick={() => setActiveTab(NAV.research)}
                       >
                         Explore research
