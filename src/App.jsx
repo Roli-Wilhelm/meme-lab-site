@@ -972,7 +972,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      The {PLACEHOLDER.shortName} studies how land management
+                      The MEME Team studies how land management
                       shapes microbial communities and how those communities, in
                       turn, regulate nutrient cycling, plant health, and ecosystem
                       services. We develop reproducible workflows and open data
@@ -1008,16 +1008,9 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature.
+                      Environmental microbiologist, lead for the MEME Lab and Director of the PAMS Hub. Award-winning, data-driven scientist, former would-be science journalist and market gardener. Team-sport enthusiast shaped by immigrant roots and passion for nature. Interested in joining the team? Consult the 'Propsective Students' quick link.
                     </p>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <Button
-                        variant="outline"
-                        className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
-                        onClick={() => setActiveTab(NAV.members)}
-                      >
-                        View full profile
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
