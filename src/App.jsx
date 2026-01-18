@@ -201,7 +201,7 @@ function announcementStyle_(typeRaw) {
     case "milestone":
       return {
         type,
-        container: "bg-rose-200 text-black border-rose-300/40",
+        container: "bg-orange-800 text-white border-orange-700",
         title: "text-black",
         body: "text-black/80",
         link: "underline decoration-black/30 hover:decoration-black",
