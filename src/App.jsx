@@ -96,7 +96,7 @@ const PLACEHOLDER = {
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Private / current members
-  currentMembersHub: "https://members.meme-laboratory.com",
+  currentMembersHub: "https://meme-members-portal.web.app/",
 
   // Safety
   safety: "https://www.purdue.edu/ehps/",
@@ -1710,10 +1710,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                     <div className="flex items-center gap-2">
                       <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
                       <span>Milestone</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3.5 w-3.5 rounded border border-slate-200 bg-white"></div>
-                      <span>General</span>
                     </div>
                   </div>
                 </div>
