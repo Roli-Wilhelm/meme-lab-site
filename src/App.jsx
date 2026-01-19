@@ -860,7 +860,7 @@ function ProspectiveStudentsPage({ announcements }) {
         <Card id="announcements" className="rounded-2xl bg-white/95 scroll-mt-28">
           <CardHeader>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <CardTitle className="text-xl">Announcements (reposted)</CardTitle>
+              <CardTitle className="text-xl">Announcements</CardTitle>
 
               {/* Color legend (matches Lab Members legend sizing/style) */}
               <div className="mt-0.5 flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
@@ -874,16 +874,12 @@ function ProspectiveStudentsPage({ announcements }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
-                  <span>Milestone</span>
+                  <span>Milestones</span>
                 </div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground mb-3">
-              This mirrors the Announcements feed on the homepage.
-            </div>
-
             <div className="max-h-96 overflow-y-auto pr-1">
               <ul className="space-y-2 text-sm text-muted-foreground">
                 {(announcements || []).map((a, idx) => {
@@ -1486,7 +1482,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           Applied Microbiome Sciences Research Hub. He is an award-winning,
                           data-driven scientist, former would-be science journalist, and one-time
                           market gardener. He is shaped by an enthusiasm for teamwork, 
-                          immigrant roots, and a passion for nature. Learn more about me on the{" "}
+                          immigrant roots, and a passion for nature. Learn more about me on the page for {" "}
                           <button
                             type="button"
                             onClick={() => setHashRoute("prospective")}
@@ -1494,7 +1490,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                           >
                             Prospective Students
                           </button>{" "}
-                          page.
+                          .
                         </p>
 
                     <div className="flex flex-col gap-2 sm:flex-row">
@@ -1683,36 +1679,39 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
               </div>
 
               {/* Announcements panel (mobile-safe) */}
-              <div className="rounded-2xl border bg-white/95 p-4 max-w-full overflow-hidden">
-                <div className="flex min-w-0 items-start justify-between gap-4">
-                  <div className="flex min-w-0 items-start gap-2">
-                    <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-xl font-semibold leading-5 break-words">
-                        Announcements
+                  <div className="min-w-0">
+                    {/* Row 1: title + icon */}
+                    <div className="flex min-w-0 items-start gap-2">
+                      <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xl font-semibold leading-5 whitespace-nowrap">
+                          Announcements
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Lab updates and notices
+                        </div>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Lab updates and notices
+                    </div>
+
+                    {/* Row 2: legend (right-aligned) */}
+                    <div className="mt-2 flex justify-end">
+                      <div className="flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black" />
+                          <span>Recruitment</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300" />
+                          <span>Achievements</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800" />
+                          <span>Milestones</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Color legend (matches Lab Members legend sizing/style) */}
-                  <div className="mt-0.5 flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black"></div>
-                      <span>Recruitment</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300"></div>
-                      <span>Achievements</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
-                      <span>Milestone</span>
-                    </div>
-                  </div>
-                </div>
 
                 <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
                   <ul className="space-y-2 text-sm text-muted-foreground">
@@ -2614,7 +2613,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </div>
 
                   <p className="mt-2 text-sm text-muted-foreground">
-                    This tab links to account-restricted resources hosted in Google Drive.
+                    This tab links to account-restricted resources for current lab members.
                   </p>
 
                   <div className="mt-4">
