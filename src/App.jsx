@@ -1677,41 +1677,125 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </>
                 )}
               </div>
-
-              {/* Announcements panel (mobile-safe) */}
-                  <div className="min-w-0">
-                    {/* Row 1: title + icon */}
-                    <div className="flex min-w-0 items-start gap-2">
-                      <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
-                      <div className="min-w-0">
-                        <div className="text-xl font-semibold leading-5 whitespace-nowrap">
-                          Announcements
+              
+                  {/* Announcements panel (mobile-safe) */}
+                  <div className="rounded-2xl border bg-white/95 p-4 max-w-full overflow-hidden">
+                    {/* Header: title/icon on row 1; legend right-aligned on row 2 */}
+                    <div className="min-w-0">
+                      {/* Row 1: title + icon */}
+                      <div className="flex min-w-0 items-start gap-2">
+                        <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-xl font-semibold leading-5 whitespace-nowrap">
+                            Announcements
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            Lab updates and notices
+                          </div>
                         </div>
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          Lab updates and notices
+                      </div>
+
+                      {/* Row 2: legend (right-aligned) */}
+                      <div className="mt-2 flex justify-end">
+                        <div className="flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black"></div>
+                            <span>Recruitment</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300"></div>
+                            <span>Achievements</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                            <span>Milestones</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Row 2: legend (right-aligned) */}
-                    <div className="mt-2 flex justify-end">
-                      <div className="flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black" />
-                          <span>Recruitment</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300" />
-                          <span>Achievements</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800" />
-                          <span>Milestones</span>
-                        </div>
+                    {/* Scroll area */}
+                    <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        {(announcements || []).map((a, idx) => {
+                          const when = formatAnnouncementTime_(a.time);
+                          const style = announcementStyle_(a.type);
+
+                          return (
+                            <li
+                              key={`${a.title || "a"}-${idx}`}
+                              className={`rounded-xl border px-3 py-2 max-w-full overflow-hidden ${style.container}`}
+                            >
+                              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                <div className="min-w-0 max-w-full">
+                                  <div className={`font-medium break-words whitespace-normal ${style.title}`}>
+                                    {a.title}
+                                  </div>
+
+                                  <div className={`mt-1 break-words whitespace-normal max-w-full ${style.body}`}>
+                                    {a.url ? (
+                                      <a
+                                        href={a.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className={`${style.link} break-words whitespace-normal`}
+                                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                      >
+                                        {a.text}
+                                      </a>
+                                    ) : (
+                                      <span
+                                        className="break-words whitespace-normal"
+                                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                                      >
+                                        {a.text}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {when && (
+                                  <div className={`text-xs sm:shrink-0 sm:text-right ${style.date}`}>
+                                    {when}
+                                  </div>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+
+                <div className="flex min-w-0 items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-2">
+                    <Megaphone className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-xl font-semibold leading-5 break-words">
+                        Announcements
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Lab updates and notices
                       </div>
                     </div>
                   </div>
 
+                  {/* Color legend (matches Lab Members legend sizing/style) */}
+                  <div className="mt-0.5 flex flex-wrap items-center justify-end gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-black/20 bg-black"></div>
+                      <span>Recruitment</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-amber-400/40 bg-amber-300"></div>
+                      <span>Achievements</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                      <span>Milestones</span>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="mt-2 max-h-80 md:max-h-[420px] overflow-y-auto pr-1">
                   <ul className="space-y-2 text-sm text-muted-foreground">
