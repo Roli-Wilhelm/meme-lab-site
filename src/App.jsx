@@ -1476,12 +1476,8 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                         <p className="text-sm leading-6 text-muted-foreground">
-                          Dr. Roland (Roli) Wilhelm is a trained environmental microbiologist and microbial ecologist,
-                          who leads the MEME Lab and serves as the current Director of the Purdue
-                          Applied Microbiome Sciences Research Hub. He is an award-winning,
-                          data-driven scientist, former would-be science journalist, and one-time
-                          market gardener. He is shaped by an enthusiasm for teamwork, 
-                          immigrant roots, and a passion for nature. Learn more about me on the page for {" "}
+                          Dr. Roland (Roli) Wilhelm is a trained environmental microbiologist and microbial ecologist who leads the MEME Lab and serves as Director of the Purdue Applied Microbiome Sciences Research Hub. He is an award-winning,
+                          data-driven scientist, former would-be science journalist, and one-time market gardener. He is enthusiastic about team-based science, shaped by immigrant roots, and has a passion for nature. Learn more about me on the page for {" "}
                           <button
                             type="button"
                             onClick={() => setHashRoute("prospective")}
@@ -2622,7 +2618,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       className="rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
                       onClick={() => window.open(PLACEHOLDER.currentMembersHub, "_blank")}
                     >
-                      Open members hub
+                      Open members portal
                     </Button>
                   </div>
                 </div>
