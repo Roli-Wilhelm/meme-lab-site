@@ -191,7 +191,7 @@ function announcementStyle_(typeRaw) {
       // Rust + white text (per your latest preference)
       return {
         type,
-        container: "bg-orange-600 text-white border-orange-700/40",
+        container: "bg-orange-900/70 text-white border-black/40",
         title: "text-white",
         body: "text-white/90",
         link: "underline decoration-white/40 hover:decoration-white",
@@ -873,7 +873,7 @@ function ProspectiveStudentsPage({ announcements }) {
                   <span>Achievements</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                  <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/70"></div>
                   <span>Milestones</span>
                 </div>
               </div>
@@ -1476,8 +1476,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                         <p className="text-sm leading-6 text-muted-foreground">
-                          Dr. Roland (Roli) Wilhelm, Assistant Professor of the Soil Microbiome,
-                          is a trained environmental microbiologist and microbial ecologists,
+                          Dr. Roland (Roli) Wilhelm is a trained environmental microbiologist and microbial ecologist,
                           who leads the MEME Lab and serves as the current Director of the Purdue
                           Applied Microbiome Sciences Research Hub. He is an award-winning,
                           data-driven scientist, former would-be science journalist, and one-time
@@ -1707,7 +1706,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             <span>Achievements</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="h-3.5 w-3.5 rounded border border-orange-900/40 bg-orange-800"></div>
+                            <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/70"></div>
                             <span>Milestones</span>
                           </div>
                         </div>
