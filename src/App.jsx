@@ -96,7 +96,7 @@ const PLACEHOLDER = {
   publicAssetsDriveFolder: "https://drive.google.com/drive/folders/REPLACE_ME",
 
   // Private / current members
-  currentMembersHub: "https://drive.google.com/drive/folders/REPLACE_ME",
+  currentMembersHub: "https://members.meme-laboratory.com",
 
   // Safety
   safety: "https://www.purdue.edu/ehps/",
