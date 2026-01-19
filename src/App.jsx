@@ -191,7 +191,7 @@ function announcementStyle_(typeRaw) {
       // Rust + white text (per your latest preference)
       return {
         type,
-        container: "bg-orange-900/70 text-white border-black/40",
+        container: "bg-orange-900/90 text-white border-black/40",
         title: "text-white",
         body: "text-white/90",
         link: "underline decoration-white/40 hover:decoration-white",
@@ -873,7 +873,7 @@ function ProspectiveStudentsPage({ announcements }) {
                   <span>Achievements</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/70"></div>
+                  <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/90"></div>
                   <span>Milestones</span>
                 </div>
               </div>
@@ -1706,7 +1706,7 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                             <span>Achievements</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/70"></div>
+                            <div className="h-3.5 w-3.5 rounded border border-black/40 bg-orange-900/90"></div>
                             <span>Milestones</span>
                           </div>
                         </div>
