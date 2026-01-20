@@ -1809,15 +1809,6 @@ export default function ManagedEcosystemMicrobialEcologyLabSite() {
                       desc="Custom GPT trained to guide SIP experiments"
                       href={PLACEHOLDER.sipNavigator}
                     />
-
-                    {/* MOVED HERE from the Safety badge */}
-                    <Button
-                      className="w-full rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                      variant="outline"
-                      onClick={() => window.open(PLACEHOLDER.safety, "_blank")}
-                    >
-                      Purdue University Lab Safety Resources
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
