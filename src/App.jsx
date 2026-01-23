@@ -107,7 +107,7 @@ const PLACEHOLDER = {
   stanAgDataAdvisor: "https://chatgpt.com/g/g-wK0NsSO0A-stan-the-agdata-advisor", // Stan the AgData Advisor
   streamsGuideline: "https://www.nature.com/articles/s41564-025-02186-2", // STREAMS guideline
   misipStandard: "https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giae071/7817747", // MISIP standard
-  autosip: "", // AutoSIP GitHub Page
+  autosip: "https://github.com/mihirlaud/robotic-fractionator", // AutoSIP GitHub Page
 
   // Prospective student links
   agronomyGradProgram: "https://ag.purdue.edu/department/agry/graduate-education.html",
